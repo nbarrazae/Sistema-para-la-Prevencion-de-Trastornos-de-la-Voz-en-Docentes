@@ -1,0 +1,80 @@
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, JsonResponse
+from .models import Institucion
+from django.views.decorators.csrf import csrf_exempt
+# Create your views here.
+TEMPLATES = (
+    'os.path.join(BASE_DIR, "templates"),'
+
+)
+@csrf_exempt  # Deshabilita CSRF solo para esta vista
+def get_instituciones(request):
+    instituciones = list(Institucion.objects.values())
+    return JsonResponse(instituciones, safe=False)
+
+def get_institucion(request, id):
+    try:
+        institucion = Institucion.objects.get(pk=id)
+        data = {
+            'id_institucion': institucion.id_institucion,
+            'rut_institucion': institucion.rut_institucion,
+            'nombre_institucion': institucion.nombre_institucion,
+            'direccion': institucion.direccion,
+            'sitio_web': institucion.sitio_web,
+            'representante_legal': institucion.representante_legal,
+            'telefono_institucion': institucion.telefono_institucion,
+            'correo_institucion': institucion.correo_institucion
+        }
+        return JsonResponse(data, status=200)
+    except Institucion.DoesNotExist:
+        return JsonResponse({'error': 'Institución no encontrada'}, status=404)
+
+
+@csrf_exempt  # Deshabilita CSRF solo para esta vista
+def createInstitucion(request):
+    print("---------------------")
+    print(request.POST)
+    print("---------------------")
+    try:
+        if request.method == 'POST':
+            rut_institucion = request.POST.get('rut_institucion')
+            nombre_institucion = request.POST.get('nombre_institucion')
+            direccion = request.POST.get('direccion')
+            sitio_web = request.POST.get('sitio_web')
+            telefono = request.POST.get('telefono')
+            correo_institucion = request.POST.get('correo_institucion')
+            representante_legal = request.POST.get('representante_legal')
+            institucion = Institucion(rut_institucion=rut_institucion, nombre_institucion=nombre_institucion, direccion=direccion, sitio_web=sitio_web, telefono_institucion=telefono, correo_institucion=correo_institucion, representante_legal=representante_legal)
+            institucion.save()
+            return HttpResponse('Institucion creada')
+    except Exception as e:
+        print(e)
+        return HttpResponse('Error al crear institucion')
+    return render(request, 'index2.html')
+
+def delete_institucion(request, id):
+    if request.method == 'DELETE':
+        try:
+            institucion = Institucion.objects.get(pk=id)
+            institucion.delete()
+            return JsonResponse({'message': 'Institución eliminada con éxito'}, status=200)
+        except Institucion.DoesNotExist:
+            return JsonResponse({'error': 'Institución no encontrada'}, status=404)
+
+
+
+
+
+
+#####################
+from django.urls import path
+from . import views
+
+urlpatterns = [
+#    path('', views.index, name='index'),
+#    path('index/', views.index2, name='index2'),
+    path('createInstitucion/', views.createInstitucion, name='createInstitucion'),  
+    path('get_instituciones/', views.get_instituciones, name='get_instituciones'),
+    path('get_institucion/<int:id>/', views.get_institucion, name='get_institucion'),
+    path('delete_institucion/<int:id>/', views.delete_institucion, name='delete_institucion'),
+]

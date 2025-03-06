@@ -1,0 +1,68 @@
+from django.db import models
+
+# Create your models here.
+class Institucion(models.Model):
+    id_institucion = models.AutoField(primary_key=True)
+    rut_institucion = models.CharField(max_length=12, unique=True)
+    nombre_institucion = models.CharField(max_length=50, unique=True)
+    direccion = models.CharField(max_length=50, null=False, blank=False)
+    sitio_web = models.CharField(max_length=50, null=True, blank=True)
+    representante_legal = models.CharField(max_length=50, null=False, blank=False)
+    telefono_institucion = models.CharField(max_length=12, null=False, blank=False)
+    correo_institucion = models.EmailField(max_length=50, null=False, blank=False, unique=True)
+ 
+    def __str__(self):
+        return self.nombre_institucion
+
+class Profesor(models.Model):
+    SEXO_CHOICES = [
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+    ]
+
+    id_profesor = models.AutoField(primary_key=True)
+    rut_profesor = models.CharField(max_length=12, unique=True)
+    nombre_profesor = models.CharField(max_length=50, null=False, blank=False)
+    apellido_profesor = models.CharField(max_length=50, null=False, blank=False)
+    correo_profesor = models.EmailField(max_length=50, null=False, blank=False, unique=True)
+    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=False, blank=False)
+    altura = models.FloatField(null=True, blank=True)
+    peso = models.FloatField(null=True, blank=True)
+    antecedentes_medicos = models.CharField(max_length=100, null=True, blank=True)
+    area_docencia = models.CharField(max_length=50, null=False, blank=False)
+    id_institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.rut_profesor
+    
+class Aula(models.Model):
+    id_aula = models.AutoField(primary_key=True)
+    nro_aula = models.CharField(max_length=10, null=False, blank=False) 
+    tamaño = models.IntegerField(null=True, blank=True)
+    cantidad_alumnos = models.IntegerField(null=True, blank=True)
+    descripcion = models.CharField(max_length=100, null=True, blank=True)
+    id_institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.nro_aula
+
+class Horario(models.Model):
+    DIAS_SEMANA = [
+        ('Lunes', 'Lunes'),
+        ('Martes', 'Martes'),
+        ('Miércoles', 'Miércoles'),
+        ('Jueves', 'Jueves'),
+        ('Viernes', 'Viernes'),
+        ('Sábado', 'Sábado'),
+        ('Domingo', 'Domingo'),
+    ]
+
+    id_horario = models.AutoField(primary_key=True)
+    dia = models.CharField(max_length=10, choices=DIAS_SEMANA, null=False, blank=False)
+    hora_inicio = models.TimeField(null=False, blank=False)
+    hora_termino = models.TimeField(null=False, blank=False)
+    id_profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
+    id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.dia
