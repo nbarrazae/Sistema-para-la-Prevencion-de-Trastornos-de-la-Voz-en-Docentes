@@ -18,7 +18,7 @@ class ProfesorSerializer(serializers.ModelSerializer):
 
 class AulaSerializer(serializers.ModelSerializer):
     id_institucion = serializers.SlugRelatedField(
-        queryset=Institucion.objects.all(), slug_field='nombre_institucion'
+        queryset=Institucion.objects.all(), slug_field='rut_institucion'
     )
     
     class Meta:

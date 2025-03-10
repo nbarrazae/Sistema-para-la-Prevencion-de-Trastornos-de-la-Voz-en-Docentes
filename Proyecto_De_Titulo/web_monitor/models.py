@@ -42,7 +42,10 @@ class Aula(models.Model):
     cantidad_alumnos = models.IntegerField(null=True, blank=True)
     descripcion = models.CharField(max_length=100, null=True, blank=True)
     id_institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE)
-
+   
+    class Meta:
+        unique_together = ('nro_aula', 'id_institucion')  # 🔹 Restricción de unicidad
+   
     def __str__(self):
         return self.nro_aula
 
