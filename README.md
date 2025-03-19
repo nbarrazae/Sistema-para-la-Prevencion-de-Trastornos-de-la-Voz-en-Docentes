@@ -4,6 +4,9 @@
 - python3 manage.py runserver 0.0.0.0:8000 
 ### Instituciones
 
+Modelo Relacional:
+![MR](mr.jpg)
+
 - **GET**: `http://127.0.0.1:8000/api/instituciones/`
 - **GET**: `http://127.0.0.1:8000/api/instituciones/609110066`  <----rut
 - **POST**: `http://127.0.0.1:8000/api/instituciones/`

@@ -3,6 +3,9 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from .serializer import InstitucionSerializer, ProfesorSerializer, AulaSerializer, HorarioSerializer
 from .models import Institucion, Profesor, Aula, Horario
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
 
 class InstitucionViewSet(viewsets.ModelViewSet):
     queryset = Institucion.objects.all()
@@ -73,3 +76,13 @@ class HorarioViewSet(viewsets.ModelViewSet):
             )
         except Horario.DoesNotExist:
             raise NotFound("Horario no encontrado")
+@csrf_exempt
+def registrarvar(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))  # Cargar JSON manualmente
+            print("Datos recibidos:", data)
+            return JsonResponse({"message": "Datos recibidos correctamente"}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Error en el formato JSON"}, status=400)
+    return JsonResponse({"error": "Método no permitido"}, status=405)

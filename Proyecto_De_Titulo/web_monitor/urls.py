@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
@@ -18,5 +18,6 @@ urlpatterns = [
         HorarioViewSet.as_view({'put': 'update', 'delete': 'destroy'}),
         name='horario-detail'
     ),
+    path('api/registrovar', registrarvar, name='registrarvar')
 
 ]
