@@ -133,3 +133,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración MQTT
+MQTT_BROKER = "127.0.0.1"  # Cambia por tu broker
+MQTT_PORT = 1883  # Puerto por defecto de MQTT
+MQTT_TOPIC = "test/topic"  # Suscripción a múltiples dispositivos
+
+# Opcional: Usuario y contraseña (si el broker lo requiere)
+MQTT_USERNAME = ""  # Dejar vacío si no hay autenticación
+MQTT_PASSWORD = ""  
+
+# Configuración para reconexión automática en caso de fallo
+MQTT_KEEPALIVE = 60  # Intervalo de keep-alive en segundos

@@ -1,0 +1,19 @@
+{
+    "MAC": "AA:BB:CC:DD:EE:FF",
+    "datos": [
+        {
+            "fecha_hora": "2025-03-29 10:00:00",
+            "CO2": 400,
+            "humedad_relativa": 60,
+            "temperatura": 22,
+            "ruido": 35
+        },
+        {
+            "fecha_hora": "2025-03-29 10:05:00",
+            "CO2": 420,
+            "humedad_relativa": 61,
+            "temperatura": 23,
+            "ruido": 37
+        }
+    ]
+}
