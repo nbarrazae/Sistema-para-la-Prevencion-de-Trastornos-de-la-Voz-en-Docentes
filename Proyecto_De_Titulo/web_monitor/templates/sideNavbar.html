@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}FACSA{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background-color: #396ba3;
+            color: white;
+            transition: width 0.3s;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #24497a;
+        }
+        .sidebar .nav-link {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar.collapsed {
+            width: 70px !important;
+        }
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .logout span {
+            display: none;
+        }
+        .sidebar.collapsed .text-center {
+            display: none;
+        }
+        .logout {
+            margin-top: auto;
+        }
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .sidebar .logo-mini {
+            margin-top: 1rem;
+        }
+
+        .sidebar.collapsed .logo-full {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .logo-mini {
+            display: block !important;
+        }
+
+        .sidebar ul.nav {
+            margin-top: 1rem;
+        }
+
+        .sidebar.collapsed ul.nav {
+            margin-top: 3rem; /* Subimos espacio solo cuando está colapsada */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <!-- Sidebar -->
+            <div class="col-auto sidebar d-flex flex-column p-3" id="sidebar">
+
+
+                <div class="text-center mb-4 logo-full">
+                    <img src="{% static 'img/88bbca1de26907e33a26206f2f6815d5427fae37.png' %}" alt="Logo" class="img-fluid" style="max-width: 80%;">
+                </div>  
+
+                <!-- Logo pequeño solo en modo colapsado -->
+                <div class="text-center mb-4 logo-mini d-none">
+                    <img src="{% static 'img/logo-mini.png' %}" alt="Logo mini" class="img-fluid" style="max-width: 40px;">
+                </div>
+
+
+                <ul class="nav flex-column mb-auto">
+                    <li><a href="/instituciones" class="nav-link"><i class="fas fa-school"></i> <span>Instituciones</span></a></li>
+                    <li><a href="/profesores" class="nav-link"><i class="fas fa-chalkboard-teacher"></i> <span>Profesores</span></a></li>
+                    <li><a href="/dispositivos_iot" class="nav-link"><i class="fas fa-microchip"></i> <span>Dispositivos IOT</span></a></li>
+                    <li><a href="/usuarios" class="nav-link"><i class="fas fa-users"></i> <span>Usuarios</span></a></li>
+                    <li><a href="/estadisticas" class="nav-link"><i class="fas fa-chart-bar"></i> <span>Estadísticas</span></a></li>
+                    <li><a href="/variables_ambientales" class="nav-link"><i class="fas fa-thermometer-half"></i> <span>Variables Ambientales</span></a></li>
+                    <li><a href="/variables_voz" class="nav-link"><i class="fas fa-microphone"></i> <span>Variables de Voz</span></a></li>
+                    
+                    <!-- Botón de colapso -->
+                    <button id="toggleSidebar" class="toggle-btn">
+                        <i id="toggleIcon" class="fas fa-angle-double-left"></i>
+                    </button>
+                    
+                </ul>
+                <div class="logout mt-4 text-center">
+                    <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Log out</span></a>
+                </div>
+            </div>
+
+            <!-- Contenido principal -->
+            <div class="col py-3">
+                <div class="topbar">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                        <select class="form-select form-select-sm w-auto">
+                            <option selected>ADMIN</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="container">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para alternar sidebar -->
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const toggleIcon = document.getElementById('toggleIcon');
+    
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            // Cambia el icono
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-angle-double-left');
+                toggleIcon.classList.add('fa-angle-double-right');
+            } else {
+                toggleIcon.classList.remove('fa-angle-double-right');
+                toggleIcon.classList.add('fa-angle-double-left');
+            }
+        });
+    </script>
+    
+</body>
+</html>

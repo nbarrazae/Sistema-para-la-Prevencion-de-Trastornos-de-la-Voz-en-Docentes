@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
 router.register(r'profesores', ProfesorViewSet)
 router.register(r'aulas', AulaViewSet)
 router.register(r'horarios', HorarioViewSet, basename='horario')
+
 
 
 
@@ -18,6 +19,14 @@ urlpatterns = [
         HorarioViewSet.as_view({'put': 'update', 'delete': 'destroy'}),
         name='horario-detail'
     ),
-    path('api/registrovar', registrarvar, name='registrarvar')
+    path('api/registrovar', registrarvar, name='registrarvar'),
+    path('index/', index, name='index'),
+    path('instituciones/', instituciones, name='instituciones'),
+    path('profesores/', profesores, name='profesores'),
+    path('dispositivos_iot/', dispositivos_iot, name='iot'),
+    path('usuarios/', usuarios, name='usuarios'),
+    path('estadisticas/', estadisticas, name='estadisticas'),
+    path('variables_ambientales/', variables_ambientales, name='variables_ambientales'),
+    path('variables_voz/', variables_voz, name='variables_voz')
 
 ]

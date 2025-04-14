@@ -6,6 +6,33 @@ from .models import Institucion, Profesor, Aula, Horario
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+from django.shortcuts import render
+
+
+def index(request):
+    return render(request, 'index.html')
+def instituciones(request):
+    return render(request, 'instituciones.html')
+def profesores(request):
+    return render(request, 'profesores.html')
+def dispositivos_iot(request):
+    return render(request, 'dispositivos_iot.html')
+def usuarios(request):
+    return render(request, 'usuarios.html')
+def estadisticas(request):
+    return render(request, 'estadisticas.html')
+def variables_ambientales(request):
+    return render(request, 'variables_ambientales.html')
+def variables_voz(request):
+    return render(request, 'variables_voz.html')
+
+
+
+
+
+
+
+
 
 class InstitucionViewSet(viewsets.ModelViewSet):
     queryset = Institucion.objects.all()
