@@ -20,7 +20,7 @@ urlpatterns = [
         name='horario-detail'
     ),
     path('api/registrovar', registrarvar, name='registrarvar'),
-    path('index/', index, name='index'),
+    path('', index, name='index'),
     path('instituciones/', instituciones, name='instituciones'),
     path('profesores/', profesores, name='profesores'),
     path('dispositivos_iot/', dispositivos_iot, name='iot'),
