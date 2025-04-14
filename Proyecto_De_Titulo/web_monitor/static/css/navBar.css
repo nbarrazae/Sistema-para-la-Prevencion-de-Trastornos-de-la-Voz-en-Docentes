@@ -2,7 +2,7 @@
     height: 100vh;
     background-color: #396ba3;
     color: white;
-    transition: width 0.3s;
+    transition: width 3s;
 }
 .sidebar a {
     color: white;
@@ -19,9 +19,11 @@
     white-space: nowrap;
     overflow: hidden;
 }
+
 .sidebar.collapsed {
     width: 70px !important;
 }
+
 .sidebar.collapsed .nav-link span,
 .sidebar.collapsed .logout span {
     display: none;
@@ -42,6 +44,26 @@
     border: none;
     color: white;
     font-size: 1.2rem;
+    margin-top: 20px;
     margin-bottom: 10px;
-    align-self: flex-end;
+}
+.sidebar .logo-mini {
+    margin-top: 1rem;
+}
+
+.sidebar.collapsed .logo-full {
+    display: none !important;
+}
+
+.sidebar.collapsed .logo-mini {
+    display: block !important;
+}
+
+.sidebar ul.nav {
+
+    margin-top: 1rem;
+}
+
+.sidebar.collapsed ul.nav {
+    margin-top: 3rem; /* Subimos espacio solo cuando está colapsada */
 }
