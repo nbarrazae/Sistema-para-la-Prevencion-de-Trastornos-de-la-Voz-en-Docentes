@@ -69,7 +69,7 @@
 }
 
 .nav-link.active {
-    background-color: #c51f1f !important;
+    background-color: #fdfdfd !important;
     border-left: 4px solid #ffffff;
     font-weight: bold;
     box-shadow: inset 5px 0 5px -5px #00000055;
