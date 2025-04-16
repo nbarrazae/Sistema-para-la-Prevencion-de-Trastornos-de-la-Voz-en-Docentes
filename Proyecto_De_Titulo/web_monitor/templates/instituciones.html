@@ -5,4 +5,30 @@
 {% block content %}
 <h1 class="text-primary">Cargando Instituciones </h1>
 <p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
+<p>Instituciones que participan en el proyecto:</p>
+{% for institucion in instituciones %}
+    <div class="card mb-3">
+        <div class="card-body">
+<!--
+    rut_institucion = models.CharField(max_length=12, unique=True)
+    nombre_institucion = models.CharField(max_length=50, unique=True)
+    direccion = models.CharField(max_length=50, null=False, blank=False)
+    sitio_web = models.CharField(max_length=50, null=True, blank=True)
+    representante_legal = models.CharField(max_length=50, null=False, blank=False)
+    telefono_institucion = models.CharField(max_length=12, null=False, blank=False)
+    correo_institucion = models.EmailField(max_length=50, null=False, blank=False, unique=True)            
+
+-->
+            <h5 class="card-title">{{ institucion.nombre_institucion }}</h5>
+            <p class="card-text">Rut: {{ institucion.rut_institucion }}</p>
+            <p class="card-text">Dirección: {{ institucion.direccion }}</p>
+            <p class="card-text">Sitio web: <a href="{{ institucion.sitio_web }}">{{ institucion.sitio_web }}</a></p>
+            <p class="card-text">Representante legal: {{ institucion.representante_legal }}</p>
+            <p class="card-text">Teléfono: {{ institucion.telefono_institucion }}</p>
+            <p class="card-text">Correo electrónico: {{ institucion.correo_institucion }}</p>
+        </div>
+    </div>
+{% endfor %}
+
+
 {% endblock %}

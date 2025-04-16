@@ -3,6 +3,11 @@
     background-color: #396ba3;
     color: white;
     transition: width 3s;
+
+}
+
+.row.flex-nowrap {
+    min-height: 100vh;
 }
 .sidebar a {
     color: white;
@@ -69,9 +74,17 @@
 }
 
 .nav-link.active {
-    background-color: #fdfdfd !important;
-    border-left: 4px solid #ffffff;
+    background-color: #f3f3f3 !important;
+    border-left: 4px solid #f3f3f3;
     font-weight: bold;
-    box-shadow: inset 5px 0 5px -5px #00000055;
-    color: rgb(118, 162, 46) !important;
+    box-shadow: inset 5px 0 5px -5px #f3f3f3;
+    color: #396ba3
+}
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #f3f3f3;
+
 }

@@ -12,7 +12,15 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'index.html')
 def instituciones(request):
-    return render(request, 'instituciones.html')
+    #obterner todas las instituciones y pasarlas al template
+    instituciones = Institucion.objects.all()
+    return render(request, 'instituciones.html', {'instituciones': instituciones})
+
+
+
+
+
+
 def profesores(request):
     return render(request, 'profesores.html')
 def dispositivos_iot(request):
