@@ -67,3 +67,11 @@
 .sidebar.collapsed ul.nav {
     margin-top: 3rem; /* Subimos espacio solo cuando está colapsada */
 }
+
+.nav-link.active {
+    background-color: #c51f1f !important;
+    border-left: 4px solid #ffffff;
+    font-weight: bold;
+    box-shadow: inset 5px 0 5px -5px #00000055;
+    color: rgb(118, 162, 46) !important;
+}
