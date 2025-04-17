@@ -54,8 +54,18 @@
                             <a href=""><i class="far fa-file-alt"></i></a>
                         </td>
                         <td class="text-center">
-                            <a href=""><i class="fas fa-file-signature"></i></a>
-                        </td>
+                            <a href="#" class="text-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEditarInstitucion"
+                            data-url="{% url 'editar_institucion' institucion.pk %}"
+                            data-nombre="{{ institucion.nombre_institucion }}"
+                            data-rut="{{ institucion.rut_institucion }}"
+                            data-direccion="{{ institucion.direccion }}"
+                            data-telefono="{{ institucion.telefono_institucion }}"
+                            data-correo="{{ institucion.correo_institucion }}">
+                            <i class="fas fa-file-signature"></i>
+                         </a>
+                                                 </td>
 
 
 
@@ -155,5 +165,73 @@
   </script>
   
     
+  <div class="modal fade" id="modalEditarInstitucion" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" id="formEditar">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarLabel">Editar Institución</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" name="nombre_institucion" id="inputNombre">
+            </div>
+            <div class="mb-3">
+              <label for="rut" class="form-label">RUT</label>
+              <input type="text" class="form-control" name="rut_institucion" id="inputRut">
+            </div>
+            <div class="mb-3">
+              <label for="direccion" class="form-label">Dirección</label>
+              <input type="text" class="form-control" name="direccion" id="inputDireccion">
+            </div>
+            <div class="mb-3">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" name="telefono_institucion" id="inputTelefono">
+            </div>
+            <div class="mb-3">
+              <label for="correo" class="form-label">Correo</label>
+              <input type="email" class="form-control" name="correo_institucion" id="inputCorreo">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEditar = document.getElementById('modalEditarInstitucion');
+        modalEditar.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+  
+            const url = button.getAttribute('data-url');
+            const nombre = button.getAttribute('data-nombre');
+            const rut = button.getAttribute('data-rut');
+            const direccion = button.getAttribute('data-direccion');
+            const telefono = button.getAttribute('data-telefono');
+            const correo = button.getAttribute('data-correo');
+  
+            const form = modalEditar.querySelector('#formEditar');
+            form.action = url;
+  
+            modalEditar.querySelector('#inputNombre').value = nombre;
+            modalEditar.querySelector('#inputRut').value = rut;
+            modalEditar.querySelector('#inputDireccion').value = direccion;
+            modalEditar.querySelector('#inputTelefono').value = telefono;
+            modalEditar.querySelector('#inputCorreo').value = correo;
+        });
+    });
+  </script>
+
+
+
+
 
 {% endblock %}

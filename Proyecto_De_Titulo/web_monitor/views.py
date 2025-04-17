@@ -31,6 +31,16 @@ def eliminar_institucion(request, pk):
         return redirect('instituciones')  # Nombre de tu vista principal
 
     return render(request, 'confirmar_eliminacion.html', {'institucion': institucion})
+def editar_institucion(request, pk):
+    institucion = get_object_or_404(Institucion, pk=pk)
+    if request.method == "POST":
+        institucion.nombre_institucion = request.POST.get("nombre_institucion")
+        institucion.rut_institucion = request.POST.get("rut_institucion")
+        institucion.direccion = request.POST.get("direccion")
+        institucion.telefono_institucion = request.POST.get("telefono_institucion")
+        institucion.correo_institucion = request.POST.get("correo_institucion")
+        institucion.save()
+        return redirect('instituciones')  # o tu vista actual
 
 
 

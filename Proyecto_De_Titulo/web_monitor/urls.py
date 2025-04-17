@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
@@ -32,5 +32,6 @@ urlpatterns = [
     path('variables_ambientales/', variables_ambientales, name='variables_ambientales'),
     path('variables_voz/', variables_voz, name='variables_voz'),
     path('instituciones/eliminar/<int:pk>/', eliminar_institucion, name='eliminar_institucion'),
+    path('instituciones/editar/<int:pk>/', editar_institucion, name='editar_institucion')
 
 ]
