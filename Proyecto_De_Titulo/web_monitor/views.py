@@ -6,7 +6,9 @@ from .models import Institucion, Profesor, Aula, Horario
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
-from django.shortcuts import render
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404, redirect
+
 
 
 def index(request):
@@ -14,8 +16,21 @@ def index(request):
 def instituciones(request):
     #obterner todas las instituciones y pasarlas al template
     instituciones = Institucion.objects.all()
-    return render(request, 'instituciones.html', {'instituciones': instituciones})
+    paginator = Paginator(instituciones, 10)  # 10 por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
+    return render(request, 'instituciones.html', {
+        'page_obj': page_obj,
+        'page_range': paginator.get_elided_page_range(number=page_obj.number, on_each_side=2, on_ends=1),
+    })
+def eliminar_institucion(request, pk):
+    institucion = get_object_or_404(Institucion, pk=pk)
+    if request.method == 'POST':
+        institucion.delete()
+        return redirect('instituciones')  # Nombre de tu vista principal
+
+    return render(request, 'confirmar_eliminacion.html', {'institucion': institucion})
 
 
 

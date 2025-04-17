@@ -1,0 +1,11 @@
+{% extends "sideNavbar.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h3>¿Estás seguro que deseas eliminar "{{ institucion.nombre_institucion }}"?</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <a href="{% url 'instituciones' %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+    </form>
+</div>
+{% endblock %}

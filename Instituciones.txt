@@ -1,0 +1,220 @@
+{
+  "rut_institucion": "609100001",
+  "nombre_institucion": "Universidad de Chile",
+  "direccion": "Av. Libertador Bernardo O'Higgins 1058, Santiago",
+  "sitio_web": "https://www.uchile.cl",
+  "representante_legal": "Rosa Devés Alessandri",
+  "telefono_institucion": "+56229782000",
+  "correo_institucion": "informaciones@uchile.cl"
+}
+
+{
+  "rut_institucion": "609110007",
+  "nombre_institucion": "Universidad de Santiago de Chile",
+  "direccion": "Av. Libertador Bernardo O'Higgins 3363, Estación Central, Santiago",
+  "sitio_web": "https://www.usach.cl",
+  "representante_legal": "Rodrigo Vidal Rojas",
+  "telefono_institucion": "+56227180000",
+  "correo_institucion": "informaciones@usach.cl"
+},
+
+{
+  "rut_institucion": "816989000",
+  "nombre_institucion": "Pontificia Universidad Católica de Chile",
+  "direccion": "Av. Libertador Bernardo O'Higgins 340, Santiago",
+  "sitio_web": "https://www.uc.cl",
+  "representante_legal": "Ignacio Sánchez Díaz",
+  "telefono_institucion": "+56223544000",
+  "correo_institucion": "contacto@uc.cl"
+}
+
+{
+  "rut_institucion": "815000001",
+  "nombre_institucion": "Universidad Técnica Federico Santa María",
+  "direccion": "Av. España 1680, Valparaíso",
+  "sitio_web": "https://www.usm.cl",
+  "representante_legal": "Darío Rodríguez Mansilla",
+  "telefono_institucion": "+56322654000",
+  "correo_institucion": "informaciones@usm.cl"
+}
+
+{
+  "rut_institucion": "96544930K",
+  "nombre_institucion": "Universidad Adolfo Ibáñez",
+  "direccion": "Diagonal Las Torres 2640, Peñalolén, Santiago",
+  "sitio_web": "https://www.uai.cl",
+  "representante_legal": "Harald Beyer Burgos",
+  "telefono_institucion": "+56223311000",
+  "correo_institucion": "contacto@uai.cl"
+}
+
+
+{
+  "rut_institucion": "96544930K",
+  "nombre_institucion": "Universidad Diego Portales",
+  "direccion": "Av. Ejército Libertador 441, Santiago",
+  "sitio_web": "https://www.udp.cl",
+  "representante_legal": "Carlos Peña González",
+  "telefono_institucion": "+56226768000",
+  "correo_institucion": "informaciones@udp.cl"
+}
+
+{
+  "rut_institucion": "96544930K",
+  "nombre_institucion": "Universidad Autónoma de Chile",
+  "direccion": "Av. Pedro de Valdivia 425, Providencia, Santiago",
+  "sitio_web": "https://www.uautonoma.cl",
+  "representante_legal": "Teodoro Ribera Neumann",
+  "telefono_institucion": "+56226151000",
+  "correo_institucion": "contacto@uautonoma.cl"
+}
+
+{
+  "rut_institucion": "96544930K",
+  "nombre_institucion": "Universidad de Las Américas",
+  "direccion": "Av. República 71, Santiago",
+  "sitio_web": "https://www.udla.cl",
+  "representante_legal": "José Antonio Guzmán Cruzat",
+  "telefono_institucion": "+56223771800",
+  "correo_institucion": "informaciones@udla.cl"
+}
+
+{
+  "rut_institucion": "96544930K",
+  "nombre_institucion": "Universidad del Alba",
+  "direccion": "Av. Ejército Libertador 171, Santiago",
+  "sitio_web": "https://www.udalba.cl",
+  "representante_legal": "Rafael Rosell Aiquel",
+  "telefono_institucion": "+56225815000",
+  "correo_institucion": "contacto@udalba.cl"
+}
+
+{
+  "rut_institucion": "609120005",
+  "nombre_institucion": "Universidad de Antofagasta",
+  "direccion": "Av. Angamos 601, Antofagasta",
+  "sitio_web": "https://www.uantof.cl",
+  "representante_legal": "Luis Alberto Loyola Morales",
+  "telefono_institucion": "+56552637000",
+  "correo_institucion": "contacto@uantof.cl"
+}
+
+{
+  "rut_institucion": "609130002",
+  "nombre_institucion": "Universidad de Atacama",
+  "direccion": "Copayapu 485, Copiapó",
+  "sitio_web": "https://www.uda.cl",
+  "representante_legal": "César Araya Díaz",
+  "telefono_institucion": "+56522545000",
+  "correo_institucion": "contacto@uda.cl"
+}
+
+{
+  "rut_institucion": "609140000",
+  "nombre_institucion": "Universidad de La Serena",
+  "direccion": "Benavente 980, La Serena",
+  "sitio_web": "https://www.userena.cl",
+  "representante_legal": "Nivaldo Avilés Pizarro",
+  "telefono_institucion": "+56512204000",
+  "correo_institucion": "contacto@userena.cl"
+}
+
+{
+  "rut_institucion": "609150009",
+  "nombre_institucion": "Universidad de Valparaíso",
+  "direccion": "Blanco 951, Valparaíso",
+  "sitio_web": "https://www.uv.cl",
+  "representante_legal": "Osvaldo Corrales Jara",
+  "telefono_institucion": "+56322507000",
+  "correo_institucion": "contacto@uv.cl"
+}
+
+{
+  "rut_institucion": "609160007",
+  "nombre_institucion": "Universidad de Playa Ancha",
+  "direccion": "Av. Playa Ancha 850, Valparaíso",
+  "sitio_web": "https://www.upla.cl",
+  "representante_legal": "Patricio Sanhueza Vivanco",
+  "telefono_institucion": "+56322500000",
+  "correo_institucion": "contacto@upla.cl"
+}
+
+{
+  "rut_institucion": "609170005",
+  "nombre_institucion": "Universidad Metropolitana de Ciencias de la Educación",
+  "direccion": "Av. José Pedro Alessandri 774, Ñuñoa, Santiago",
+  "sitio_web": "https://www.umce.cl",
+  "representante_legal": "Jaime Espinosa Araya",
+  "telefono_institucion": "+56224125000",
+  "correo_institucion": "contacto@umce.cl"
+}
+
+{
+  "rut_institucion": "609180003",
+  "nombre_institucion": "Universidad Tecnológica Metropolitana",
+  "direccion": "Dieciocho 161, Santiago",
+  "sitio_web": "https://www.utem.cl",
+  "representante_legal": "Luis Pinto Faverio",
+  "telefono_institucion": "+56227877000",
+  "correo_institucion": "contacto@utem.cl"
+}
+
+{
+  "rut_institucion": "609190001",
+  "nombre_institucion": "Universidad de O’Higgins",
+  "direccion": "Av. Libertador Bernardo O'Higgins 611, Rancagua",
+  "sitio_web": "https://www.uoh.cl",
+  "representante_legal": "Rafael Correa Fontirroig",
+  "telefono_institucion": "+56722205000",
+  "correo_institucion": "contacto@uoh.cl"
+}
+
+{
+  "rut_institucion": "609200008",
+  "nombre_institucion": "Universidad de Talca",
+  "direccion": "2 Norte 685, Talca",
+  "sitio_web": "https://www.utalca.cl",
+  "representante_legal": "Álvaro Rojas Marín",
+  "telefono_institucion": "+56712200200",
+  "correo_institucion": "contacto@utalca.cl"
+}
+
+{
+  "rut_institucion": "609210006",
+  "nombre_institucion": "Universidad de La Frontera",
+  "direccion": "Av. Francisco Salazar 01145, Temuco",
+  "sitio_web": "https://www.ufro.cl",
+  "representante_legal": "Eduardo Hebel Weiss",
+  "telefono_institucion": "+56452325000",
+  "correo_institucion": "contacto@ufro.cl"
+}
+
+{
+  "rut_institucion": "609220004",
+  "nombre_institucion": "Universidad de Los Lagos",
+  "direccion": "Av. Fuchslocher 1305, Osorno",
+  "sitio_web": "https://www.ulagos.cl",
+  "representante_legal": "Óscar Garrido Álvarez",
+  "telefono_institucion": "+56642330000",
+  "correo_institucion": "contacto@ulagos.cl"
+}
+
+{
+  "rut_institucion": "609230002",
+  "nombre_institucion": "Universidad de Aysén",
+  "direccion": "Obispo Vielmo 62, Coyhaique",
+  "sitio_web": "https://www.uaysen.cl",
+  "representante_legal": "Natacha Pino Acuña",
+  "telefono_institucion": "+56672330000",
+  "correo_institucion": "contacto@uaysen.cl"
+}
+
+{
+  "rut_institucion": "609240000",
+  "nombre_institucion": "Universidad de Magallanes",
+  "direccion": "Av. Bulnes 01855, Punta Arenas",
+  "sitio_web": "https://www.umag.cl",
+  "representante_legal": "Juan Oyarzo Pérez",
+  "telefono_institucion": "+56612205000",
+  "correo_institucion": "contacto@umag.cl"
+}
