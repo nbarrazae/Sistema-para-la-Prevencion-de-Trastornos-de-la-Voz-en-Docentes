@@ -42,7 +42,19 @@ def editar_institucion(request, pk):
         institucion.save()
         return redirect('instituciones')  # o tu vista actual
 
-
+def crear_institucion(request):
+    if request.method == "POST":
+        institucion = Institucion(
+            nombre_institucion=request.POST.get("nombre_institucion"),
+            rut_institucion=request.POST.get("rut_institucion"),
+            direccion=request.POST.get("direccion"),
+            sitio_web=request.POST.get("sitio_web"),
+            representante_legal=request.POST.get("representante_legal"),
+            telefono_institucion=request.POST.get("telefono_institucion"),
+            correo_institucion=request.POST.get("correo_institucion")
+        )
+        institucion.save()
+        return redirect('instituciones')  # o tu vista actual
 
 
 
