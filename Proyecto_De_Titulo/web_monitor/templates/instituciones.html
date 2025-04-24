@@ -9,12 +9,25 @@
 <p>Instituciones que participan en el proyecto:</p>
 
 
-<div class="text-primary mb-3">
-    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a>
-</div>
 
-<div class="card mb-3">
+<div class="card mb-3" >
     <div class="card-body">
+
+      <div class="text-center mb-3">
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a> </div>
+
+    <div class="dropdown mb-3 text-end">
+      
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          Ordenar por: {{ orden_actual|title }}
+      </button>
+      <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="?orden=nombre_institucion">Nombre</a></li>
+          <li><a class="dropdown-item" href="?orden=rut_institucion">RUT</a></li>
+      </ul>
+  </div>
+
+
 
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
@@ -23,24 +36,40 @@
                         <th>Nombre Institución</th>
                         <th>Rut Institución</th>
                         <th>Dirección</th>
-                        <th>Teléfono</th>
-                        <th>Correo Electrónico</th>
                         <th>Detalle</th>
                         <th>Editar</th>
                         <th>Eliminar</th>
+                        <th>Aulas</th>
+
                     </tr>
                 </thead>
+
                 <tbody>
                     {% for institucion in page_obj %}
                     <tr>
                         <td>{{ institucion.nombre_institucion }}</td>
                         <td>{{ institucion.rut_institucion }}</td>
                         <td>{{ institucion.direccion }}</td>
-                        <td>{{ institucion.telefono_institucion }}</td>
-                        <td>{{ institucion.correo_institucion }}</td>
+                        
+
                         <td class="text-center">
-                            <a href=""><i class="far fa-file-alt"></i></a>
+                            <a href="#" class="text-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalDetalleInstitucion"
+                            data-nombre="{{ institucion.nombre_institucion }}"
+                            data-rut="{{ institucion.rut_institucion }}"
+                            data-direccion="{{ institucion.direccion }}"
+                            data-telefono="{{ institucion.telefono_institucion }}"
+                            data-correo="{{ institucion.correo_institucion }}"
+                            data-sitio_web="{{ institucion.sitio_web }}"
+                            data-representante_legal="{{ institucion.representante_legal }}"
+                            data-created_at="{{ institucion.created_at }}"
+                            data-updated_at="{{ institucion.updated_at }}">
+                            <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
+                            </a>
                         </td>
+
+
                         <td class="text-center">
                             <a href="#" class="text-primary"
                             data-bs-toggle="modal"
@@ -49,6 +78,8 @@
                             data-nombre="{{ institucion.nombre_institucion }}"
                             data-rut="{{ institucion.rut_institucion }}"
                             data-direccion="{{ institucion.direccion }}"
+                            data-sitio_web="{{ institucion.sitio_web }}"
+                            data-representante_legal="{{ institucion.representante_legal }}"
                             data-telefono="{{ institucion.telefono_institucion }}"
                             data-correo="{{ institucion.correo_institucion }}">
                             <i class="fas fa-file-signature"></i>
@@ -70,9 +101,19 @@
                                 <i class="far fa-trash-alt"></i>
                         </a>
 
-
-
                         </td>
+
+                        <td class="text-center">
+                          <a href="#" class="text-primary" data-bs-toggle="modal"
+                             data-bs-target="#modalAulas"
+                             data-institucion-id="{{ institucion.pk }}"
+                             data-institucion-nombre="{{ institucion.nombre_institucion }}">
+                              <i class="fas fa-chalkboard"></i>
+                          </a>
+                      </td>
+                      
+
+
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -176,6 +217,14 @@
               <input type="text" class="form-control" name="direccion" id="inputDireccion">
             </div>
             <div class="mb-3">
+              <label for="sitio_web" class="form-label">Sitio Web</label>
+              <input type="text" class="form-control" name="sitio_web" id="inputSitioWeb">
+            </div>
+            <div class="mb-3">
+              <label for="representante_legal" class="form-label">Representante Legal</label>
+              <input type="text" class="form-control" name="representante_legal" id="inputRepresentanteLegal">
+            </div>  
+            <div class="mb-3">
               <label for="telefono" class="form-label">Teléfono</label>
               <input type="text" class="form-control" name="telefono_institucion" id="inputTelefono">
             </div>
@@ -203,6 +252,8 @@
             const nombre = button.getAttribute('data-nombre');
             const rut = button.getAttribute('data-rut');
             const direccion = button.getAttribute('data-direccion');
+            const sitio_web = button.getAttribute('data-sitio_web');
+            const representante_legal = button.getAttribute('data-representante_legal');
             const telefono = button.getAttribute('data-telefono');
             const correo = button.getAttribute('data-correo');
   
@@ -212,6 +263,8 @@
             modalEditar.querySelector('#inputNombre').value = nombre;
             modalEditar.querySelector('#inputRut').value = rut;
             modalEditar.querySelector('#inputDireccion').value = direccion;
+            modalEditar.querySelector('#inputSitioWeb').value = sitio_web;
+            modalEditar.querySelector('#inputRepresentanteLegal').value = representante_legal;
             modalEditar.querySelector('#inputTelefono').value = telefono;
             modalEditar.querySelector('#inputCorreo').value = correo;
         });
@@ -272,10 +325,200 @@
   </div>
   
 
+<!-- Mostrar detalle: todos los daros ocultos de la tabla, menos el pk -->
+<div class="modal fade" id="modalDetalleInstitucion" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalDetalleLabel">Detalles de la Institución</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Nombre Institución:</strong>
+              <p id="detalleNombre"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>RUT Institución:</strong>
+              <p id="detalleRut"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Dirección:</strong>
+              <p id="detalleDireccion"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>Teléfono:</strong>
+              <p id="detalleTelefono"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Correo Electrónico:</strong>
+              <p id="detalleCorreo"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>Sitio Web:</strong>
+              <p id="detalleSitioWeb"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Representante Legal:</strong>
+              <p id="detalleRepresentanteLegal"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Fecha de Creación:</strong>
+              <p id="detalleFechaCreacion"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>Última Modificación:</strong>
+              <p id="detalleUltimaModificacion"></p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalDetalle = document.getElementById('modalDetalleInstitucion');
+        modalDetalle.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const nombre = button.getAttribute('data-nombre');
+            const rut = button.getAttribute('data-rut');
+            const direccion = button.getAttribute('data-direccion');
+            const telefono = button.getAttribute('data-telefono');
+            const correo = button.getAttribute('data-correo');
+            const sitio_web = button.getAttribute('data-sitio_web');
+            const representante_legal = button.getAttribute('data-representante_legal');
+            const created_at = button.getAttribute('data-created_at');
+            const updated_at = button.getAttribute('data-updated_at');
+
+
+            modalDetalle.querySelector('#detalleNombre').textContent = nombre;
+            modalDetalle.querySelector('#detalleRut').textContent = rut;
+            modalDetalle.querySelector('#detalleDireccion').textContent = direccion;
+            modalDetalle.querySelector('#detalleTelefono').textContent = telefono;
+            modalDetalle.querySelector('#detalleCorreo').textContent = correo;
+            modalDetalle.querySelector('#detalleSitioWeb').textContent = sitio_web;
+            modalDetalle.querySelector('#detalleRepresentanteLegal').textContent = representante_legal;
+            modalDetalle.querySelector('#detalleFechaCreacion').textContent = created_at;
+            modalDetalle.querySelector('#detalleUltimaModificacion').textContent = updated_at;
+
+        });
+    });
+  </script>
   
 
-
-
-
+  <div class="modal fade" id="modalAulas" tabindex="-1" aria-labelledby="modalAulasLabel" aria-hidden="true" style="height: 1000px;">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAulasLabel">Aulas de la Institución</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="contenidoAulas">
+          <div class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modalAulas = document.getElementById('modalAulas');
+  
+      function cargarContenidoModal(institucionId) {
+        const contenido = modalAulas.querySelector('#contenidoAulas');
+        contenido.innerHTML = `
+          <div class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>`;
+  
+        fetch(`/institucion/${institucionId}/aulas/`)
+          .then(response => response.json())
+          .then(data => {
+            contenido.innerHTML = data.html;
+            asignarEventosAgregar(institucionId);
+          });
+      }
+  
+      function asignarEventosAgregar(institucionId) {
+        const btnAgregar = document.getElementById('agregarAula');
+        if (btnAgregar) {
+          btnAgregar.addEventListener('click', function () {
+            const tabla = document.getElementById('tablaAulas');
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.innerHTML = `
+              <td><input type="text" class="form-control" name="nro_aula" style="width:100px "></td>
+              <td><input type="text" class="form-control" name="tamanio" style="width:100px"></td>
+              <td><input type="text" class="form-control" name="cantidad_alumnos" style="width:100px"></td>
+              <td><input type="text" class="form-control" name="descripcion" style="width:100px"></td>
+              <td><button class="btn btn-success btn-sm guardar-aula">Guardar</button></td>
+            `;
+            tabla.appendChild(nuevaFila);
+  
+            nuevaFila.querySelector('.guardar-aula').addEventListener('click', function () {
+              const nro_aula = nuevaFila.querySelector('[name="nro_aula"]').value;
+              const tamanio = nuevaFila.querySelector('[name="tamanio"]').value;
+              const cantidad_alumnos = nuevaFila.querySelector('[name="cantidad_alumnos"]').value;
+              const descripcion = nuevaFila.querySelector('[name="descripcion"]').value;
+  
+              fetch(`/institucion/${institucionId}/aulas/agregar/`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                  nro_aula,
+                  tamanio,
+                  cantidad_alumnos,
+                  descripcion
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  // Recargar contenido y re-asignar eventos
+                  cargarContenidoModal(institucionId);
+                } else {
+                  alert('Error al guardar aula');
+                }
+              })
+              .catch(error => {
+                console.error('Error en fetch:', error);
+                alert('Error al guardar aula');
+              });
+            });
+          });
+        }
+      }
+  
+      modalAulas.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const institucionId = button.getAttribute('data-institucion-id');
+        modalAulas.setAttribute('data-institucion-id', institucionId);
+        cargarContenidoModal(institucionId);
+      });
+    });
+  </script>
+  
 {% endblock %}

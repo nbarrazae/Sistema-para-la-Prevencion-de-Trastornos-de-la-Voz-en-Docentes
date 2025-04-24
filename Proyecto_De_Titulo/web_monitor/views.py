@@ -8,21 +8,26 @@ from django.http import JsonResponse
 import json
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-
+from django.template.loader import render_to_string
 
 
 def index(request):
     return render(request, 'index.html')
 def instituciones(request):
-    #obterner todas las instituciones y pasarlas al template
-    instituciones = Institucion.objects.all()
-    paginator = Paginator(instituciones, 10)  # 10 por página
+    orden = request.GET.get('orden', 'nombre_institucion')  # Orden por defecto
+    if orden not in ['nombre_institucion', 'rut_institucion']:
+        orden = 'nombre_institucion'
+
+    instituciones = Institucion.objects.all().order_by(orden)
+
+    paginator = Paginator(instituciones, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'instituciones.html', {
         'page_obj': page_obj,
         'page_range': paginator.get_elided_page_range(number=page_obj.number, on_each_side=2, on_ends=1),
+        'orden_actual': orden,
     })
 def eliminar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
@@ -55,6 +60,43 @@ def crear_institucion(request):
         )
         institucion.save()
         return redirect('instituciones')  # o tu vista actual
+
+def obtener_aulas(request, pk):
+    institucion = get_object_or_404(Institucion, pk=pk)
+    #busca todas las aulas de la institucion
+    aulas = Aula.objects.filter(id_institucion=institucion)
+    # Si no hay aulas, devuelve un mensaje
+    # if not aulas:
+    #     return JsonResponse({'html': '<p>No hay aulas disponibles</p>'})
+    try:
+        html = render_to_string("partials/modal_aulas.html", {'aulas': aulas, 'institucion': institucion}, request=request)
+        return JsonResponse({'html': html})
+    except Exception as e:
+        print("❌ Error al renderizar:", e)
+        return JsonResponse({'html': '<p>Error al cargar aulas</p>'})
+
+import json
+
+def crear_aula(request, pk):
+    if request.method == "POST":
+        print("📥 Recibido POST JSON")
+
+        data = json.loads(request.body)
+        print("Contenido del JSON:", data)  # 👈 Aquí ves qué se está enviando
+
+        aula = Aula(
+            nro_aula=data.get("nro_aula"),
+            tamaño=data.get("tamanio"),
+            cantidad_alumnos=data.get("cantidad_alumnos"),
+            descripcion=data.get("descripcion"),
+            id_institucion_id=pk  # 👈 Ya viene en la URL
+        )
+        aula.save()
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+
+    
 
 
 

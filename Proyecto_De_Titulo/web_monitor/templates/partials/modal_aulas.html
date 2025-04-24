@@ -1,0 +1,26 @@
+<table class="table"">
+  <thead>
+    <tr>
+      <th>N° Aula</th>
+      <th>Tamaño</th>
+      <th>Cantidad Alumnos</th>
+      <th>Descripción</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablaAulas">
+    {% for aula in aulas %}
+    <tr data-id="{{ aula.id }}">
+      <td>{{ aula.nro_aula }}</td>
+      <td>{{ aula.tamaño }}</td>
+      <td>{{ aula.cantidad_alumnos }}</td>
+      <td>{{ aula.descripcion }}</td>
+      <td>
+        <button class="btn btn-danger btn-sm eliminar-aula" data-id="{{ aula.id }}">Eliminar</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="text-center mb-3"></div>
+<button id="agregarAula" class="btn btn-primary btn-sm text-center">Agregar Aula</button>
