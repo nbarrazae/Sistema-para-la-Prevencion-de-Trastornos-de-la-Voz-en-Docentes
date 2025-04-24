@@ -9,26 +9,55 @@ import json
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
-
+from django.db.models import Q
 
 def index(request):
     return render(request, 'index.html')
 def instituciones(request):
-    orden = request.GET.get('orden', 'nombre_institucion')  # Orden por defecto
-    if orden not in ['nombre_institucion', 'rut_institucion']:
-        orden = 'nombre_institucion'
+    busqueda = request.GET.get('busqueda', '')
+
+    instituciones = Institucion.objects.all()
+    
+    if busqueda:
+        instituciones = instituciones.filter(
+            Q(nombre_institucion__icontains=busqueda) |
+            Q(rut_institucion__icontains=busqueda)
+        )
+
+    # ordenamiento
+    orden = request.GET.get('orden', 'nombre_institucion')
+    direccion = request.GET.get('direccion', 'asc')
+    if direccion == 'desc':
+        orden = '-' + orden
+    instituciones = instituciones.order_by(orden)
+
+    paginator = Paginator(instituciones, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+    context = {
+        'page_obj': page_obj,
+    }
+    return render(request, 'instituciones.html', context)
+def listar_instituciones(request):
+    orden = request.GET.get('orden', 'nombre_institucion')
+    direccion = request.GET.get('direccion', 'asc')
+    
+    if direccion == 'desc':
+        orden = f'-{orden}'
 
     instituciones = Institucion.objects.all().order_by(orden)
 
     paginator = Paginator(instituciones, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    contexto = {'page_obj': page_obj}
+    return render(request, 'instituciones.html', contexto)
 
-    return render(request, 'instituciones.html', {
-        'page_obj': page_obj,
-        'page_range': paginator.get_elided_page_range(number=page_obj.number, on_each_side=2, on_ends=1),
-        'orden_actual': orden,
-    })
+
+
+
 def eliminar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == 'POST':
@@ -128,7 +157,13 @@ def eliminar_aula(request, pk):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
 
-
+def buscar_instituciones_ajax(request):
+    query = request.GET.get('q', '')
+    instituciones = Institucion.objects.filter(
+        Q(nombre_institucion__icontains=query) |
+        Q(rut_institucion__icontains=query)
+    ).values('nombre_institucion', 'rut_institucion', 'direccion')[:10]  # Devuelve máximo 10 resultados
+    return JsonResponse(list(instituciones), safe=False)
 
 def profesores(request):
     return render(request, 'profesores.html')
