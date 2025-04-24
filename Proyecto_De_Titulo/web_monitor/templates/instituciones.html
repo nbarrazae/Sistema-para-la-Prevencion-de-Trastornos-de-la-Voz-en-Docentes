@@ -457,6 +457,8 @@
           .then(data => {
             contenido.innerHTML = data.html;
             asignarEventosAgregar(institucionId);
+            asignarEventosModificar();
+            asignarEventosEliminar(institucionId);
           });
       }
   
@@ -511,12 +513,114 @@
           });
         }
       }
+
+      function asignarEventosModificar() {
+  const botonesModificar = document.querySelectorAll('.modificar-aula');
+  botonesModificar.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const fila = btn.closest('tr');
+      const isEditando = btn.textContent === "Guardar";
+
+      if (isEditando) {
+        // Guardar datos
+        const nro_aula = fila.querySelector('[name="nro_aula"]').value;
+        const tamanio = fila.querySelector('[name="tamanio"]').value;
+        const cantidad = fila.querySelector('[name="cantidad_alumnos"]').value;
+        const descripcion = fila.querySelector('[name="descripcion"]').value;
+        const id = btn.getAttribute('data-id');
+
+        fetch(`/institucion/aula/${id}/modificar/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({
+            nro_aula,
+            tamanio,
+            cantidad_alumnos: cantidad,
+            descripcion
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            fila.innerHTML = `
+              <td>${nro_aula}</td>
+              <td>${tamanio}</td>
+              <td>${cantidad}</td>
+              <td>${descripcion}</td>
+              <td>
+                <button class="btn btn-primary btn-sm modificar-aula" data-id="${id}">Modificar</button>
+                <button class="btn btn-danger btn-sm eliminar-aula" data-id="${id}">Eliminar</button>
+              </td>`;
+            asignarEventosModificar(); // Reasignar eventos
+          } else {
+            alert("Error al guardar cambios");
+          }
+        });
+      } else {
+        // Cambiar a modo edición
+        const celdas = fila.querySelectorAll('td');
+        const nro_aula = celdas[0].textContent.trim();
+        const tamanio = celdas[1].textContent.trim();
+        const cantidad = celdas[2].textContent.trim();
+        const descripcion = celdas[3].textContent.trim();
+
+        fila.innerHTML = `
+          <td><input class="form-control" type="text" name="nro_aula" value="${nro_aula}" /></td>
+          <td><input class="form-control" type="text" name="tamanio" value="${tamanio}" /></td>
+          <td><input class="form-control" type="text" name="cantidad_alumnos" value="${cantidad}" /></td>
+          <td><input class="form-control" type="text" name="descripcion" value="${descripcion}" /></td>
+          <td>
+            <button class="btn btn-success btn-sm modificar-aula" data-id="${btn.getAttribute('data-id')}">Guardar</button>
+            <button class="btn btn-danger btn-sm eliminar-aula" data-id="${btn.getAttribute('data-id')}">Eliminar</button>
+          </td>`;
+        asignarEventosModificar(); // Reasignar para los nuevos botones
+      }
+    });
+  });
+}
+
+function asignarEventosEliminar(institucionId) {
+  const botonesEliminar = document.querySelectorAll('.eliminar-aula');
+
+  botonesEliminar.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const id = btn.getAttribute('data-id');
+
+      if (confirm('¿Estás seguro de que quieres eliminar esta aula?')) {
+        fetch(`/institucion/aula/${id}/eliminar/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            cargarContenidoModal(institucionId);
+          } else {
+            alert('No se pudo eliminar el aula');
+          }
+        })
+        .catch(error => {
+          console.error('Error eliminando aula:', error);
+          alert('Error al intentar eliminar el aula');
+        });
+      }
+    });
+  });
+}
+
   
       modalAulas.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         const institucionId = button.getAttribute('data-institucion-id');
         modalAulas.setAttribute('data-institucion-id', institucionId);
         cargarContenidoModal(institucionId);
+        
       });
     });
   </script>

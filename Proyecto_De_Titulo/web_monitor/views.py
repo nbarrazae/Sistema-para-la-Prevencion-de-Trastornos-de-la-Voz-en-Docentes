@@ -96,7 +96,37 @@ def crear_aula(request, pk):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
+def eliminar_aula(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        aula.delete()
+        return redirect('instituciones')  # Nombre de tu vista principal
+
+    return render(request, 'confirmar_eliminacion.html', {'aula': aula})
     
+
+def modificar_aula(request, pk):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            aula = Aula.objects.get(pk=pk)
+            aula.nro_aula = data.get("nro_aula", aula.nro_aula)
+            aula.tamaño = data.get("tamanio", aula.tamaño)
+            aula.cantidad_alumnos = data.get("cantidad_alumnos", aula.cantidad_alumnos)
+            aula.descripcion = data.get("descripcion", aula.descripcion)
+            aula.save()
+            return JsonResponse({"success": True})
+        except Aula.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Aula no encontrada"})
+
+
+@csrf_exempt  # solo si no estás manejando CSRF correctamente en el fetch
+def eliminar_aula(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        aula.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
 
 
 

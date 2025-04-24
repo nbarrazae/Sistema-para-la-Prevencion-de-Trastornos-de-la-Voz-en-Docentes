@@ -16,8 +16,8 @@
       <td>{{ aula.cantidad_alumnos }}</td>
       <td>{{ aula.descripcion }}</td>
       <td>
-        <button class="btn btn-success btn-sm eliminar-aula" data-id="{{ aula.id }}">Modificar</button>
-        <button class="btn btn-danger btn-sm eliminar-aula" data-id="{{ aula.id }}">Eliminar</button>
+        <button class="btn btn-primary btn-sm modificar-aula" data-id="{{ aula.id_aula }}">Modificar</button>
+        <button class="btn btn-danger btn-sm eliminar-aula" data-id="{{ aula.id_aula }}">Eliminar</button>
       </td>
     </tr>
     {% endfor %}
