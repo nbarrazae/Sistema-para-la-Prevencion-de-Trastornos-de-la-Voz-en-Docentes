@@ -555,6 +555,7 @@
                 <button class="btn btn-danger btn-sm eliminar-aula" data-id="${id}">Eliminar</button>
               </td>`;
             asignarEventosModificar(); // Reasignar eventos
+            asignarEventosEliminar();
           } else {
             alert("Error al guardar cambios");
           }
@@ -600,6 +601,7 @@ function asignarEventosEliminar(institucionId) {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
+            const institucionId = modalAulas.getAttribute('data-institucion-id'); // ← Aquí recuperas el ID
             cargarContenidoModal(institucionId);
           } else {
             alert('No se pudo eliminar el aula');
