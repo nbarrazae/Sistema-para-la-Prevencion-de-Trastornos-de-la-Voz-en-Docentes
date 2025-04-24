@@ -1,9 +1,9 @@
-<table class="table"">
+<table class="table text-center">
   <thead>
     <tr>
-      <th>N° Aula</th>
+      <th style="width: auto;">N° Aula</th>
       <th>Tamaño</th>
-      <th>Cantidad Alumnos</th>
+      <th style="width: 200px;">Cantidad Alumnos</th>
       <th>Descripción</th>
       <th>Acciones</th>
     </tr>
@@ -16,6 +16,7 @@
       <td>{{ aula.cantidad_alumnos }}</td>
       <td>{{ aula.descripcion }}</td>
       <td>
+        <button class="btn btn-success btn-sm eliminar-aula" data-id="{{ aula.id }}">Modificar</button>
         <button class="btn btn-danger btn-sm eliminar-aula" data-id="{{ aula.id }}">Eliminar</button>
       </td>
     </tr>
