@@ -11,6 +11,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.db.models import Q
 
+
+
+
 def index(request):
     return render(request, 'index.html')
 def instituciones(request):
@@ -38,7 +41,7 @@ def instituciones(request):
     context = {
         'page_obj': page_obj,
     }
-    return render(request, 'instituciones.html', context)
+    return render(request, 'instituciones/base-instituciones.html', context)
 def listar_instituciones(request):
     orden = request.GET.get('orden', 'nombre_institucion')
     direccion = request.GET.get('direccion', 'asc')
@@ -98,7 +101,7 @@ def obtener_aulas(request, pk):
     # if not aulas:
     #     return JsonResponse({'html': '<p>No hay aulas disponibles</p>'})
     try:
-        html = render_to_string("partials/modal_aulas.html", {'aulas': aulas, 'institucion': institucion}, request=request)
+        html = render_to_string("instituciones/modals/aula_contenido.html", {'aulas': aulas, 'institucion': institucion}, request=request)
         return JsonResponse({'html': html})
     except Exception as e:
         print("❌ Error al renderizar:", e)

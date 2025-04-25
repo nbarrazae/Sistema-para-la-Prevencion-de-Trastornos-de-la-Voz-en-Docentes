@@ -1,0 +1,47 @@
+<div class="modal fade" id="modalEditarInstitucion" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" id="formEditar">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarLabel">Editar Institución</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" name="nombre_institucion" id="inputNombre">
+            </div>
+            <div class="mb-3">
+              <label for="rut" class="form-label">RUT</label>
+              <input type="text" class="form-control" name="rut_institucion" id="inputRut">
+            </div>
+            <div class="mb-3">
+              <label for="direccion" class="form-label">Dirección</label>
+              <input type="text" class="form-control" name="direccion" id="inputDireccion">
+            </div>
+            <div class="mb-3">
+              <label for="sitio_web" class="form-label">Sitio Web</label>
+              <input type="text" class="form-control" name="sitio_web" id="inputSitioWeb">
+            </div>
+            <div class="mb-3">
+              <label for="representante_legal" class="form-label">Representante Legal</label>
+              <input type="text" class="form-control" name="representante_legal" id="inputRepresentanteLegal">
+            </div>  
+            <div class="mb-3">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" name="telefono_institucion" id="inputTelefono">
+            </div>
+            <div class="mb-3">
+              <label for="correo" class="form-label">Correo</label>
+              <input type="email" class="form-control" name="correo_institucion" id="inputCorreo">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
