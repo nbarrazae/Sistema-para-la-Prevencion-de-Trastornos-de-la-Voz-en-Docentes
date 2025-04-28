@@ -10,12 +10,14 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.db.models import Q
-
+from django.db import IntegrityError
+from django.contrib import messages
 
 
 
 def index(request):
     return render(request, 'index.html')
+
 def instituciones(request):
     busqueda = request.GET.get('busqueda', '')
 
@@ -79,19 +81,43 @@ def editar_institucion(request, pk):
         institucion.save()
         return redirect('instituciones')  # o tu vista actual
 
+# def crear_institucion(request):
+#     if request.method == "POST":
+#         institucion = Institucion(
+#             nombre_institucion=request.POST.get("nombre_institucion"),
+#             rut_institucion=request.POST.get("rut_institucion"),
+#             direccion=request.POST.get("direccion"),
+#             sitio_web=request.POST.get("sitio_web"),
+#             representante_legal=request.POST.get("representante_legal"),
+#             telefono_institucion=request.POST.get("telefono_institucion"),
+#             correo_institucion=request.POST.get("correo_institucion")
+#         )
+#         institucion.save()
+#         return redirect('instituciones')  # o tu vista actual
+
+
 def crear_institucion(request):
     if request.method == "POST":
-        institucion = Institucion(
-            nombre_institucion=request.POST.get("nombre_institucion"),
-            rut_institucion=request.POST.get("rut_institucion"),
-            direccion=request.POST.get("direccion"),
-            sitio_web=request.POST.get("sitio_web"),
-            representante_legal=request.POST.get("representante_legal"),
-            telefono_institucion=request.POST.get("telefono_institucion"),
-            correo_institucion=request.POST.get("correo_institucion")
-        )
-        institucion.save()
-        return redirect('instituciones')  # o tu vista actual
+        try:
+            institucion = Institucion(
+                nombre_institucion=request.POST.get("nombre_institucion"),
+                rut_institucion=request.POST.get("rut_institucion"),
+                direccion=request.POST.get("direccion"),
+                sitio_web=request.POST.get("sitio_web"),
+                representante_legal=request.POST.get("representante_legal"),
+                telefono_institucion=request.POST.get("telefono_institucion"),
+                correo_institucion=request.POST.get("correo_institucion")
+            )
+            institucion.save()
+            messages.success(request, "Institución creada correctamente.")
+        except IntegrityError as e:
+            print(e)
+            messages.error(request, "Error: ya existe una institución con ese RUT.")
+        except Exception as e:
+            print(e)
+            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
+        return redirect('instituciones')
+
 
 def obtener_aulas(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
@@ -168,8 +194,10 @@ def buscar_instituciones_ajax(request):
     ).values('nombre_institucion', 'rut_institucion', 'direccion')[:10]  # Devuelve máximo 10 resultados
     return JsonResponse(list(instituciones), safe=False)
 
+
+
 def profesores(request):
-    return render(request, 'profesores.html')
+    return render(request, 'profesores/base-profesores.html')
 def dispositivos_iot(request):
     return render(request, 'dispositivos_iot.html')
 def usuarios(request):
