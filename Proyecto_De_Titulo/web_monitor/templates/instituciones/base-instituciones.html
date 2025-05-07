@@ -1,0 +1,63 @@
+{% extends 'sideNavbar.html' %}
+{% load static %}
+{% block title %}FACSA{% endblock %}
+
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %} 
+
+<body style="background-color: #f3f3f3;">
+  <!-- <h1 class="text-primary">Cargando Instituciones </h1>
+  <p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
+  <p>Instituciones que participan en el proyecto:</p> -->
+
+  <div class="card mb-3" style="background-color: white;"> 
+
+    <div class="card-body" style="background-color: white;">
+      <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a> </div>
+      {% include 'instituciones/modals/agregar.html' %}
+
+      <!-- Buscador -->
+      <form method="get" id="formBuscadorInstituciones" class="mb-3 d-flex gap-2">
+        <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o RUT" value="{{ request.GET.busqueda }}">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+    
+      {% include 'instituciones/tabla.html' %}
+
+      
+      {% include 'instituciones/modals/detalle.html' %}
+      {% include 'instituciones/modals/editar.html' %}
+      {% include 'instituciones/modals/eliminar.html' %}
+      {% include 'instituciones/modals/aulas.html' %}
+    {% endblock %}
+    
+
+  
+
+
+
+
+    </div>
+
+    {% block extra_js %}
+    <script src="{% static 'js/scripts/eliminar.js' %}"></script>
+    <script src="{% static 'js/scripts/editar.js' %}"></script>
+    <script src="{% static 'js/scripts/detalle.js' %}"></script>
+    <script src="{% static 'js/scripts/aulas.js' %}"></script>
+  {% endblock %}
+
+  </div>
+    
+
+
+
+</body>

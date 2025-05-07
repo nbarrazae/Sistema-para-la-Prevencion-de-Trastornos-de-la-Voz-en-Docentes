@@ -1,0 +1,727 @@
+{% extends 'sideNavbar.html' %}
+
+{% block title %}FACSA{% endblock %}
+
+{% block content %}
+
+<h1 class="text-primary">Cargando Instituciones </h1>
+<p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
+<p>Instituciones que participan en el proyecto:</p>
+
+
+
+<div class="card mb-3" >
+    <div class="card-body">
+
+      <div class="text-center mb-3">
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a> </div>
+
+        <form method="get" id="formBuscadorInstituciones" class="mb-3 d-flex gap-2">
+          <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o RUT" value="{{ request.GET.busqueda }}">
+          <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+        
+
+        
+
+
+
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="tablaInstituciones">
+                <thead>
+                    <tr>
+                      <th>
+                        <a href="?orden=nombre_institucion&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'nombre_institucion' %}desc{% else %}asc{% endif %}">
+                          Nombre Institución
+                          {% if request.GET.orden == 'nombre_institucion' %}
+                            {% if request.GET.direccion == 'asc' %} ↑
+                            {% else %} ↓
+                            {% endif %}
+                          {% endif %}
+                        </a>
+                      </th>
+                      
+                      <th>
+                        <a href="?orden=rut_institucion&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'rut_institucion' %}desc{% else %}asc{% endif %}">
+                          RUT Institución
+                          {% if request.GET.orden == 'rut_institucion' %}
+                            {% if request.GET.direccion == 'asc' %} ↑
+                            {% else %} ↓
+                            {% endif %}
+                          {% endif %}
+                        </a>
+                      </th>
+                      
+                      
+                      
+                        <th>Dirección</th>
+                        <th>Detalle</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                        <th>Aulas</th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for institucion in page_obj %}
+                    <tr>
+                      <td class="nombre">{{ institucion.nombre_institucion }}</td>
+                      <td class="rut">{{ institucion.rut_institucion }}</td>
+                      
+                        <td>{{ institucion.direccion }}</td>
+                        
+
+                        <td class="text-center">
+                            <a href="#" class="text-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalDetalleInstitucion"
+                            data-nombre="{{ institucion.nombre_institucion }}"
+                            data-rut="{{ institucion.rut_institucion }}"
+                            data-direccion="{{ institucion.direccion }}"
+                            data-telefono="{{ institucion.telefono_institucion }}"
+                            data-correo="{{ institucion.correo_institucion }}"
+                            data-sitio_web="{{ institucion.sitio_web }}"
+                            data-representante_legal="{{ institucion.representante_legal }}"
+                            data-created_at="{{ institucion.created_at }}"
+                            data-updated_at="{{ institucion.updated_at }}">
+                            <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
+                            </a>
+                        </td>
+
+
+                        <td class="text-center">
+                            <a href="#" class="text-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEditarInstitucion"
+                            data-url="{% url 'editar_institucion' institucion.pk %}"
+                            data-nombre="{{ institucion.nombre_institucion }}"
+                            data-rut="{{ institucion.rut_institucion }}"
+                            data-direccion="{{ institucion.direccion }}"
+                            data-sitio_web="{{ institucion.sitio_web }}"
+                            data-representante_legal="{{ institucion.representante_legal }}"
+                            data-telefono="{{ institucion.telefono_institucion }}"
+                            data-correo="{{ institucion.correo_institucion }}">
+                            <i class="fas fa-file-signature"></i>
+                         </a>
+                                                 </td>
+
+
+
+
+                        <td class="text-center">
+                            
+                            
+                            <a href="{% url 'eliminar_institucion' institucion.pk %}" 
+                                class="text-danger" 
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmarEliminacionModal"
+                                data-url="{% url 'eliminar_institucion' institucion.pk %}"
+                                data-nombre="{{ institucion.nombre_institucion }}">
+                                <i class="far fa-trash-alt"></i>
+                        </a>
+
+                        </td>
+
+                        <td class="text-center">
+                          <a href="#" class="text-primary" data-bs-toggle="modal"
+                             data-bs-target="#modalAulas"
+                             data-institucion-id="{{ institucion.pk }}"
+                             data-institucion-nombre="{{ institucion.nombre_institucion }}">
+                              <i class="fas fa-chalkboard"></i>
+                          </a>
+                      </td>
+                      
+
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                
+                
+            </table>
+            <div class="pagination justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                        </li>
+                        {% endif %}
+            
+                        {% for page in page_range %}
+                            {% if page == '…' %}
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            {% elif page == page_obj.number %}
+                                <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+            
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>          
+
+<!-- Modal -->
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmarEliminacionModal" tabindex="-1" aria-labelledby="confirmarEliminacionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" id="formEliminar">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmarEliminacionLabel">Confirmar Eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro que deseas eliminar la institución <strong id="nombreInstitucionEliminar"></strong>?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('confirmarEliminacionModal');
+        modal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const url = button.getAttribute('data-url');
+            const nombre = button.getAttribute('data-nombre');
+            
+            const form = modal.querySelector('#formEliminar');
+            const nombreSpan = modal.querySelector('#nombreInstitucionEliminar');
+            
+            form.action = url;
+            nombreSpan.textContent = nombre;
+        });
+    });
+  </script>
+  
+    
+  <div class="modal fade" id="modalEditarInstitucion" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" id="formEditar">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarLabel">Editar Institución</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" name="nombre_institucion" id="inputNombre">
+            </div>
+            <div class="mb-3">
+              <label for="rut" class="form-label">RUT</label>
+              <input type="text" class="form-control" name="rut_institucion" id="inputRut">
+            </div>
+            <div class="mb-3">
+              <label for="direccion" class="form-label">Dirección</label>
+              <input type="text" class="form-control" name="direccion" id="inputDireccion">
+            </div>
+            <div class="mb-3">
+              <label for="sitio_web" class="form-label">Sitio Web</label>
+              <input type="text" class="form-control" name="sitio_web" id="inputSitioWeb">
+            </div>
+            <div class="mb-3">
+              <label for="representante_legal" class="form-label">Representante Legal</label>
+              <input type="text" class="form-control" name="representante_legal" id="inputRepresentanteLegal">
+            </div>  
+            <div class="mb-3">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" name="telefono_institucion" id="inputTelefono">
+            </div>
+            <div class="mb-3">
+              <label for="correo" class="form-label">Correo</label>
+              <input type="email" class="form-control" name="correo_institucion" id="inputCorreo">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEditar = document.getElementById('modalEditarInstitucion');
+        modalEditar.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+  
+            const url = button.getAttribute('data-url');
+            const nombre = button.getAttribute('data-nombre');
+            const rut = button.getAttribute('data-rut');
+            const direccion = button.getAttribute('data-direccion');
+            const sitio_web = button.getAttribute('data-sitio_web');
+            const representante_legal = button.getAttribute('data-representante_legal');
+            const telefono = button.getAttribute('data-telefono');
+            const correo = button.getAttribute('data-correo');
+  
+            const form = modalEditar.querySelector('#formEditar');
+            form.action = url;
+  
+            modalEditar.querySelector('#inputNombre').value = nombre;
+            modalEditar.querySelector('#inputRut').value = rut;
+            modalEditar.querySelector('#inputDireccion').value = direccion;
+            modalEditar.querySelector('#inputSitioWeb').value = sitio_web;
+            modalEditar.querySelector('#inputRepresentanteLegal').value = representante_legal;
+            modalEditar.querySelector('#inputTelefono').value = telefono;
+            modalEditar.querySelector('#inputCorreo').value = correo;
+        });
+    });
+  </script>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="modalAgregarInstitucion" tabindex="-1" aria-labelledby="modalAgregarInstitucionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" action="{% url 'crear_institucion' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAgregarInstitucionLabel">Agregar Nueva Institución</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+  
+            <!-- Campos del formulario -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre Institución</label>
+              <input type="text" class="form-control" name="nombre_institucion" required>
+            </div>
+            <div class="mb-3">
+              <label for="rut" class="form-label">RUT Institución</label>
+              <input type="text" class="form-control" name="rut_institucion" required>
+            </div>
+            <div class="mb-3">
+              <label for="direccion" class="form-label">Dirección</label>
+              <input type="text" class="form-control" name="direccion" required>
+            </div>
+            <div class="mb-3">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" name="telefono_institucion" required>
+            </div>
+            <div class="mb-3">
+              <label for="correo" class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" name="correo_institucion" required>
+            </div>
+            <div class="mb-3">
+              <label for="sitio_web" class="form-label">Sitio Web</label>
+              <input type="text" class="form-control" name="sitio_web">
+  
+          </div>
+            <div class="mb-3">
+              <label for="representante_legal" class="form-label">Representante Legal</label>
+              <input type="text" class="form-control" name="representante_legal" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Agregar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+
+<!-- Mostrar detalle: todos los daros ocultos de la tabla, menos el pk -->
+<div class="modal fade" id="modalDetalleInstitucion" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalDetalleLabel">Detalles de la Institución</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Nombre Institución:</strong>
+              <p id="detalleNombre"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>RUT Institución:</strong>
+              <p id="detalleRut"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Dirección:</strong>
+              <p id="detalleDireccion"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>Teléfono:</strong>
+              <p id="detalleTelefono"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Correo Electrónico:</strong>
+              <p id="detalleCorreo"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>Sitio Web:</strong>
+              <p id="detalleSitioWeb"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Representante Legal:</strong>
+              <p id="detalleRepresentanteLegal"></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Fecha de Creación:</strong>
+              <p id="detalleFechaCreacion"></p>
+            </div>
+            <div class="col-md-6">
+              <strong>Última Modificación:</strong>
+              <p id="detalleUltimaModificacion"></p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalDetalle = document.getElementById('modalDetalleInstitucion');
+        modalDetalle.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const nombre = button.getAttribute('data-nombre');
+            const rut = button.getAttribute('data-rut');
+            const direccion = button.getAttribute('data-direccion');
+            const telefono = button.getAttribute('data-telefono');
+            const correo = button.getAttribute('data-correo');
+            const sitio_web = button.getAttribute('data-sitio_web');
+            const representante_legal = button.getAttribute('data-representante_legal');
+            const created_at = button.getAttribute('data-created_at');
+            const updated_at = button.getAttribute('data-updated_at');
+
+
+            modalDetalle.querySelector('#detalleNombre').textContent = nombre;
+            modalDetalle.querySelector('#detalleRut').textContent = rut;
+            modalDetalle.querySelector('#detalleDireccion').textContent = direccion;
+            modalDetalle.querySelector('#detalleTelefono').textContent = telefono;
+            modalDetalle.querySelector('#detalleCorreo').textContent = correo;
+            modalDetalle.querySelector('#detalleSitioWeb').textContent = sitio_web;
+            modalDetalle.querySelector('#detalleRepresentanteLegal').textContent = representante_legal;
+            modalDetalle.querySelector('#detalleFechaCreacion').textContent = created_at;
+            modalDetalle.querySelector('#detalleUltimaModificacion').textContent = updated_at;
+
+        });
+    });
+  </script>
+  
+
+  <div class="modal fade" id="modalAulas" tabindex="-1" aria-labelledby="modalAulasLabel" aria-hidden="true" style="height: 1000px;">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAulasLabel">Aulas de la Institución</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="contenidoAulas">
+          <div class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modalAulas = document.getElementById('modalAulas');
+  
+      function cargarContenidoModal(institucionId) {
+        const contenido = modalAulas.querySelector('#contenidoAulas');
+        contenido.innerHTML = `
+          <div class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>`;
+  
+        fetch(`/institucion/${institucionId}/aulas/`)
+          .then(response => response.json())
+          .then(data => {
+            contenido.innerHTML = data.html;
+            asignarEventosAgregar(institucionId);
+            asignarEventosModificar();
+            asignarEventosEliminar(institucionId);
+          });
+      }
+  
+      function asignarEventosAgregar(institucionId) {
+        const btnAgregar = document.getElementById('agregarAula');
+        if (btnAgregar) {
+          btnAgregar.addEventListener('click', function () {
+            const tabla = document.getElementById('tablaAulas');
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.innerHTML = `
+              <td><input type="text" class="form-control" name="nro_aula" style="width:100px "></td>
+              <td><input type="text" class="form-control" name="tamanio" style="width:100px"></td>
+              <td><input type="text" class="form-control" name="cantidad_alumnos" style="width:100px"></td>
+              <td><input type="text" class="form-control" name="descripcion" style="width:100px"></td>
+              <td><button class="btn btn-success btn-sm guardar-aula">Guardar</button></td>
+            `;
+            tabla.appendChild(nuevaFila);
+  
+            nuevaFila.querySelector('.guardar-aula').addEventListener('click', function () {
+              const nro_aula = nuevaFila.querySelector('[name="nro_aula"]').value;
+              const tamanio = nuevaFila.querySelector('[name="tamanio"]').value;
+              const cantidad_alumnos = nuevaFila.querySelector('[name="cantidad_alumnos"]').value;
+              const descripcion = nuevaFila.querySelector('[name="descripcion"]').value;
+  
+              fetch(`/institucion/${institucionId}/aulas/agregar/`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                  nro_aula,
+                  tamanio,
+                  cantidad_alumnos,
+                  descripcion
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  // Recargar contenido y re-asignar eventos
+                  cargarContenidoModal(institucionId);
+                } else {
+                  alert('Error al guardar aula');
+                }
+              })
+              .catch(error => {
+                console.error('Error en fetch:', error);
+                alert('Error al guardar aula');
+              });
+            });
+          });
+        }
+      }
+
+      function asignarEventosModificar() {
+  const botonesModificar = document.querySelectorAll('.modificar-aula');
+  botonesModificar.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const fila = btn.closest('tr');
+      const isEditando = btn.textContent === "Guardar";
+
+      if (isEditando) {
+        // Guardar datos
+        const nro_aula = fila.querySelector('[name="nro_aula"]').value;
+        const tamanio = fila.querySelector('[name="tamanio"]').value;
+        const cantidad = fila.querySelector('[name="cantidad_alumnos"]').value;
+        const descripcion = fila.querySelector('[name="descripcion"]').value;
+        const id = btn.getAttribute('data-id');
+
+        fetch(`/institucion/aula/${id}/modificar/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({
+            nro_aula,
+            tamanio,
+            cantidad_alumnos: cantidad,
+            descripcion
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            fila.innerHTML = `
+              <td>${nro_aula}</td>
+              <td>${tamanio}</td>
+              <td>${cantidad}</td>
+              <td>${descripcion}</td>
+              <td>
+                <button class="btn btn-primary btn-sm modificar-aula" data-id="${id}">Modificar</button>
+                <button class="btn btn-danger btn-sm eliminar-aula" data-id="${id}">Eliminar</button>
+              </td>`;
+            asignarEventosModificar(); // Reasignar eventos
+            asignarEventosEliminar();
+          } else {
+            alert("Error al guardar cambios");
+          }
+        });
+      } else {
+        // Cambiar a modo edición
+        const celdas = fila.querySelectorAll('td');
+        const nro_aula = celdas[0].textContent.trim();
+        const tamanio = celdas[1].textContent.trim();
+        const cantidad = celdas[2].textContent.trim();
+        const descripcion = celdas[3].textContent.trim();
+
+        fila.innerHTML = `
+          <td><input class="form-control" type="text" name="nro_aula" value="${nro_aula}" /></td>
+          <td><input class="form-control" type="text" name="tamanio" value="${tamanio}" /></td>
+          <td><input class="form-control" type="text" name="cantidad_alumnos" value="${cantidad}" /></td>
+          <td><input class="form-control" type="text" name="descripcion" value="${descripcion}" /></td>
+          <td>
+            <button class="btn btn-success btn-sm modificar-aula" data-id="${btn.getAttribute('data-id')}">Guardar</button>
+            <button class="btn btn-danger btn-sm eliminar-aula" data-id="${btn.getAttribute('data-id')}">Eliminar</button>
+          </td>`;
+        asignarEventosModificar(); // Reasignar para los nuevos botones
+      }
+    });
+  });
+}
+
+function asignarEventosEliminar(institucionId) {
+  const botonesEliminar = document.querySelectorAll('.eliminar-aula');
+
+  botonesEliminar.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const id = btn.getAttribute('data-id');
+
+      if (confirm('¿Estás seguro de que quieres eliminar esta aula?')) {
+        fetch(`/institucion/aula/${id}/eliminar/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const institucionId = modalAulas.getAttribute('data-institucion-id'); // ← Aquí recuperas el ID
+            cargarContenidoModal(institucionId);
+          } else {
+            alert('No se pudo eliminar el aula');
+          }
+        })
+        .catch(error => {
+          console.error('Error eliminando aula:', error);
+          alert('Error al intentar eliminar el aula');
+        });
+      }
+    });
+  });
+}
+
+  
+      modalAulas.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const institucionId = button.getAttribute('data-institucion-id');
+        modalAulas.setAttribute('data-institucion-id', institucionId);
+        cargarContenidoModal(institucionId);
+        
+      });
+    });
+  </script>
+  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const buscador = document.getElementById('buscadorInstituciones');
+        const tabla = document.getElementById('tablaInstituciones');
+    
+        if (buscador && tabla) {
+            buscador.addEventListener('input', function () {
+                const filtro = buscador.value.toLowerCase();
+                const filas = tabla.querySelectorAll('tbody tr');
+    
+                filas.forEach(fila => {
+                    const nombre = fila.querySelector('.nombre')?.textContent.toLowerCase() || '';
+                    const rut = fila.querySelector('.rut')?.textContent.toLowerCase() || '';
+                    const coincide = nombre.includes(filtro) || rut.includes(filtro);
+    
+                    fila.style.display = coincide ? '' : 'none';
+                });
+            });
+        }
+    });
+    </script>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const tabla = document.getElementById('tablaInstituciones');
+          const headers = tabla.querySelectorAll('th.ordenable');
+          let ordenAscendente = {};
+      
+          headers.forEach(header => {
+              const columna = parseInt(header.dataset.columna);
+              ordenAscendente[columna] = true;
+      
+              header.addEventListener('click', () => {
+                  const filas = Array.from(tabla.querySelectorAll('tbody tr'));
+                  filas.sort((a, b) => {
+                      const textoA = a.children[columna].textContent.trim().toLowerCase();
+                      const textoB = b.children[columna].textContent.trim().toLowerCase();
+      
+                      if (textoA < textoB) return ordenAscendente[columna] ? -1 : 1;
+                      if (textoA > textoB) return ordenAscendente[columna] ? 1 : -1;
+                      return 0;
+                  });
+      
+                  // Alterna la dirección
+                  ordenAscendente[columna] = !ordenAscendente[columna];
+      
+                  // Reemplaza el tbody con las filas ordenadas
+                  const tbody = tabla.querySelector('tbody');
+                  tbody.innerHTML = '';
+                  filas.forEach(fila => tbody.appendChild(fila));
+      
+                  // Actualiza las flechas visuales
+                  headers.forEach(h => h.querySelector('.flecha').textContent = '↕');
+                  header.querySelector('.flecha').textContent = ordenAscendente[columna] ? '↑' : '↓';
+              });
+          });
+      });
+      </script>
+      
+  
+
+      <!-- <script>
+        let timer = null;
+        const form = document.getElementById('formBuscadorInstituciones');
+        const input = form.querySelector('input[name="busqueda"]');
+      
+        input.addEventListener('input', () => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            form.submit();
+          }, 500); // espera 500ms después de dejar de escribir
+        });
+      </script> -->
+      
+
+{% endblock %}

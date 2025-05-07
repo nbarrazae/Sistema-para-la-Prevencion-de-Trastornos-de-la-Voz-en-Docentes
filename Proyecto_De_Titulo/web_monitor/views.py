@@ -8,22 +8,61 @@ from django.http import JsonResponse
 import json
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.loader import render_to_string
+from django.db.models import Q
+from django.db import IntegrityError
+from django.contrib import messages
 
 
 
 def index(request):
     return render(request, 'index.html')
+
 def instituciones(request):
-    #obterner todas las instituciones y pasarlas al template
+    busqueda = request.GET.get('busqueda', '')
+
     instituciones = Institucion.objects.all()
-    paginator = Paginator(instituciones, 10)  # 10 por página
+    
+    if busqueda:
+        instituciones = instituciones.filter(
+            Q(nombre_institucion__icontains=busqueda) |
+            Q(rut_institucion__icontains=busqueda)
+        )
+
+    # ordenamiento
+    orden = request.GET.get('orden', 'nombre_institucion')
+    direccion = request.GET.get('direccion', 'asc')
+    if direccion == 'desc':
+        orden = '-' + orden
+    instituciones = instituciones.order_by(orden)
+
+    paginator = Paginator(instituciones, 10)
+    page = request.GET.get('page')
+    page_obj = paginator.get_page(page)
+
+    context = {
+        'page_obj': page_obj,
+    }
+    return render(request, 'instituciones/base-instituciones.html', context)
+def listar_instituciones(request):
+    orden = request.GET.get('orden', 'nombre_institucion')
+    direccion = request.GET.get('direccion', 'asc')
+    
+    if direccion == 'desc':
+        orden = f'-{orden}'
+
+    instituciones = Institucion.objects.all().order_by(orden)
+
+    paginator = Paginator(instituciones, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    contexto = {'page_obj': page_obj}
+    return render(request, 'instituciones.html', contexto)
 
-    return render(request, 'instituciones.html', {
-        'page_obj': page_obj,
-        'page_range': paginator.get_elided_page_range(number=page_obj.number, on_each_side=2, on_ends=1),
-    })
+
+
+
 def eliminar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == 'POST':
@@ -42,12 +81,123 @@ def editar_institucion(request, pk):
         institucion.save()
         return redirect('instituciones')  # o tu vista actual
 
+# def crear_institucion(request):
+#     if request.method == "POST":
+#         institucion = Institucion(
+#             nombre_institucion=request.POST.get("nombre_institucion"),
+#             rut_institucion=request.POST.get("rut_institucion"),
+#             direccion=request.POST.get("direccion"),
+#             sitio_web=request.POST.get("sitio_web"),
+#             representante_legal=request.POST.get("representante_legal"),
+#             telefono_institucion=request.POST.get("telefono_institucion"),
+#             correo_institucion=request.POST.get("correo_institucion")
+#         )
+#         institucion.save()
+#         return redirect('instituciones')  # o tu vista actual
 
+
+def crear_institucion(request):
+    if request.method == "POST":
+        try:
+            institucion = Institucion(
+                nombre_institucion=request.POST.get("nombre_institucion"),
+                rut_institucion=request.POST.get("rut_institucion"),
+                direccion=request.POST.get("direccion"),
+                sitio_web=request.POST.get("sitio_web"),
+                representante_legal=request.POST.get("representante_legal"),
+                telefono_institucion=request.POST.get("telefono_institucion"),
+                correo_institucion=request.POST.get("correo_institucion")
+            )
+            institucion.save()
+            messages.success(request, "Institución creada correctamente.")
+        except IntegrityError as e:
+            print(e)
+            messages.error(request, "Error: ya existe una institución con ese RUT.")
+        except Exception as e:
+            print(e)
+            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
+        return redirect('instituciones')
+
+
+def obtener_aulas(request, pk):
+    institucion = get_object_or_404(Institucion, pk=pk)
+    #busca todas las aulas de la institucion
+    aulas = Aula.objects.filter(id_institucion=institucion)
+    # Si no hay aulas, devuelve un mensaje
+    # if not aulas:
+    #     return JsonResponse({'html': '<p>No hay aulas disponibles</p>'})
+    try:
+        html = render_to_string("instituciones/modals/aula_contenido.html", {'aulas': aulas, 'institucion': institucion}, request=request)
+        return JsonResponse({'html': html})
+    except Exception as e:
+        print("❌ Error al renderizar:", e)
+        return JsonResponse({'html': '<p>Error al cargar aulas</p>'})
+
+import json
+
+def crear_aula(request, pk):
+    if request.method == "POST":
+        print("📥 Recibido POST JSON")
+
+        data = json.loads(request.body)
+        print("Contenido del JSON:", data)  # 👈 Aquí ves qué se está enviando
+
+        aula = Aula(
+            nro_aula=data.get("nro_aula"),
+            tamaño=data.get("tamanio"),
+            cantidad_alumnos=data.get("cantidad_alumnos"),
+            descripcion=data.get("descripcion"),
+            id_institucion_id=pk  # 👈 Ya viene en la URL
+        )
+        aula.save()
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
+
+def eliminar_aula(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        aula.delete()
+        return redirect('instituciones')  # Nombre de tu vista principal
+
+    return render(request, 'confirmar_eliminacion.html', {'aula': aula})
+    
+
+def modificar_aula(request, pk):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        try:
+            aula = Aula.objects.get(pk=pk)
+            aula.nro_aula = data.get("nro_aula", aula.nro_aula)
+            aula.tamaño = data.get("tamanio", aula.tamaño)
+            aula.cantidad_alumnos = data.get("cantidad_alumnos", aula.cantidad_alumnos)
+            aula.descripcion = data.get("descripcion", aula.descripcion)
+            aula.save()
+            return JsonResponse({"success": True})
+        except Aula.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Aula no encontrada"})
+
+
+@csrf_exempt  # solo si no estás manejando CSRF correctamente en el fetch
+def eliminar_aula(request, pk):
+    aula = get_object_or_404(Aula, pk=pk)
+    if request.method == 'POST':
+        aula.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
+
+def buscar_instituciones_ajax(request):
+    query = request.GET.get('q', '')
+    instituciones = Institucion.objects.filter(
+        Q(nombre_institucion__icontains=query) |
+        Q(rut_institucion__icontains=query)
+    ).values('nombre_institucion', 'rut_institucion', 'direccion')[:10]  # Devuelve máximo 10 resultados
+    return JsonResponse(list(instituciones), safe=False)
 
 
 
 def profesores(request):
-    return render(request, 'profesores.html')
+    return render(request, 'profesores/base-profesores.html')
 def dispositivos_iot(request):
     return render(request, 'dispositivos_iot.html')
 def usuarios(request):

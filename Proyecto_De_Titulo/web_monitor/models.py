@@ -10,6 +10,8 @@ class Institucion(models.Model):
     representante_legal = models.CharField(max_length=50, null=False, blank=False)
     telefono_institucion = models.CharField(max_length=12, null=False, blank=False)
     correo_institucion = models.EmailField(max_length=50, null=False, blank=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
  
     def __str__(self):
         return self.nombre_institucion
