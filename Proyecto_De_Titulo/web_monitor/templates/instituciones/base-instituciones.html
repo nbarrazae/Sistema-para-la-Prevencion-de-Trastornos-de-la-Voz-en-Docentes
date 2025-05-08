@@ -21,7 +21,7 @@
 
   <div class="card mb-3" style="background-color: white;"> 
 
-    <div class="card-body" style="background-color: white;">
+    <div class="card-body text-center" style="background-color: white;">
       <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a> </div>
       {% include 'instituciones/modals/agregar.html' %}
 
@@ -31,7 +31,7 @@
         <button type="submit" class="btn btn-primary">Buscar</button>
       </form>
     
-      {% include 'instituciones/tabla.html' %}
+      {% include 'instituciones/tabla-instituciones.html' %}
 
       
       {% include 'instituciones/modals/detalle.html' %}
@@ -49,10 +49,10 @@
     </div>
 
     {% block extra_js %}
-    <script src="{% static 'js/scripts/eliminar.js' %}"></script>
-    <script src="{% static 'js/scripts/editar.js' %}"></script>
-    <script src="{% static 'js/scripts/detalle.js' %}"></script>
-    <script src="{% static 'js/scripts/aulas.js' %}"></script>
+    <script src="{% static 'js/instituciones-js/eliminar.js' %}"></script>
+    <script src="{% static 'js/instituciones-js/editar.js' %}"></script>
+    <script src="{% static 'js/instituciones-js/detalle.js' %}"></script>
+    <script src="{% static 'js/instituciones-js/aulas.js' %}"></script>
   {% endblock %}
 
   </div>
