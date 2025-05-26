@@ -82,37 +82,6 @@ document.addEventListener('DOMContentLoaded', function () {
       alert('Error al agregar horario');
     }
   });
-  async function eliminarHorario(idHorario) {
-  if (!confirm('¿Eliminar este horario?')) return;
-
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-  const response = await fetch(`/eliminar_horario/${idHorario}/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': csrfToken
-    }
-  });
-
-  const result = await response.json();
-
-  if (result.success) {
-    alert('Horario eliminado correctamente');
-
-    // Recarga la lista actualizada de horarios
-    const id_profesor = document.getElementById('idProfesorHorario').value;
-    const horarios = await fetch(`/horarios_por_profesor/${id_profesor}/`).then(r => r.json());
-    const horariosDiv = document.getElementById('listaHorariosProfesor');
-    horariosDiv.innerHTML = horarios.map(h => `
-      <div class="border p-2 mb-2 d-flex justify-content-between align-items-center">
-        <span>${h.dia}: ${h.hora_inicio} - ${h.hora_termino} | Aula: ${h.nombre_aula}</span>
-        <button class="btn btn-sm btn-danger" onclick="eliminarHorario(${h.id_horario})">Eliminar</button>
-      </div>
-    `).join('');
-  } else {
-    alert('Error al eliminar el horario');
-  }
-}
 
 
 async function eliminarHorario(idHorario) {
