@@ -1,0 +1,84 @@
+<div class="modal fade" id="modalAgregarProfesor" tabindex="-1" aria-labelledby="modalAgregarProfesorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form method="POST" action="{% url 'crear_profesor' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAgregarProfesorLabel">Agregar Nuevo Profesor</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+  
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="rut_profesor" class="form-label">RUT</label>
+                <input type="text" class="form-control" name="rut_profesor" required>
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="correo_profesor" class="form-label">Correo</label>
+                <input type="email" class="form-control" name="correo_profesor" required>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="nombre_profesor" class="form-label">Nombre</label>
+                <input type="text" class="form-control" name="nombre_profesor" required>
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="apellido_profesor" class="form-label">Apellido</label>
+                <input type="text" class="form-control" name="apellido_profesor" required>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="sexo" class="form-label">Sexo</label>
+                <select class="form-select" name="sexo" required>
+                  <option value="" selected disabled>Seleccione</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Femenino</option>
+                </select>
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="id_institucion" class="form-label">Institución</label>
+                <select class="form-select" name="id_institucion" required>
+                  <option value="" selected disabled>Seleccione institución</option>
+                  {% for institucion in instituciones %}
+                    <option value="{{ institucion.id_institucion }}">{{ institucion.nombre_institucion }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="mb-3 col-md-6">
+                <label for="altura" class="form-label">Altura (cm)</label>
+                <input type="number" step="0.01" class="form-control" name="altura">
+              </div>
+              <div class="mb-3 col-md-6">
+                <label for="peso" class="form-label">Peso (kg)</label>
+                <input type="number" step="0.01" class="form-control" name="peso">
+              </div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="antecedentes_medicos" class="form-label">Antecedentes Médicos</label>
+              <input type="text" class="form-control" name="antecedentes_medicos">
+            </div>
+  
+            <div class="mb-3">
+              <label for="area_docencia" class="form-label">Área de Docencia</label>
+              <input type="text" class="form-control" name="area_docencia" required>
+            </div>
+  
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Agregar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

@@ -15,15 +15,16 @@
 {% endif %} 
 
 <body style="background-color: #f3f3f3;">
-  <!-- <h1 class="text-primary">Cargando Instituciones </h1>
+  <!-- <h1 class="text-primary">Cargando profesores </h1>
   <p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
-  <p>Instituciones que participan en el proyecto:</p> -->
+  <p>profesores que participan en el proyecto:</p> -->
 
   <div class="card mb-3" style="background-color: white;"> 
 
     <div class="card-body text-center" style="background-color: white;">
-      <a href="" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="">Agregar Profesor</a> </div>
-      <!-- {% include 'profesores/modals/agregar.html' %} -->
+      <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarProfesor">Agregar Profesor</a>
+ </div>
+      {% include 'profesores/modals/agregar.html' %}
 
       <!-- Buscador -->
       <!-- <form method="get" id="formBuscadorInstituciones" class="mb-3 d-flex gap-2">
@@ -31,13 +32,13 @@
         <button type="submit" class="btn btn-primary">Buscar</button>
       </form> -->
     
-      <!-- {% include 'instituciones/tabla-instituciones.html' %} -->
+      {% include 'profesores/tabla-profesores.html' %}
 
       
-      <!-- {% include 'instituciones/modals/detalle.html' %} -->
-      <!-- {% include 'instituciones/modals/editar.html' %} -->
-      <!-- {% include 'instituciones/modals/eliminar.html' %} -->
-      <!-- {% include 'instituciones/modals/aulas.html' %} -->
+      {% include 'profesores/modals/detalle.html' %}
+      {% include 'profesores/modals/editar.html' %}
+      {% include 'profesores/modals/eliminar.html' %}
+      {% include 'profesores/modals/horario.html' %}
     {% endblock %}
     
 
@@ -49,10 +50,10 @@
     </div>
 
     {% block extra_js %}
-    <!-- <script src="{% static 'js/instituciones-js/eliminar.js' %}"></script> -->
-    <!-- <script src="{% static 'js/instituciones-js/editar.js' %}"></script> -->
-    <!-- <script src="{% static 'js/instituciones-js/detalle.js' %}"></script> -->
-    <!-- <script src="{% static 'js/instituciones-js/aulas.js' %}"></script> -->
+    <script src="{% static 'js/profesores-js/detalle.js' %}"></script>
+    <script src="{% static 'js/profesores-js/editar.js' %}"></script>
+    <script src="{% static 'js/profesores-js/eliminar.js' %}"></script>
+    <script src="{% static 'js/profesores-js/horario.js' %}"></script>
   {% endblock %}
 
   </div>

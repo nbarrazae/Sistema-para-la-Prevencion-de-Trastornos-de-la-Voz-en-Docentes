@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.db.models import Q
 from django.db import IntegrityError
 from django.contrib import messages
+from django.views.decorators.http import require_http_methods
 
 
 
@@ -44,6 +45,7 @@ def instituciones(request):
         'page_obj': page_obj,
     }
     return render(request, 'instituciones/base-instituciones.html', context)
+
 def listar_instituciones(request):
     orden = request.GET.get('orden', 'nombre_institucion')
     direccion = request.GET.get('direccion', 'asc')
@@ -59,9 +61,6 @@ def listar_instituciones(request):
     
     contexto = {'page_obj': page_obj}
     return render(request, 'instituciones.html', contexto)
-
-
-
 
 def eliminar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
@@ -80,21 +79,6 @@ def editar_institucion(request, pk):
         institucion.correo_institucion = request.POST.get("correo_institucion")
         institucion.save()
         return redirect('instituciones')  # o tu vista actual
-
-# def crear_institucion(request):
-#     if request.method == "POST":
-#         institucion = Institucion(
-#             nombre_institucion=request.POST.get("nombre_institucion"),
-#             rut_institucion=request.POST.get("rut_institucion"),
-#             direccion=request.POST.get("direccion"),
-#             sitio_web=request.POST.get("sitio_web"),
-#             representante_legal=request.POST.get("representante_legal"),
-#             telefono_institucion=request.POST.get("telefono_institucion"),
-#             correo_institucion=request.POST.get("correo_institucion")
-#         )
-#         institucion.save()
-#         return redirect('instituciones')  # o tu vista actual
-
 
 def crear_institucion(request):
     if request.method == "POST":
@@ -196,8 +180,150 @@ def buscar_instituciones_ajax(request):
 
 
 
+# def profesores(request):
+#     return render(request, 'profesores/base-profesores.html')
+
 def profesores(request):
-    return render(request, 'profesores/base-profesores.html')
+    #print("hola")
+    orden = request.GET.get('orden', 'apellido_profesor')  # orden por defecto
+    direccion = request.GET.get('direccion', 'asc')
+    orden_final = orden if direccion == 'asc' else f'-{orden}'
+    instituciones = Institucion.objects.all()
+    profesores = Profesor.objects.select_related('id_institucion').order_by(orden_final)
+    DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+    # paginación
+    paginator = Paginator(profesores, 10)  # 10 profesores por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # cálculo de rango de páginas para mostrar (como en el ejemplo HTML)
+    page_range = []
+    if paginator.num_pages <= 10:
+        page_range = range(1, paginator.num_pages + 1)
+    else:
+        if page_obj.number <= 6:
+            page_range = list(range(1, 8)) + ['…', paginator.num_pages]
+        elif page_obj.number > paginator.num_pages - 6:
+            page_range = [1, '…'] + list(range(paginator.num_pages - 6, paginator.num_pages + 1))
+        else:
+            page_range = [1, '…'] + list(range(page_obj.number - 2, page_obj.number + 3)) + ['…', paginator.num_pages]
+
+    return render(request, 'profesores/base-profesores.html', {
+        'page_obj': page_obj,
+        'page_range': page_range,
+        'orden': orden,
+        'direccion': direccion,
+        'instituciones': instituciones,
+        'dias_semana': DIAS_SEMANA,
+    })
+
+def crear_profesor(request):
+    if request.method == 'POST':
+        try:
+            institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
+
+            profesor = Profesor.objects.create(
+                rut_profesor=request.POST['rut_profesor'],
+                nombre_profesor=request.POST['nombre_profesor'],
+                apellido_profesor=request.POST['apellido_profesor'],
+                correo_profesor=request.POST['correo_profesor'],
+                sexo=request.POST['sexo'],
+                altura=request.POST.get('altura') or None,
+                peso=request.POST.get('peso') or None,
+                antecedentes_medicos=request.POST.get('antecedentes_medicos') or '',
+                area_docencia=request.POST['area_docencia'],
+                id_institucion=institucion
+            )
+            messages.success(request, "Profesor creado correctamente.")
+        except Institucion.DoesNotExist:
+            messages.error(request, "La institución seleccionada no existe.")
+        except Exception as e:
+            messages.error(request, f"Error al crear el profesor: {e}")
+        
+    return redirect('profesores')  # Redirige a la lista de profesores después de crear uno
+
+@require_http_methods(["POST"])
+def editar_profesor(request, pk):
+    profesor = get_object_or_404(Profesor, pk=pk)
+
+    # Rellenar los datos desde request.POST
+    profesor.nombre_profesor = request.POST.get('nombre_profesor')
+    profesor.apellido_profesor = request.POST.get('apellido_profesor')
+    profesor.rut_profesor = request.POST.get('rut_profesor')
+    profesor.correo_profesor = request.POST.get('correo_profesor')
+    profesor.sexo = request.POST.get('sexo')
+    profesor.altura = request.POST.get('altura')
+    profesor.peso = request.POST.get('peso')
+    profesor.antecedentes_medicos = request.POST.get('antecedentes_medicos')
+    profesor.area_docencia = request.POST.get('area_docencia')
+    profesor.id_institucion_id = request.POST.get('id_institucion')  # usar _id si es clave foránea
+
+    profesor.save()
+
+    return redirect('profesores')  # o la vista donde se lista todo
+
+
+def eliminar_profesor(request, id_profesor):
+    profesor = get_object_or_404(Profesor, id_profesor=id_profesor)
+    if request.method == 'POST':
+        profesor.delete()
+        messages.success(request, 'Profesor eliminado exitosamente.')
+    return redirect('profesores')
+
+def aulas_por_institucion(request, id_institucion):
+    print(id_institucion)
+    aulas = Aula.objects.filter(id_institucion=id_institucion).values('id_aula', 'nro_aula')
+    print(aulas)
+    return JsonResponse(list(aulas), safe=False)
+
+def horarios_por_profesor(request, id_profesor):
+    horarios = Horario.objects.filter(id_profesor=id_profesor).select_related('id_aula')
+    data = [
+        {
+            'id_horario': h.id_horario,
+            'dia': h.dia,
+            'hora_inicio': str(h.hora_inicio),
+            'hora_termino': str(h.hora_termino),
+            'nombre_aula': h.id_aula.nro_aula,
+        }
+        for h in horarios
+    ]
+    return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def eliminar_horario(request, id_horario):
+    if request.method == 'POST':
+        try:
+            horario = Horario.objects.get(id_horario=id_horario)
+            horario.delete()
+            return JsonResponse({'success': True})
+        except Horario.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Horario no encontrado'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+from datetime import time
+
+@csrf_exempt  # Solo si no manejas CSRF en el fetch, de lo contrario omite esto
+def agregar_horario(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        id_profesor = data.get('id_profesor')
+        dia = data.get('dia')
+        hora_inicio = data.get('hora_inicio')
+        hora_termino = data.get('hora_termino')
+        id_aula = data.get('id_aula')
+
+        horario = Horario.objects.create(
+            id_profesor_id=id_profesor,
+            dia=dia,
+            hora_inicio=hora_inicio,
+            hora_termino=hora_termino,
+            id_aula_id=id_aula
+        )
+        return JsonResponse({'success': True, 'message': 'Horario agregado correctamente'})
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
 def dispositivos_iot(request):
     return render(request, 'dispositivos_iot.html')
 def usuarios(request):

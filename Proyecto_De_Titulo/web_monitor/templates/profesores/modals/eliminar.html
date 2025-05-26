@@ -1,0 +1,21 @@
+<div class="modal fade" id="confirmarEliminacionProfesorModal" tabindex="-1" aria-labelledby="confirmarEliminacionProfesorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" id="formEliminarProfesor">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmarEliminacionProfesorLabel">Confirmar Eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro que deseas eliminar al profesor <strong id="nombreProfesorEliminar"></strong>?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
