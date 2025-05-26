@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula, buscar_instituciones_ajax
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula, buscar_instituciones_ajax,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
@@ -38,7 +38,15 @@ urlpatterns = [
     path('institucion/<int:pk>/aulas/agregar/', crear_aula, name='agregar_aula'),
     path('institucion/aula/<int:pk>/modificar/', modificar_aula, name='modificar_aula'),
     path('institucion/aula/<int:pk>/eliminar/', eliminar_aula, name='eliminar_aula'),
-    path('instituciones/buscar_ajax/', buscar_instituciones_ajax, name='buscar_instituciones_ajax')
+    path('instituciones/buscar_ajax/', buscar_instituciones_ajax, name='buscar_instituciones_ajax'),
+    path('profesores/crear/', crear_profesor, name='crear_profesor'),
+    path('profesores/editar/<int:pk>/', editar_profesor, name='editar_profesor'),
+    path('profesores/eliminar/<int:id_profesor>/', eliminar_profesor, name='eliminar_profesor'),
+    path('aulas_por_institucion/<int:id_institucion>/', aulas_por_institucion),
+    path('horarios_por_profesor/<int:id_profesor>/', horarios_por_profesor),
+    path('eliminar_horario/<int:id_horario>/', eliminar_horario, name='eliminar_horario'),
+    path('agregar_horario/', agregar_horario, name='agregar_horario'),
+
 
 
 

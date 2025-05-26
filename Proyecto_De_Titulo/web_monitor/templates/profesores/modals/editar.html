@@ -1,0 +1,82 @@
+<div class="modal fade" id="modalEditarProfesor" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" id="formEditarProfesor">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEditarLabel">Editar Profesor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" id="editarNombre" name="nombre_profesor" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="Apellido" class="form-label">Apellido</label>
+            <input type="text" id="editarApellido" name="apellido_profesor" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="RUT" class="form-label">RUT</label>
+            <input type="text" id="editarRut" name="rut_profesor" class="form-control">
+
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Correo electronico</label>
+            <input type="email" id="editarCorreo" name="correo_profesor" class="form-control">
+
+          </div>
+
+          <div class="mb-3">
+            <label for="Sexo" class="form-label">Sexo</label>
+            <select id="editarSexo" name="sexo" class="form-select">
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+
+            <div class="mb-3 d-flex justify-content-between">
+            <div class="me-2" style="flex: 1;">
+              <label for="Altura" class="form-label">Altura</label>
+              <input type="number" id="editarAltura" name="altura" class="form-control">
+            </div>
+            <div style="flex: 1;">
+              <label for="Peso" class="form-label">Peso</label>
+              <input type="number" id="editarPeso" name="peso" class="form-control">
+            </div>
+            </div>
+
+          <div class="mb-3">
+            <label for="antecendentes" class="form-label">Antecedentes Medicos</label>
+            <textarea id="editarAntecedentes" name="antecedentes_medicos" class="form-control"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="area" class="form-label">Area Docencia</label>
+            <input type="text" id="editarArea" name="area_docencia" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="editarInstitucion" class="form-label">Institución</label>
+            <select id="editarInstitucion" name="id_institucion" class="form-select">
+              {% for institucion in instituciones %}
+                <option value="{{ institucion.id_institucion }}">{{ institucion.nombre_institucion }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

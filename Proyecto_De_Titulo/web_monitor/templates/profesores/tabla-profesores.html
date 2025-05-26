@@ -1,0 +1,136 @@
+<div class="table-responsive">
+  <table class="table table-bordered table-hover" id="tablaProfesores">
+    <thead>
+      <tr>
+        <th>
+          <a href="?orden=nombre_profesor&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'nombre_profesor' %}desc{% else %}asc{% endif %}">
+            Nombre
+            {% if request.GET.orden == 'nombre_profesor' %}
+              {% if request.GET.direccion == 'asc' %} ↑
+              {% else %} ↓
+              {% endif %}
+            {% endif %}
+          </a>
+        </th>
+        <!-- <th>
+          <a href="?orden=apellido_profesor&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'apellido_profesor' %}desc{% else %}asc{% endif %}">
+            Apellido
+            {% if request.GET.orden == 'apellido_profesor' %}
+              {% if request.GET.direccion == 'asc' %} ↑
+              {% else %} ↓
+              {% endif %}
+            {% endif %}
+          </a>
+        </th> -->
+        <th>
+          <a href="?orden=rut_profesor&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'rut_profesor' %}desc{% else %}asc{% endif %}">
+            RUT
+            {% if request.GET.orden == 'rut_profesor' %}
+              {% if request.GET.direccion == 'asc' %} ↑
+              {% else %} ↓
+              {% endif %}
+            {% endif %}
+          </a>
+        </th>
+        <th>Institución</th>
+        <th>Detalle</th>
+        <th>Editar</th>
+        <th>Eliminar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for profesor in page_obj %}
+      <tr>
+        <td>{{ profesor.nombre_profesor }} {{ profesor.apellido_profesor }}</td>
+        <!-- <td>{{ profesor.apellido_profesor }}</td> -->
+        <td>{{ profesor.rut_profesor }}</td>
+        <td>{{ profesor.id_institucion.nombre_institucion }}</td>
+        <td class="text-center">
+          <a href="#" class="text-info"
+            data-bs-toggle="modal"
+            data-bs-target="#modalDetalleProfesor"
+            data-nombre="{{ profesor.nombre_profesor }}"
+            data-apellido="{{ profesor.apellido_profesor }}"
+            data-rut="{{ profesor.rut_profesor }}"
+            data-correo="{{ profesor.correo_profesor }}"
+            data-sexo="{{ profesor.get_sexo_display }}"
+            data-altura="{{ profesor.altura }}"
+            data-peso="{{ profesor.peso }}"
+            data-antecedentes="{{ profesor.antecedentes_medicos }}"
+            data-area="{{ profesor.area_docencia }}"
+            data-institucion="{{ profesor.id_institucion.nombre_institucion }}">
+            <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
+          </a>
+        </td>
+        <td class="text-center">
+          <a href="#" class="text-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#modalEditarProfesor"
+            data-url="{% url 'editar_profesor' profesor.id_profesor %}"
+            data-nombre="{{ profesor.nombre_profesor }}"
+            data-apellido="{{ profesor.apellido_profesor }}"
+            data-rut="{{ profesor.rut_profesor }}"
+            data-correo="{{ profesor.correo_profesor }}"
+            data-sexo="{{ profesor.sexo }}"
+            data-altura="{{ profesor.altura }}"
+            data-peso="{{ profesor.peso }}"
+            data-antecedentes="{{ profesor.antecedentes_medicos }}"
+            data-area="{{ profesor.area_docencia }}"
+            data-institucion-id="{{ profesor.id_institucion.id_institucion }}">
+            <i class="fas fa-file-signature"></i>
+          </a>
+        </td>
+        <td class="text-center">
+          <a href="{% url 'eliminar_profesor' profesor.pk %}" 
+            class="text-danger" 
+            data-bs-toggle="modal"
+            data-bs-target="#confirmarEliminacionProfesorModal"
+            data-url="{% url 'eliminar_profesor' profesor.pk %}"
+            data-nombre="{{ profesor.nombre_profesor }} {{ profesor.apellido_profesor }}">
+            <i class="far fa-trash-alt"></i>
+          </a>
+
+        </td>
+
+        <td>
+          <a href="#" class="btn btn-outline-primary btn-sm" 
+             data-bs-toggle="modal" 
+             data-bs-target="#modalHorarioProfesor"
+             data-id="{{ profesor.id_profesor }}"
+             data-nombre="{{ profesor.nombre_profesor }} {{ profesor.apellido_profesor }}"
+             data-institucion="{{ profesor.id_institucion.id_institucion }}">
+             <i class="far fa-calendar-alt"></i> Horarios
+          </a>
+        </td>
+        
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="pagination justify-content-center mt-4">
+    <nav>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+          </li>
+        {% endif %}
+        {% for page in page_range %}
+          {% if page == '…' %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% elif page == page_obj.number %}
+            <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
