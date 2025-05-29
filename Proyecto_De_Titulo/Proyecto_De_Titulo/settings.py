@@ -135,8 +135,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración MQTT
-MQTT_BROKER = "127.0.0.1"  # Cambia por tu broker
-MQTT_PORT = 1883  # Puerto por defecto de MQTT
+MQTT_BROKER = "146.83.194.142"  # Cambia por tu broker
+MQTT_PORT = 1712  # Puerto por defecto de MQTT
 MQTT_TOPIC = "test/topic"  # Suscripción a múltiples dispositivos
 
 # Opcional: Usuario y contraseña (si el broker lo requiere)

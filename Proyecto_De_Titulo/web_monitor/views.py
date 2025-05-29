@@ -13,8 +13,8 @@ from django.db.models import Q
 from django.db import IntegrityError
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-
-
+from web_monitor.validators.profesor import validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos
+from django.core.exceptions import ValidationError
 
 def index(request):
     return render(request, 'index.html')
@@ -219,7 +219,16 @@ def profesores(request):
 
 def crear_profesor(request):
     if request.method == 'POST':
+
         try:
+            validate_rut(request.POST['rut_profesor'])
+            validate_email(request.POST['correo_profesor'])
+            validate_nombre(request.POST['nombre_profesor'])
+            validate_apellido(request.POST['apellido_profesor'])
+            validate_sexo(request.POST['sexo'])
+            validate_area_docencia(request.POST['area_docencia'])
+            validate_antecedentes_medicos(request.POST.get('antecedentes_medicos', ''))
+            # Verifica si la institución existe antes de crear el profesor
             institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
 
             profesor = Profesor.objects.create(
