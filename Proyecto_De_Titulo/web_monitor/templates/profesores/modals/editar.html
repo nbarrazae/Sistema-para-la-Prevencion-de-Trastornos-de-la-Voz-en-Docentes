@@ -1,3 +1,5 @@
+{% load static %}
+
 <div class="modal fade" id="modalEditarProfesor" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -10,8 +12,9 @@
         <div class="modal-body">
           
           <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" id="editarNombre" name="nombre_profesor" class="form-control">
+            <label for="nombre"">Nombre</label>
+            <input type="text" id="editarNombre" name="nombre_profesor" class="form-control placeholder="Ingrese nombre" required">
+            <span id="editarNombre-error" class="text-danger small"></span>
           </div>
 
           <div class="mb-3">
@@ -76,6 +79,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </div>
+        <script src="{% static 'js/profesores-js/validar.js' %}"></script>
       </form>
     </div>
   </div>

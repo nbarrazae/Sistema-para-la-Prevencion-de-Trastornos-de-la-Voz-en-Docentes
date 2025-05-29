@@ -1,3 +1,5 @@
+{% load static %}
+
 <div class="modal fade" id="modalAgregarProfesor" tabindex="-1" aria-labelledby="modalAgregarProfesorLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -11,23 +13,27 @@
   
             <div class="row">
               <div class="mb-3 col-md-6">
-                <label for="rut_profesor" class="form-label">RUT</label>
-                <input type="text" class="form-control" name="rut_profesor" required>
+                <label for="rut_profesor">RUT</label>
+                <input type="text" id="rut_profesor" name="rut_profesor" class="form-control" placeholder="123456789-0" required>  
+                <span id="rut-error" class="text-danger small"></span>
               </div>
               <div class="mb-3 col-md-6">
-                <label for="correo_profesor" class="form-label">Correo</label>
-                <input type="email" class="form-control" name="correo_profesor" required>
+                <label for="correo_profesor">Correo</label>
+                <input type="email" id="correo_profesor" name="correo_profesor" class="form-control" placeholder="example@gmail.com" required>
+                <span id="correo-error" class="text-danger small"></span>
               </div>
             </div>
   
             <div class="row">
               <div class="mb-3 col-md-6">
-                <label for="nombre_profesor" class="form-label">Nombre</label>
-                <input type="text" class="form-control" name="nombre_profesor" required>
+                <label for="nombre_profesor">Nombre</label>
+                <input type="text" id="nombre_profesor" name="nombre_profesor" class="form-control" placeholder="Ingrese nombre" required>
+                <span id="nombre-error" class="text-danger small"></span>
               </div>
               <div class="mb-3 col-md-6">
-                <label for="apellido_profesor" class="form-label">Apellido</label>
-                <input type="text" class="form-control" name="apellido_profesor" required>
+                <label for="apellido_profesor">Apellido</label>
+                <input type="text" id="apellido_profesor" name="apellido_profesor" class="form-control" placeholder="Ingrese apellido" required>
+                <span id="apellido-error" class="text-danger small"></span>
               </div>
             </div>
   
@@ -53,12 +59,14 @@
   
             <div class="row">
               <div class="mb-3 col-md-6">
-                <label for="altura" class="form-label">Altura (cm)</label>
-                <input type="number" step="0.01" class="form-control" name="altura">
+                <label for="altura">Altura (cm)</label>
+                <input type="number" id="altura" name="altura" class="form-control" placeholder="170 cm" required>
+                <span id="altura-error" class="text-danger small"></span>
               </div>
               <div class="mb-3 col-md-6">
-                <label for="peso" class="form-label">Peso (kg)</label>
-                <input type="number" step="0.01" class="form-control" name="peso">
+                <label for="peso">Peso (kg)</label>
+                <input type="number" id="peso" name="peso" class="form-control" placeholder="70 kg" required>
+                <span id="peso-error" class="text-danger small"></span>
               </div>
             </div>
   
@@ -77,6 +85,7 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-success">Agregar</button>
           </div>
+          <script src="{% static 'js/profesores-js/validar.js' %}"></script>
         </form>
       </div>
     </div>
