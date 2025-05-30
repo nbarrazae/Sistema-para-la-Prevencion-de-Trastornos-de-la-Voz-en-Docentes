@@ -41,17 +41,17 @@ document.addEventListener('DOMContentLoaded', function () {
     function asignarEventosAgregar(institucionId) {
       const btnAgregar = document.getElementById('agregarAula');
       if (btnAgregar) {
-        btnAgregar.addEventListener('click', function () {
-          const tabla = document.getElementById('tablaAulas');
-          const nuevaFila = document.createElement('tr');
-          nuevaFila.innerHTML = `
-            <td><input type="text" class="form-control" name="nro_aula" style="width:100px "></td>
-            <td><input type="text" class="form-control" name="tamanio" style="width:100px"></td>
-            <td><input type="text" class="form-control" name="cantidad_alumnos" style="width:100px"></td>
-            <td><input type="text" class="form-control" name="descripcion" style="width:100px"></td>
-            <td><button class="btn btn-success btn-sm guardar-aula">Guardar</button></td>
-          `;
-          tabla.appendChild(nuevaFila);
+      btnAgregar.addEventListener('click', function () {
+        const tabla = document.getElementById('tablaAulas');
+        const nuevaFila = document.createElement('tr');
+        nuevaFila.innerHTML = `
+        <td><input type="text" class="form-control text-center" name="nro_aula" style="width:90% ;"></td>
+        <td><input type="text" class="form-control text-center" name="tamanio" style="width:90%;"></td>
+        <td><input type="text" class="form-control text-center" name="cantidad_alumnos" style="width:90%;"></td>
+        <td><input type="text" class="form-control text-center" name="descripcion" style="width:90%;"></td>
+        <td><button class="btn btn-success btn-sm guardar-aula">Guardar</button></td>
+        `;
+        tabla.appendChild(nuevaFila);
 
           nuevaFila.querySelector('.guardar-aula').addEventListener('click', function () {
             const nro_aula = nuevaFila.querySelector('[name="nro_aula"]').value;
