@@ -7,13 +7,28 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .table th.nombre, .table td.nombre {
+    width: 25%;
+  }
+  .table th.rut, .table td.rut {
+    width: 20%;
+  }
+  .table th.direccion, .table td.direccion {
+    width: 25%;
+  }
+  .table th.detalle, .table td.detalle,
+  .table th.editar, .table td.editar,
+  .table th.eliminar, .table td.eliminar,
+  .table th.aulas, .table td.aulas {
+    width: 7%;
+  }
 </style>
 
 <div class="table-responsive">
     <table class="table table-bordered table-hover" id="tablaInstituciones">
         <thead>
             <tr>
-              <th>
+              <th class="nombre">
                 <a href="?orden=nombre_institucion&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'nombre_institucion' %}desc{% else %}asc{% endif %}">
                   Nombre Institución
                   {% if request.GET.orden == 'nombre_institucion' %}
@@ -24,7 +39,7 @@
                 </a>
               </th>
               
-              <th>
+              <th class="rut">
                 <a href="?orden=rut_institucion&direccion={% if request.GET.direccion == 'asc' and request.GET.orden == 'rut_institucion' %}desc{% else %}asc{% endif %}">
                   RUT Institución
                   {% if request.GET.orden == 'rut_institucion' %}
@@ -35,14 +50,11 @@
                 </a>
               </th>
               
-              
-              
-                <th>Dirección</th>
-                <th>Detalle</th>
-                <th>Editar</th>
-                <th>Eliminar</th>
-                <th>Aulas</th>
-
+              <th class="direccion">Dirección</th>
+              <th class="detalle">Detalle</th>
+              <th class="editar">Editar</th>
+              <th class="eliminar">Eliminar</th>
+              <th class="aulas">Aulas</th>
             </tr>
         </thead>
 
@@ -51,78 +63,59 @@
             <tr>
               <td class="nombre">{{ institucion.nombre_institucion }}</td>
               <td class="rut">{{ institucion.rut_institucion }}</td>
-              
-              <td>{{ institucion.direccion }}</td>
-                
-
-                <td class="text-center">
-                    <a href="#" class="text-info"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalDetalleInstitucion"
-                    data-nombre="{{ institucion.nombre_institucion }}"
-                    data-rut="{{ institucion.rut_institucion }}"
-                    data-direccion="{{ institucion.direccion }}"
-                    data-telefono="{{ institucion.telefono_institucion }}"
-                    data-correo="{{ institucion.correo_institucion }}"
-                    data-sitio_web="{{ institucion.sitio_web }}"
-                    data-representante_legal="{{ institucion.representante_legal }}"
-                    data-created_at="{{ institucion.created_at }}"
-                    data-updated_at="{{ institucion.updated_at }}">
-                    <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
-                    </a>
-                </td>
-
-
-                <td class="text-center">
-                    <a href="#" class="text-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalEditarInstitucion"
-                    data-url="{% url 'editar_institucion' institucion.pk %}"
-                    data-nombre="{{ institucion.nombre_institucion }}"
-                    data-rut="{{ institucion.rut_institucion }}"
-                    data-direccion="{{ institucion.direccion }}"
-                    data-sitio_web="{{ institucion.sitio_web }}"
-                    data-representante_legal="{{ institucion.representante_legal }}"
-                    data-telefono="{{ institucion.telefono_institucion }}"
-                    data-correo="{{ institucion.correo_institucion }}">
-                    <i class="fas fa-file-signature"></i>
-                 </a>
-                                         </td>
-
-
-
-
-                <td class="text-center">
-                    
-                    
-                    <a href="{% url 'eliminar_institucion' institucion.pk %}" 
-                        class="text-danger" 
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmarEliminacionModal"
-                        data-url="{% url 'eliminar_institucion' institucion.pk %}"
-                        data-nombre="{{ institucion.nombre_institucion }}">
-                        <i class="far fa-trash-alt"></i>
-                </a>
-
-                </td>
-
-                <td class="text-center">
-                  <a href="#" class="text-primary" data-bs-toggle="modal"
-                     data-bs-target="#modalAulas"
-                     data-institucion-id="{{ institucion.pk }}"
-                     data-institucion-nombre="{{ institucion.nombre_institucion }}">
-                      <i class="fas fa-chalkboard"></i>
+              <td class="direccion">{{ institucion.direccion }}</td>
+              <td class="detalle text-center">
+                  <a href="#" class="text-info"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalDetalleInstitucion"
+                  data-nombre="{{ institucion.nombre_institucion }}"
+                  data-rut="{{ institucion.rut_institucion }}"
+                  data-direccion="{{ institucion.direccion }}"
+                  data-telefono="{{ institucion.telefono_institucion }}"
+                  data-correo="{{ institucion.correo_institucion }}"
+                  data-sitio_web="{{ institucion.sitio_web }}"
+                  data-representante_legal="{{ institucion.representante_legal }}"
+                  data-created_at="{{ institucion.created_at }}"
+                  data-updated_at="{{ institucion.updated_at }}">
+                  <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
                   </a>
               </td>
-              
-
-
+              <td class="editar text-center">
+                  <a href="#" class="text-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalEditarInstitucion"
+                  data-url="{% url 'editar_institucion' institucion.pk %}"
+                  data-nombre="{{ institucion.nombre_institucion }}"
+                  data-rut="{{ institucion.rut_institucion }}"
+                  data-direccion="{{ institucion.direccion }}"
+                  data-sitio_web="{{ institucion.sitio_web }}"
+                  data-representante_legal="{{ institucion.representante_legal }}"
+                  data-telefono="{{ institucion.telefono_institucion }}"
+                  data-correo="{{ institucion.correo_institucion }}">
+                  <i class="fas fa-file-signature"></i>
+               </a>
+              </td>
+              <td class="eliminar text-center">
+                  <a href="{% url 'eliminar_institucion' institucion.pk %}" 
+                      class="text-danger" 
+                      data-bs-toggle="modal"
+                      data-bs-target="#confirmarEliminacionModal"
+                      data-url="{% url 'eliminar_institucion' institucion.pk %}"
+                      data-nombre="{{ institucion.nombre_institucion }}">
+                      <i class="far fa-trash-alt"></i>
+                  </a>
+              </td>
+              <td class="aulas text-center">
+                <a href="#" class="text-primary" data-bs-toggle="modal"
+                   data-bs-target="#modalAulas"
+                   data-institucion-id="{{ institucion.pk }}"
+                   data-institucion-nombre="{{ institucion.nombre_institucion }}">
+                    <i class="fas fa-chalkboard"></i>
+                </a>
+              </td>
             </tr>
             {% endfor %}
         </tbody>
-
-        
-        
     </table>
     <div class="pagination justify-content-center mt-4">
         <nav>
