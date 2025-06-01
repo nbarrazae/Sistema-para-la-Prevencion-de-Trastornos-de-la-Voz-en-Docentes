@@ -20,8 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Asignar los valores al modal
         modalDetalle.querySelector('#detalleRut').textContent = rut || '—';
         modalDetalle.querySelector('#detalleCorreo').textContent = correo || '—';
-        modalDetalle.querySelector('#detalleNombre').textContent = nombre || '—';
-        modalDetalle.querySelector('#detalleApellido').textContent = apellido || '—';
+        modalDetalle.querySelector('#detalleNombreApellido').textContent = `${nombre || '—'} ${apellido || '—'}`;
         modalDetalle.querySelector('#detalleSexo').textContent = sexo || '—';
         modalDetalle.querySelector('#detalleInstitucion').textContent = institucion || '—';
         modalDetalle.querySelector('#detalleAltura').textContent = altura || '—';

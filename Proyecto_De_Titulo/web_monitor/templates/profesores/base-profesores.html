@@ -27,10 +27,10 @@
       {% include 'profesores/modals/agregar.html' %}
 
       <!-- Buscador -->
-      <!-- <form method="get" id="formBuscadorInstituciones" class="mb-3 d-flex gap-2">
-        <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o RUT" value="{{ request.GET.busqueda }}">
+      <form method="get" id="formBuscadorProfesores" class="mb-3 d-flex gap-2">
+        <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o ID" value="{{ request.GET.busqueda }}">
         <button type="submit" class="btn btn-primary">Buscar</button>
-      </form> -->
+      </form>
     
       {% include 'profesores/tabla-profesores.html' %}
 
@@ -54,6 +54,7 @@
     <script src="{% static 'js/profesores-js/editar.js' %}"></script>
     <script src="{% static 'js/profesores-js/eliminar.js' %}"></script>
     <script src="{% static 'js/profesores-js/horario.js' %}"></script>
+    <script src="{% static 'js/profesores-js/buscador.js' %}"></script>
   {% endblock %}
 
   </div>
