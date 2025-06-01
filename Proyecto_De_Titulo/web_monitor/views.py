@@ -170,13 +170,13 @@ def eliminar_aula(request, pk):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
 
-def buscar_instituciones_ajax(request):
-    query = request.GET.get('q', '')
-    instituciones = Institucion.objects.filter(
-        Q(nombre_institucion__icontains=query) |
-        Q(rut_institucion__icontains=query)
-    ).values('nombre_institucion', 'rut_institucion', 'direccion')[:10]  # Devuelve máximo 10 resultados
-    return JsonResponse(list(instituciones), safe=False)
+# def buscar_instituciones_ajax(request):
+#     query = request.GET.get('q', '')
+#     instituciones = Institucion.objects.filter(
+#         Q(nombre_institucion__icontains=query) |
+#         Q(rut_institucion__icontains=query)
+#     ).values('nombre_institucion', 'rut_institucion', 'direccion')[:10]  # Devuelve máximo 10 resultados
+#     return JsonResponse(list(instituciones), safe=False)
 
 
 
@@ -184,12 +184,23 @@ def buscar_instituciones_ajax(request):
 #     return render(request, 'profesores/base-profesores.html')
 
 def profesores(request):
-    #print("hola")
+    # Búsqueda
+    busqueda = request.GET.get('busqueda', '')
     orden = request.GET.get('orden', 'apellido_profesor')  # orden por defecto
     direccion = request.GET.get('direccion', 'asc')
     orden_final = orden if direccion == 'asc' else f'-{orden}'
     instituciones = Institucion.objects.all()
-    profesores = Profesor.objects.select_related('id_institucion').order_by(orden_final)
+    profesores = Profesor.objects.select_related('id_institucion')
+
+    if busqueda:
+        profesores = profesores.filter(
+            Q(nombre_profesor__icontains=busqueda) |
+            Q(apellido_profesor__icontains=busqueda) |
+            Q(rut_profesor__icontains=busqueda) |
+            Q(correo_profesor__icontains=busqueda)
+        )
+
+    profesores = profesores.order_by(orden_final)
     DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
     # paginación
     paginator = Paginator(profesores, 10)  # 10 profesores por página
@@ -215,6 +226,7 @@ def profesores(request):
         'direccion': direccion,
         'instituciones': instituciones,
         'dias_semana': DIAS_SEMANA,
+        'busqueda': busqueda,
     })
 
 def crear_profesor(request):
@@ -332,6 +344,11 @@ def agregar_horario(request):
         )
         return JsonResponse({'success': True, 'message': 'Horario agregado correctamente'})
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+
+
+
+
 
 def dispositivos_iot(request):
     return render(request, 'dispositivos_iot.html')
