@@ -1,0 +1,20 @@
+<div class="modal fade" id="confirmarEliminacionModal" tabindex="-1" aria-labelledby="confirmarEliminacionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    <form method="POST" id="formEliminar">
+      {% csrf_token %}
+      <div class="modal-header">
+      <h5 class="modal-title" id="confirmarEliminacionLabel">Confirmar Eliminación</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+      ¿Estás seguro que deseas eliminar el dispositivo IoT <strong id="nombreDispositivoEliminar"></strong>?
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="submit" class="btn btn-danger">Eliminar</button>
+      </div>
+    </form>
+    </div>
+  </div>
+  </div>

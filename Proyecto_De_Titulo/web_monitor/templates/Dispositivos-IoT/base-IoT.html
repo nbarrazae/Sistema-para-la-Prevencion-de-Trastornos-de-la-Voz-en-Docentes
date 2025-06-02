@@ -33,6 +33,7 @@
       </form>
     
       {% include 'Dispositivos-IoT/tabla-IoT.html' %}
+      {% include 'Dispositivos-IoT/modals/eliminar.html' %}
     {% endblock %}
     
 
@@ -40,16 +41,9 @@
 
 
 
-
-    </div>
-
     {% block extra_js %}
-    <!-- <script src="{% static 'js/profesores-js/detalle.js' %}"></script>
-    <script src="{% static 'js/profesores-js/editar.js' %}"></script>
-    <script src="{% static 'js/profesores-js/eliminar.js' %}"></script>
-    <script src="{% static 'js/profesores-js/horario.js' %}"></script>
-    <script src="{% static 'js/profesores-js/buscador.js' %}"></script> -->
-  {% endblock %}
+    <script src="{% static 'js/Dispositivos-IoT/eliminar.js' %}"></script>
+    {% endblock %}
 
   </div>
     
