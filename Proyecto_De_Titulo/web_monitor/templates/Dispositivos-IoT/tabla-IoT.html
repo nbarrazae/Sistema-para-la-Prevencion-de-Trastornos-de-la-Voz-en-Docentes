@@ -6,7 +6,8 @@
         <th>Tipo de Dispositivo</th>
         <th>Usuario</th>
         <th>Institución</th>
-        <th>Acciones</th>
+        <th>Asignar</th>
+        <th>Eliminar</th>
       </tr>
     </thead>
     <tbody>
@@ -29,8 +30,25 @@
           {% endif %}
         </td>
         <td>
-          <button class="btn btn-primary btn-sm" onclick="manejarAsignacion('{{ dispositivo.mac }}')">Asignar</button>
-          <button class="btn btn-danger btn-sm" onclick="eliminarDispositivo('{{ dispositivo.mac }}')">Eliminar</button>
+          <a 
+            href="#" 
+            class="text-primary" 
+            data-bs-toggle="modal" 
+            data-bs-target="#asignarDispositivoModal" 
+            data-dispositivo="{{ dispositivo.mac }}">
+            <i class="fas fa-user-plus"></i>
+          </a>
+        </td>
+        <td>
+            <a 
+            href="{% url 'eliminar_dispositivo' dispositivo.mac %}" 
+            class="text-danger" 
+            data-bs-toggle="modal" 
+            data-bs-target="#confirmarEliminacionModal" 
+            data-url="{% url 'eliminar_dispositivo' dispositivo.mac %}" 
+            data-dispositivo="{{ dispositivo.mac }}">
+            <i class="far fa-trash-alt"></i>
+            </a>
         </td>
       </tr>
       {% endfor %}
@@ -38,14 +56,4 @@
   </table>
 </div>
 
-<script>
-  function manejarAsignacion(mac) {
-    // Aquí puedes agregar la lógica para manejar las asignaciones
-    console.log("Manejar asignación para MAC:", mac);
-  }
 
-  function eliminarDispositivo(mac) {
-    // Aquí puedes agregar la lógica para eliminar el dispositivo
-    console.log("Eliminar dispositivo con MAC:", mac);
-  }
-</script>

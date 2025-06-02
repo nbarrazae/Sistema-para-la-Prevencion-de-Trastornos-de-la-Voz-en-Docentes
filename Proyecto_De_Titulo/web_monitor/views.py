@@ -440,6 +440,15 @@ def crear_dispositivo(request):
 
     return redirect('iot')  # Redirige a la lista de dispositivos después de agregar uno
 
+def eliminar_dispositivo(request, mac):
+    dispositivo = get_object_or_404(Dispositivo_IoT, mac_dispositivo=mac)
+    if request.method == 'POST':
+        dispositivo.delete()
+        messages.success(request, 'Dispositivo eliminado exitosamente.')
+        return redirect('iot')
+
+    return render(request, 'confirmar_eliminacion.html', {'dispositivo': dispositivo})
+
 
 def usuarios(request):
     return render(request, 'usuarios.html')
