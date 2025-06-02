@@ -1,0 +1,51 @@
+<div class="table-responsive">
+  <table class="table table-bordered table-hover" id="tablaDispositivosIoT">
+    <thead>
+      <tr>
+        <th>MAC</th>
+        <th>Tipo de Dispositivo</th>
+        <th>Usuario</th>
+        <th>Institución</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dispositivo in dispositivos %}
+      <tr>
+        <td>{{ dispositivo.mac }}</td>
+        <td>{{ dispositivo.tipo }}</td>
+        <td>
+          {% if dispositivo.usuario %}
+            {{ dispositivo.usuario }}
+          {% else %}
+            Libre
+          {% endif %}
+        </td>
+        <td>
+          {% if dispositivo.institucion %}
+            {{ dispositivo.institucion }}
+          {% else %}
+            N/A
+          {% endif %}
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="manejarAsignacion('{{ dispositivo.mac }}')">Asignar</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarDispositivo('{{ dispositivo.mac }}')">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function manejarAsignacion(mac) {
+    // Aquí puedes agregar la lógica para manejar las asignaciones
+    console.log("Manejar asignación para MAC:", mac);
+  }
+
+  function eliminarDispositivo(mac) {
+    // Aquí puedes agregar la lógica para eliminar el dispositivo
+    console.log("Eliminar dispositivo con MAC:", mac);
+  }
+</script>
