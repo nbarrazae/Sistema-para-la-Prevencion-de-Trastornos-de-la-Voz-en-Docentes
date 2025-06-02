@@ -32,39 +32,40 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-// Validar nombre, solo letras y espacios
+// Validar nombre, solo letras, espacios y letras con tildes
 document.addEventListener('DOMContentLoaded', function () {
     const nombreInput = document.getElementById('nombre_profesor');
     const nombreError = document.getElementById('nombre-error');
 
     nombreInput.addEventListener('input', function () {
-        const nombre = nombreInput.value;
-        const patron = /^[a-zA-Z\s]+$/; // Solo letras y espacios
+        const nombre = nombreInput.value.trim(); // Elimina espacios adicionales
+        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u; // Modificador 'u' para soporte Unicode
+        // Verificar si el nombre cumple con el patrón
         if (!patron.test(nombre)) {
             nombreError.textContent = 'Nombre inválido';
         } else {
             nombreError.textContent = '';
         }
     });
-}
-);
+});
 
-// Validar nombre, solo letras y espacios
-document.addEventListener('DOMContentLoaded', function () {
-    const nombreInput = document.getElementById('editarNombre');
-    const nombreError = document.getElementById('editarNombre-error');
+// // Validar nombre, solo letras y espacios y tildes
+// document.addEventListener('DOMContentLoaded', function () {
+//     const nombreInput = document.getElementById('editarNombre');
+//     const nombreError = document.getElementById('editarNombre-error');
 
-    nombreInput.addEventListener('input', function () {
-        const nombre = nombreInput.value;
-        const patron = /^[a-zA-Z\s]+$/; // Solo letras y espacios
-        if (!patron.test(nombre)) {
-            nombreError.textContent = 'Nombre inválido';
-        } else {
-            nombreError.textContent = '';
-        }
-    });
-}
-);
+//     nombreInput.addEventListener('input', function () {
+//         const nombre = nombreInput.value;
+//         const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/; // Solo letras y espacios y letras con tildes
+//         // Verificar si el nombre cumple con el patrón
+//         if (!patron.test(nombre)) {
+//             nombreError.textContent = 'Nombre inválido';
+//         } else {
+//             nombreError.textContent = '';
+//         }
+//     });
+// }
+// );
 
 // Validar apellido, solo letras y espacios
 document.addEventListener('DOMContentLoaded', function () {
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     apellidoInput.addEventListener('input', function () {
         const apellido = apellidoInput.value;
-        const patron = /^[a-zA-Z\s]+$/; // Solo letras y espacios
+        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/; // Solo letras y espacios
         if (!patron.test(apellido)) {
             apellidoError.textContent = 'Apellido inválido';
         } else {

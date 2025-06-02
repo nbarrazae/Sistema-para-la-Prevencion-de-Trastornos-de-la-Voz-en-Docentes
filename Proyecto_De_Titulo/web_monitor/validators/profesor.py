@@ -54,21 +54,25 @@ def validate_email(value):
 def validate_nombre(value):
     """
     Valida el campo de nombre.
-    Debe tener al menos 2 caracteres y solo contener letras.
+    Debe tener al menos 2 caracteres y solo contener letras y espacios.
+    Permite nombres con espacios y acentos.
+    Ejemplo: 'Juan Pérez', 'María del Carmen'.
     """
-    if len(value) < 2 or not value.isalpha():
+    if len(value) < 2 or not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', value):
         raise ValidationError(
-            _('El nombre debe tener al menos 2 caracteres y solo contener letras.'),
+            _('El nombre debe tener al menos 2 caracteres y solo contener letras y espacios.'),
             params={'value': value},
         )
 def validate_apellido(value):
     """
     Valida el campo de apellido.
-    Debe tener al menos 2 caracteres y solo contener letras.
+    Debe tener al menos 2 caracteres y solo contener letras y espacios.
+    Permite apellidos con espacios y acentos.
+    Ejemplo: 'Pérez González', 'Del Río'.
     """
-    if len(value) < 2 or not value.isalpha():
+    if len(value) < 2 or not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', value):
         raise ValidationError(
-            _('El apellido debe tener al menos 2 caracteres y solo contener letras.'),
+            _('El apellido debe tener al menos 2 caracteres y solo contener letras y espacios.'),
             params={'value': value},
         )
     
@@ -82,6 +86,46 @@ def validate_sexo(value):
             _('El sexo debe ser "M" para Masculino o "F" para Femenino.'),
             params={'value': value},
         )
+    
+# Validar altura, que sea numero entre 50 y 250 cm y numeros de 1 a 3 digitos
+def validate_altura(value):
+    """
+    Valida el campo de altura.
+    Debe ser un número entre 50 y 250 cm.
+    """
+    try:
+        altura = float(value)
+        if not (50 <= altura <= 250):
+            raise ValidationError(
+                _('La altura debe estar entre 50 y 250 cm.'),
+                params={'value': value},
+            )
+    except ValueError:
+        raise ValidationError(
+            _('La altura debe ser un número válido.'),
+            params={'value': value},
+        )
+    
+# numero de 1 a 3 digitos y debe ser un numero entre 20 y 300 kg
+def validate_peso(value):
+    """
+    Valida el campo de peso.
+    Debe ser un número entre 20 y 300 kg.
+    """
+    try:
+        peso = float(value)
+        if not (20 <= peso <= 300):
+            raise ValidationError(
+                _('El peso debe estar entre 20 y 300 kg.'),
+                params={'value': value},
+            )
+    except ValueError:
+        raise ValidationError(
+            _('El peso debe ser un número válido.'),
+            params={'value': value},
+        )
+    
+# Validar área de docencia, que sea un string con al menos 3 caracteres
 def validate_area_docencia(value):
     """
     Valida el campo de área de docencia.
@@ -92,6 +136,7 @@ def validate_area_docencia(value):
             _('El área de docencia debe tener al menos 3 caracteres.'),
             params={'value': value},
         )
+    
 def validate_antecedentes_medicos(value):
     """
     Valida el campo de antecedentes médicos.
@@ -115,3 +160,29 @@ def validate_profesor_data(rut, email, sexo, area_docencia, antecedentes_medicos
     
     # Si todas las validaciones pasan, no se lanza ninguna excepción
     return True
+
+
+# Funciones para nomralizar
+def normalizar_rut(rut):
+    """
+    Elimina los puntos y convierte el dígito verificador a mayúscula.
+    Deja el RUT en formato XXXXXXXX-X.
+    """
+    rut = rut.replace(".", "").upper()
+    return rut
+
+def normalizar_nombre(nombre):
+    """
+    Convierte el nombre en formato capitalizado:
+    'juan PÉREZ gonzalez' -> 'Juan Pérez Gonzalez'
+    """
+    nombre = ' '.join(nombre.strip().split())  # Elimina espacios extra
+    return nombre.title()
+
+def normalizar_correo(correo):
+    """
+    Convierte el correo a minúsculas.
+    """
+    return correo.lower()
+
+

@@ -15,7 +15,7 @@ from django.db.models import Q
 from django.db import IntegrityError
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from web_monitor.validators.profesor import validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos
+from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
 
 def index(request):
@@ -233,23 +233,34 @@ def profesores(request):
 
 def crear_profesor(request):
     if request.method == 'POST':
-
         try:
-            validate_rut(request.POST['rut_profesor'])
-            validate_email(request.POST['correo_profesor'])
-            validate_nombre(request.POST['nombre_profesor'])
-            validate_apellido(request.POST['apellido_profesor'])
+            # Normalizar entradas
+            rut_profe_limpio = normalizar_rut(request.POST['rut_profesor'])
+            nombre_profe_limpio = normalizar_nombre(request.POST['nombre_profesor'])
+            apellido_profe_limpio = normalizar_nombre(request.POST['apellido_profesor'])
+            correo_profe_limpio = normalizar_correo(request.POST['correo_profesor'])
+            
+
+            # Validaciones
+            validate_rut(rut_profe_limpio)
+            validate_email(correo_profe_limpio)
+            validate_nombre(nombre_profe_limpio)
+            validate_apellido(apellido_profe_limpio)
             validate_sexo(request.POST['sexo'])
+            validate_altura(request.POST.get('altura', ''))
+            validate_peso(request.POST.get('peso', ''))
             validate_area_docencia(request.POST['area_docencia'])
             validate_antecedentes_medicos(request.POST.get('antecedentes_medicos', ''))
-            # Verifica si la institución existe antes de crear el profesor
+
+            # Obtener la institución
             institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
 
+            # Crear el profesor
             profesor = Profesor.objects.create(
-                rut_profesor=request.POST['rut_profesor'],
-                nombre_profesor=request.POST['nombre_profesor'],
-                apellido_profesor=request.POST['apellido_profesor'],
-                correo_profesor=request.POST['correo_profesor'],
+                rut_profesor=rut_profe_limpio,
+                nombre_profesor=nombre_profe_limpio,
+                apellido_profesor=apellido_profe_limpio,
+                correo_profesor=correo_profe_limpio,
                 sexo=request.POST['sexo'],
                 altura=request.POST.get('altura') or None,
                 peso=request.POST.get('peso') or None,
@@ -262,12 +273,36 @@ def crear_profesor(request):
             messages.error(request, "La institución seleccionada no existe.")
         except Exception as e:
             messages.error(request, f"Error al crear el profesor: {e}")
-        
-    return redirect('profesores')  # Redirige a la lista de profesores después de crear uno
+
+    return redirect('profesores')
 
 @require_http_methods(["POST"])
 def editar_profesor(request, pk):
     profesor = get_object_or_404(Profesor, pk=pk)
+    # Validar los datos del formulario
+    try:
+        rut_limpio = normalizar_rut(request.POST['rut_profesor'])
+        validate_rut(rut_limpio)
+        validate_email(request.POST['correo_profesor'])
+        validate_nombre(request.POST['nombre_profesor'])
+        validate_apellido(request.POST['apellido_profesor'])
+        validate_sexo(request.POST['sexo'])
+        validate_altura(request.POST.get('altura', ''))
+        validate_peso(request.POST.get('peso', ''))
+        validate_area_docencia(request.POST['area_docencia'])
+        validate_antecedentes_medicos(request.POST.get('antecedentes_medicos', ''))
+        # Verifica si la institución existe antes de actualizar el profesor
+        institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
+        # Si todo es válido, actualiza el profesor
+    except ValidationError as e:
+        messages.error(request, f"Error de validación: {', '.join(e.messages)}")
+        return redirect('profesores')
+    except Institucion.DoesNotExist:
+        messages.error(request, "La institución seleccionada no existe.")
+        return redirect('profesores')
+    except Exception as e:
+        messages.error(request, f"Error al editar el profesor: {e}")
+        return redirect('profesores')       
 
     # Rellenar los datos desde request.POST
     profesor.nombre_profesor = request.POST.get('nombre_profesor')
