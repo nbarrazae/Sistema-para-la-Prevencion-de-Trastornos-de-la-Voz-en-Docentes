@@ -1,0 +1,47 @@
+<!-- Modal Asignar Dispositivo -->
+<div class="modal fade" id="asignarDispositivoModal" tabindex="-1" aria-labelledby="asignarDispositivoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'asignar_dispositivo' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Asignar Dispositivo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="mac" id="macDispositivoSeleccionado">
+
+          <div class="mb-3">
+            <label for="institucionSelect" class="form-label">Institución</label>
+            <select id="institucionSelect" name="institucion" class="form-select" required>
+              <option value="">Seleccione una institución</option>
+              {% for institucion in instituciones %}
+              <option value="{{ institucion.id_institucion }}">{{ institucion.nombre_institucion }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="destinoSelect" class="form-label">Asignar a</label>
+            <select id="destinoSelect" name="destino" class="form-select" required>
+              <option value="">Seleccione una opción</option>
+              <!-- Se llenará dinámicamente -->
+            </select>
+          </div>
+
+          <!-- <div class="mb-3">
+            <label for="tipoDestino" class="form-label">Tipo de asignación</label>
+            <select id="tipoDestino" name="tipo_destino" class="form-select" required>
+              <option value="profesor">Profesor (Dosímetro)</option>
+              <option value="aula">Aula (Registrador ambiental)</option>
+            </select>
+          </div> -->
+          <input type="hidden" id="tipoDestino" name="tipo_destino">
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Asignar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

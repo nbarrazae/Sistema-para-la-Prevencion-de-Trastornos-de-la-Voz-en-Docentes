@@ -31,11 +31,13 @@
         </td>
         <td>
           <a 
-            href="#" 
-            class="text-primary" 
+
+            class="btn btn-sm btn-primary" 
             data-bs-toggle="modal" 
-            data-bs-target="#asignarDispositivoModal" 
-            data-dispositivo="{{ dispositivo.mac }}">
+            data-bs-target="#asignarDispositivoModal"
+            data-mac="{{ dispositivo.mac }}"
+            data-tipo="{{ dispositivo.tipo }}"
+            >
             <i class="fas fa-user-plus"></i>
           </a>
         </td>

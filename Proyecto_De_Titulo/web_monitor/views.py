@@ -433,9 +433,11 @@ def dispositivos_iot(request):
 
         resultado.append(entrada)
 
+    instituciones = Institucion.objects.all()
     context = {
         'dispositivos': resultado,
         'busqueda': busqueda,
+        'instituciones': instituciones,
     }
 
     return render(request, 'Dispositivos-IoT/base-IoT.html', context)
@@ -483,6 +485,59 @@ def eliminar_dispositivo(request, mac):
         return redirect('iot')
 
     return render(request, 'confirmar_eliminacion.html', {'dispositivo': dispositivo})
+
+def obtener_opciones(request, institucion_id, tipo):
+    if tipo == 'aula':
+        aulas = Aula.objects.filter(id_institucion=institucion_id)
+        data = [{'id': a.id_aula, 'nombre': a.nro_aula} for a in aulas]
+    elif tipo == 'profesor':
+        profesores = Profesor.objects.filter(id_institucion=institucion_id)
+        data = [{'id': p.id_profesor, 'nombre': f"{p.nombre_profesor} {p.apellido_profesor}"} for p in profesores]
+    else:
+        data = []
+    return JsonResponse(data, safe=False)
+
+
+def vista_dispositivos(request):
+    instituciones = Institucion.objects.all()
+    return render(request, 'tabla-iot.html', {'instituciones': instituciones})
+
+def asignar_dispositivo(request):
+    if request.method == 'POST':
+        mac = request.POST.get('mac')
+        tipo_destino = request.POST.get('tipo_destino')
+        destino_id = request.POST.get('destino')
+
+        dispositivo = get_object_or_404(Dispositivo_IoT, mac=mac)
+
+        if tipo_destino == 'profesor':
+            profesor = get_object_or_404(Profesor, id_profesor=destino_id)
+            Dispositivo_IoT_Profesor.objects.create(dispositivo=dispositivo, profesor=profesor)
+            messages.success(request, f'Dispositivo {mac} asignado al profesor {profesor.nombre_profesor} {profesor.apellido_profesor}.')
+        elif tipo_destino == 'aula':
+            aula = get_object_or_404(Aula, id_aula=destino_id)
+            Dispositivo_IoT_Aula.objects.create(dispositivo=dispositivo, aula=aula)
+            messages.success(request, f'Dispositivo {mac} asignado al aula {aula.nro_aula}.')
+        else:
+            messages.error(request, 'Tipo de destino inválido.')
+
+    return redirect('vista_dispositivos')
+
+def obtener_instituciones(request):
+    instituciones = Institucion.objects.all().values('id', 'nombre_institucion')
+    return JsonResponse(list(instituciones), safe=False)
+
+def profesores_por_institucion(request, id_institucion):
+    profesores = Profesor.objects.filter(id_institucion_id=id_institucion).values(
+        'id_profesor', 'nombre_profesor', 'apellido_profesor'
+    )
+    return JsonResponse(list(profesores), safe=False)
+
+def aulas_por_institucion(request, id_institucion):
+    aulas = Aula.objects.filter(id_institucion_id=id_institucion).values(
+        'id_aula', 'nro_aula'
+    )
+    return JsonResponse(list(aulas), safe=False)
 
 
 def usuarios(request):
