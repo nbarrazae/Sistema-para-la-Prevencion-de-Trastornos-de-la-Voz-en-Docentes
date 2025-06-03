@@ -1,9 +1,13 @@
 {% load static %}
 
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
 <div class="modal fade" id="modalAgregarProfesor" tabindex="-1" aria-labelledby="modalAgregarProfesorLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <form method="POST" action="{% url 'crear_profesor' %}">
+        <form id="formulario_profesor" method="POST" action="{% url 'crear_profesor' %}">
           {% csrf_token %}
           <div class="modal-header">
             <h5 class="modal-title" id="modalAgregarProfesorLabel">Agregar Nuevo Profesor</h5>
@@ -71,13 +75,15 @@
             </div>
   
             <div class="mb-3">
-              <label for="antecedentes_medicos" class="form-label">Antecedentes Médicos</label>
-              <input type="text" class="form-control" name="antecedentes_medicos">
+              <label for="antecedentes_medicos"">Antecedentes Médicos</label>
+              <input type="text" id="antecedentes_medicos" name="antecedentes_medicos" class="form-control" required>
+              <span id="antecedentes-error" class="text-danger small"></span>
             </div>
   
             <div class="mb-3">
-              <label for="area_docencia" class="form-label">Área de Docencia</label>
-              <input type="text" class="form-control" name="area_docencia" required>
+              <label for="area_docencia">Área de Docencia</label>
+              <input type="text" id="area_docencia" name="area_docencia" class="form-control" required>
+              <span id="area-docencia-error" class="text-danger small"></span>
             </div>
   
           </div>

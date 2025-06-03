@@ -30,8 +30,8 @@ class Profesor(models.Model):
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=False, blank=False)
     altura = models.FloatField(null=True, blank=True)
     peso = models.FloatField(null=True, blank=True)
-    antecedentes_medicos = models.CharField(max_length=100, null=True, blank=True)
-    area_docencia = models.CharField(max_length=50, null=False, blank=False)
+    antecedentes_medicos = models.CharField(max_length=300, null=True, blank=True)
+    area_docencia = models.CharField(max_length=300, null=False, blank=False)
     id_institucion = models.ForeignKey(Institucion, on_delete=models.CASCADE)
 
     def __str__(self):
