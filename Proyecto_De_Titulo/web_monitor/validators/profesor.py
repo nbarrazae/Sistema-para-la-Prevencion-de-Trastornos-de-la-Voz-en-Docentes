@@ -129,22 +129,22 @@ def validate_peso(value):
 def validate_area_docencia(value):
     """
     Valida el campo de área de docencia.
-    Debe tener al menos 3 caracteres.
+    Debe tener un minimo de 3 y máximo de 300 caracteres.
     """
-    if len(value) < 3:
+    if len(value) < 3 or len(value) > 300:
         raise ValidationError(
-            _('El área de docencia debe tener al menos 3 caracteres.'),
+            _('El área de docencia debe tener entre 3 y 300 caracteres.'),
             params={'value': value},
         )
     
 def validate_antecedentes_medicos(value):
     """
     Valida el campo de antecedentes médicos.
-    Debe tener un máximo de 100 caracteres.
+    Debe tener un minimo de 3 y máximo de 300 caracteres.
     """
-    if len(value) > 100:
+    if len(value) < 3 or len(value) > 300:
         raise ValidationError(
-            _('Los antecedentes médicos no pueden exceder los 100 caracteres.'),
+            _('Los antecedentes médicos deben tener entre 3 y 300 caracteres.'),
             params={'value': value},
         )
 def validate_profesor_data(rut, email, sexo, area_docencia, antecedentes_medicos):
