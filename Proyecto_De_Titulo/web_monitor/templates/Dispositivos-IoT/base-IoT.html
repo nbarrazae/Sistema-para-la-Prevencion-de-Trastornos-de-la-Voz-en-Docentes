@@ -34,6 +34,9 @@
     
       {% include 'Dispositivos-IoT/tabla-IoT.html' %}
       {% include 'Dispositivos-IoT/modals/eliminar.html' %}
+      {% include 'Dispositivos-IoT/modals/asignar.html' %}
+      
+
     {% endblock %}
     
 
@@ -43,6 +46,8 @@
 
     {% block extra_js %}
     <script src="{% static 'js/Dispositivos-IoT/eliminar.js' %}"></script>
+    <script src="{% static 'js/Dispositivos-IoT/asignar.js' %}"></script>
+
     {% endblock %}
 
   </div>

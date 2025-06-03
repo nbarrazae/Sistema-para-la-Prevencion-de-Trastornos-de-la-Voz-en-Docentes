@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario, crear_dispositivo, eliminar_dispositivo
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario, crear_dispositivo, eliminar_dispositivo, obtener_opciones, asignar_dispositivo
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
@@ -56,6 +56,8 @@ urlpatterns = [
 
     path('dispositivos_iot/crear/', crear_dispositivo, name='crear_dispositivo_iot'),
     path('dispositivos/eliminar/<str:mac>/', eliminar_dispositivo, name='eliminar_dispositivo'),
+    path('obtener_opciones/<int:institucion_id>/<str:tipo>/', obtener_opciones, name='obtener_opciones'),
+    path('asignar-dispositivo/', asignar_dispositivo, name='asignar_dispositivo'),
 
 
 
