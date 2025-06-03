@@ -488,6 +488,21 @@ def asignar_dispositivo(request):
 
     return redirect('vista_dispositivos')
 
+def obtener_instituciones(request):
+    instituciones = Institucion.objects.all().values('id', 'nombre_institucion')
+    return JsonResponse(list(instituciones), safe=False)
+
+def profesores_por_institucion(request, id_institucion):
+    profesores = Profesor.objects.filter(id_institucion_id=id_institucion).values(
+        'id_profesor', 'nombre_profesor', 'apellido_profesor'
+    )
+    return JsonResponse(list(profesores), safe=False)
+
+def aulas_por_institucion(request, id_institucion):
+    aulas = Aula.objects.filter(id_institucion_id=id_institucion).values(
+        'id_aula', 'nro_aula'
+    )
+    return JsonResponse(list(aulas), safe=False)
 
 
 def usuarios(request):
