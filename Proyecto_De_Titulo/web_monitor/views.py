@@ -503,25 +503,9 @@ def vista_dispositivos(request):
     return render(request, 'tabla-iot.html', {'instituciones': instituciones})
 
 def asignar_dispositivo(request):
-    if request.method == 'POST':
-        mac = request.POST.get('mac')
-        tipo_destino = request.POST.get('tipo_destino')
-        destino_id = request.POST.get('destino')
-
-        dispositivo = get_object_or_404(Dispositivo_IoT, mac=mac)
-
-        if tipo_destino == 'profesor':
-            profesor = get_object_or_404(Profesor, id_profesor=destino_id)
-            Dispositivo_IoT_Profesor.objects.create(dispositivo=dispositivo, profesor=profesor)
-            messages.success(request, f'Dispositivo {mac} asignado al profesor {profesor.nombre_profesor} {profesor.apellido_profesor}.')
-        elif tipo_destino == 'aula':
-            aula = get_object_or_404(Aula, id_aula=destino_id)
-            Dispositivo_IoT_Aula.objects.create(dispositivo=dispositivo, aula=aula)
-            messages.success(request, f'Dispositivo {mac} asignado al aula {aula.nro_aula}.')
-        else:
-            messages.error(request, 'Tipo de destino inválido.')
-
-    return redirect('vista_dispositivos')
+    print(request.POST)
+    messages.success(request, "No se ha implementado la asignación de dispositivos aún.")
+    return redirect('iot')  # Redirige a la lista de dispositivos después de intentar asignar uno
 
 def obtener_instituciones(request):
     instituciones = Institucion.objects.all().values('id', 'nombre_institucion')
