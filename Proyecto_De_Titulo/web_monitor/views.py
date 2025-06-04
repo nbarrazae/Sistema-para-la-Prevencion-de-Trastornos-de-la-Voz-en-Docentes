@@ -234,6 +234,7 @@ def profesores(request):
 def crear_profesor(request):
     if request.method == 'POST':
         try:
+            print("Datos recibidos:", request.POST)  # Agrega este registro para depurar
             # Normalizar entradas
             rut_profe_limpio = normalizar_rut(request.POST['rut_profesor'])
             nombre_profe_limpio = normalizar_nombre(request.POST['nombre_profesor'])
@@ -256,7 +257,7 @@ def crear_profesor(request):
             institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
 
             # Crear el profesor
-            profesor = Profesor.objects.create(
+            Profesor.objects.create(
                 rut_profesor=rut_profe_limpio,
                 nombre_profesor=nombre_profe_limpio,
                 apellido_profesor=apellido_profe_limpio,
@@ -268,13 +269,22 @@ def crear_profesor(request):
                 area_docencia=request.POST['area_docencia'],
                 id_institucion=institucion
             )
-            messages.success(request, "Profesor creado correctamente.")
+            return JsonResponse({'success': True}, status=200)
         except Institucion.DoesNotExist:
-            messages.error(request, "La institución seleccionada no existe.")
+            return JsonResponse({'error': 'La institución seleccionada no existe.'}, status=400)
+        except ValidationError as e:
+            return JsonResponse({'error': ', '.join(e.messages)}, status=400)
+        except IntegrityError as e:
+            if 'rut_profesor' in str(e):
+                return JsonResponse({'error': 'Ya existe un profesor con ese RUT.'}, status=400)
+            elif 'correo_profesor' in str(e):
+                return JsonResponse({'error': 'Ya existe un profesor con ese correo.'}, status=400)
+            else:
+                return JsonResponse({'error': 'Error de integridad.'}, status=400)
         except Exception as e:
-            messages.error(request, f"Error al crear el profesor: {e}")
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
-    return redirect('profesores')
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 @require_http_methods(["POST"])
 def editar_profesor(request, pk):

@@ -1,160 +1,170 @@
 document.addEventListener('DOMContentLoaded', function () {
     const formulario = document.getElementById('formulario_profesor');
-    const rutInput = document.getElementById('rut_profesor');
-    const rutError = document.getElementById('rut-error');
-    const correoInput = document.getElementById('correo_profesor');
-    const correoError = document.getElementById('correo-error');
-    const nombreInput = document.getElementById('nombre_profesor');
-    const nombreError = document.getElementById('nombre-error');
-    const apellidoInput = document.getElementById('apellido_profesor');
-    const apellidoError = document.getElementById('apellido-error');
-    const alturaInput = document.getElementById('altura');
-    const alturaError = document.getElementById('altura-error');
-    const pesoInput = document.getElementById('peso');
-    const pesoError = document.getElementById('peso-error');
-    const antecedentesInput = document.getElementById('antecedentes_medicos');
-    const antecedentesError = document.getElementById('antecedentes-error');
-    const areaDocenciaInput = document.getElementById('area_docencia');
-    const areaDocenciaError = document.getElementById('area-docencia-error');
+    const modalAgregarProfesor = new bootstrap.Modal(document.getElementById('modalAgregarProfesor'));
+    const cancelarModal = document.getElementById('cancelarModal');
 
-
-
-    // Validar RUT
-    rutInput.addEventListener('input', function () {
-        const rut = rutInput.value;
-        const regex = /^(\d{1,2}.\d{3}.\d{3}-[0-9Kk]|\d{7,8}-[0-9Kk])$/;
-        if (!regex.test(rut)) {
-            rutError.textContent = 'Formato de RUT inválido';
-        } else {
-            rutError.textContent = '';
-        }
-    });
-
-    // Validar correo electrónico
-    correoInput.addEventListener('input', function () {
-        const valor = correoInput.value;
-        const patron = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!patron.test(valor)) {
-            correoError.textContent = 'Correo electrónico inválido';
-        } else {
-            correoError.textContent = '';
-        }
-    });
-
-    // Validar nombre
-    nombreInput.addEventListener('input', function () {
-        const nombre = nombreInput.value.trim();
-        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u;
-        if (!patron.test(nombre)) {
-            nombreError.textContent = 'Nombre inválido';
-        } else {
-            nombreError.textContent = '';
-        }
-    });
-
-    // Validar apellido
-    apellidoInput.addEventListener('input', function () {
-        const apellido = apellidoInput.value.trim();
-        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-        if (!patron.test(apellido)) {
-            apellidoError.textContent = 'Apellido inválido';
-        } else {
-            apellidoError.textContent = '';
-        }
-    });
-
-    // Validar altura
-    alturaInput.addEventListener('input', function () {
-        const altura = alturaInput.value;
-        const patron = /^\d{1,3}$/;
-        if (!patron.test(altura) || parseInt(altura) < 50 || parseInt(altura) > 250) {
-            alturaError.textContent = 'Altura inválida (debe ser entre 50 y 250 cm)';
-        } else {
-            alturaError.textContent = '';
-        }
-    });
-
-    // Validar peso
-    pesoInput.addEventListener('input', function () {
-        const peso = pesoInput.value;
-        const patron = /^\d{1,3}$/;
-        if (!patron.test(peso) || parseInt(peso) < 20 || parseInt(peso) > 300) {
-            pesoError.textContent = 'Peso inválido (debe ser entre 20 y 300 kg)';
-        } else {
-            pesoError.textContent = '';
-        }
-    });
-
-    //  Validar antecedentes debe ser texto y tener minimo de 3 y maximo de 300
-    antecedentesInput.addEventListener('input', function () {
-        const antecedentes = antecedentesInput.value.trim();
-        if (antecedentes.length < 3 || antecedentes.length > 300) {
-            antecedentesError.textContent = 'Antecedentes deben tener entre 3 y 300 caracteres';
-        } else {
-            antecedentesError.textContent = '';
-        }
-    });
     
-    // Validar area docencia
-    areaDocenciaInput.addEventListener('input', function () {
-        const areaDocencia = areaDocenciaInput.value.trim();
-        if (areaDocencia.length < 3 || areaDocencia.length > 100) {
-            areaDocenciaError.textContent = 'Área de docencia debe tener entre 3 y 100 caracteres';
-        } else {
-            areaDocenciaError.textContent = '';
+    // Asegúrate de que el evento submit se registre solo una vez
+    if (formulario.dataset.iniciado === 'true') {
+        return; // Evita registrar el evento más de una vez
+    }
+    formulario.dataset.iniciado = 'true';
+        
+
+    const campos = {
+        rut: { input: document.getElementById('rut_profesor'), error: document.getElementById('rut-error') },
+        correo: { input: document.getElementById('correo_profesor'), error: document.getElementById('correo-error') },
+        nombre: { input: document.getElementById('nombre_profesor'), error: document.getElementById('nombre-error') },
+        apellido: { input: document.getElementById('apellido_profesor'), error: document.getElementById('apellido-error') },
+        altura: { input: document.getElementById('altura'), error: document.getElementById('altura-error') },
+        peso: { input: document.getElementById('peso'), error: document.getElementById('peso-error') },
+        antecedentes: { input: document.getElementById('antecedentes_medicos'), error: document.getElementById('antecedentes-error') },
+        areaDocencia: { input: document.getElementById('area_docencia'), error: document.getElementById('area-docencia-error') }
+    };
+
+    const limpiarErrores = () => {
+        for (let campo in campos) {
+            campos[campo].error.textContent = '';
         }
+    };
+
+    // Funciones de validación individuales
+    const validarRut = () => {
+        const rut = campos.rut.input.value.trim();
+        const regex = /^(\d{1,2}\.\d{3}\.\d{3}-[0-9Kk]|\d{7,8}-[0-9Kk])$/;
+        campos.rut.error.textContent = regex.test(rut) ? '' : 'Formato de RUT inválido';
+    };
+
+    const validarCorreo = () => {
+        const correo = campos.correo.input.value.trim();
+        const patron = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        campos.correo.error.textContent = patron.test(correo) ? '' : 'Correo electrónico inválido';
+    };
+
+    const validarNombre = () => {
+        const nombre = campos.nombre.input.value.trim();
+        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u;
+        campos.nombre.error.textContent = patron.test(nombre) ? '' : 'Nombre inválido';
+    };
+
+    const validarApellido = () => {
+        const apellido = campos.apellido.input.value.trim();
+        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u;
+        campos.apellido.error.textContent = patron.test(apellido) ? '' : 'Apellido inválido';
+    };
+
+    const validarAltura = () => {
+        const altura = parseInt(campos.altura.input.value, 10);
+        campos.altura.error.textContent = (!Number.isInteger(altura) || altura < 50 || altura > 250)
+            ? 'Altura inválida (debe ser entre 50 y 250 cm)' : '';
+    };
+
+    const validarPeso = () => {
+        const peso = parseInt(campos.peso.input.value, 10);
+        campos.peso.error.textContent = (!Number.isInteger(peso) || peso < 20 || peso > 300)
+            ? 'Peso inválido (debe ser entre 20 y 300 kg)' : '';
+    };
+
+    const validarAntecedentes = () => {
+        const texto = campos.antecedentes.input.value.trim();
+        campos.antecedentes.error.textContent = (texto.length < 3 || texto.length > 300)
+            ? 'Antecedentes deben tener entre 3 y 300 caracteres' : '';
+    };
+
+    const validarAreaDocencia = () => {
+        const texto = campos.areaDocencia.input.value.trim();
+        campos.areaDocencia.error.textContent = (texto.length < 3 || texto.length > 100)
+            ? 'Área de docencia debe tener entre 3 y 100 caracteres' : '';
+    };
+
+    // Asignar listeners a los inputs
+    campos.rut.input.addEventListener('input', validarRut);
+    campos.correo.input.addEventListener('input', validarCorreo);
+    campos.nombre.input.addEventListener('input', validarNombre);
+    campos.apellido.input.addEventListener('input', validarApellido);
+    campos.altura.input.addEventListener('input', validarAltura);
+    campos.peso.input.addEventListener('input', validarPeso);
+    campos.antecedentes.input.addEventListener('input', validarAntecedentes);
+    campos.areaDocencia.input.addEventListener('input', validarAreaDocencia);
+
+    cancelarModal.addEventListener('click', function () {
+        modalAgregarProfesor.hide();
     });
 
+    formulario.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        event.stopPropagation();
 
+        limpiarErrores();
 
-    formulario.addEventListener('submit', function (event) {
+        // Ejecutar validaciones
+        validarRut();
+        validarCorreo();
+        validarNombre();
+        validarApellido();
+        validarAltura();
+        validarPeso();
+        validarAntecedentes();
+        validarAreaDocencia();
+
         let esValido = true;
         let camposInvalidos = [];
 
-        // Verificar errores en cada campo
-        if (rutError.textContent) {
-            esValido = false;
-            camposInvalidos.push('RUT');
-        }
-        if (correoError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Correo electrónico');
-        }
-        if (nombreError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Nombre');
-        }
-        if (apellidoError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Apellido');
-        }
-        if (alturaError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Altura');
-        }
-        if (pesoError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Peso');
-        }
-        if (antecedentesError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Antecedentes médicos');
-        }
-        if (areaDocenciaError.textContent) {
-            esValido = false;
-            camposInvalidos.push('Área de docencia');
+        for (let campo in campos) {
+            if (campos[campo].error.textContent) {
+                esValido = false;
+                const nombreCampo = campos[campo].input.getAttribute('data-label') || campo;
+                camposInvalidos.push(nombreCampo.charAt(0).toUpperCase() + nombreCampo.slice(1));
+            }
         }
 
-        // Prevenir envío si hay errores
         if (!esValido) {
-            event.preventDefault(); // Detiene el envío del formulario
-            event.stopPropagation(); // Evita que otros manejadores de eventos se ejecuten
-
-            // Usar SweetAlert2 para mostrar la alerta con los campos inválidos
             Swal.fire({
                 icon: 'error',
-                title: 'Errores al ingregar los datos',
-                html: `Por favor, corrige los siguientes campos antes de enviar el formulario:<br><ul>${camposInvalidos.map(campo => `<li>${campo}</li>`).join('')}</ul>`,
+                title: 'Errores al ingresar los datos',
+                html: `Corrige los siguientes campos antes de enviar:<br><ul>${camposInvalidos.map(campo => `<li>${campo}</li>`).join('')}</ul>`,
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        const formData = new FormData(formulario);
+        try {
+            const response = await fetch(formulario.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Profesor agregado correctamente',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    modalAgregarProfesor.hide();
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Errores del servidor',
+                    html: `<ul>${Object.values(data).map(error => `<li>${error}</li>`).join('')}</ul>`,
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error inesperado',
+                text: 'Ocurrió un error al enviar los datos.',
                 confirmButtonText: 'Entendido',
                 confirmButtonColor: '#d33'
             });
