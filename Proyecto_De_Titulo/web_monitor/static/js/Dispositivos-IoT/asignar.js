@@ -25,8 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const nombre = tipoDestino === 'profesor'
             ? `${item.nombre_profesor} ${item.apellido_profesor}`
             : `Aula ${item.nro_aula}`;
-          destinoSelect.innerHTML += `<option value="${item.id}">${nombre}</option>`;
+        
+          const id = tipoDestino === 'profesor'
+            ? item.id_profesor
+            : item.id_aula;
+        
+          destinoSelect.innerHTML += `<option value="${id}">${nombre}</option>`;
         });
+        
       } catch (error) {
         destinoSelect.innerHTML = '<option value="">Error al cargar</option>';
         console.error(error);

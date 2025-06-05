@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from .serializer import InstitucionSerializer, ProfesorSerializer, AulaSerializer, HorarioSerializer
-from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT, Dispositivo_IoT_Aula, Dispositivo_IoT_Profesor
+from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT,Relacion_Aula, Relacion_Profesor
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -351,7 +351,6 @@ def agregar_horario(request):
 
 
 
-# relacion entre Dispositivo_IoT y su usuario (aula o profesor), buscar cada id y aquello activos == flase, devolver mac, tipo, "libre", aquellos con activo == True buscar profesor o aula, devolver mac, tipo, usuario (profesor o aula), institucion correspondiente
 def dispositivos_iot(request):
     busqueda = request.GET.get('busqueda', '')
     dispositivos = Dispositivo_IoT.objects.all()
@@ -370,31 +369,26 @@ def dispositivos_iot(request):
             'tipo': dispositivo.get_tipo_dispositivo_display(),
         }
 
-        if not dispositivo.activo:
-            entrada['estado'] = 'Libre'
-            entrada['usuario'] = None
-            entrada['institucion'] = None
-        else:
-            # Verificar si está asociado a un profesor
+        # Verificar si está asociado a un aula
+        try:
+            rel_aula = Relacion_Aula.objects.get(id_dispositivo=dispositivo)
+            aula = rel_aula.id_aula
+            entrada['estado'] = 'Asignado'
+            entrada['usuario'] = f"Aula {aula.nro_aula}"
+            entrada['institucion'] = aula.id_institucion.nombre_institucion
+        except Relacion_Aula.DoesNotExist:
             try:
-                rel_prof = Dispositivo_IoT_Profesor.objects.get(id_dispositivo=dispositivo)
-                profesor = rel_prof.id_profesor
+                # Si no está asociado a aula, buscar si está a un profesor
+                rel_profesor = Relacion_Profesor.objects.get(id_dispositivo=dispositivo)
+                profesor = rel_profesor.id_profesor
                 entrada['estado'] = 'Asignado'
                 entrada['usuario'] = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
                 entrada['institucion'] = profesor.id_institucion.nombre_institucion
-            except Dispositivo_IoT_Profesor.DoesNotExist:
-                try:
-                    # Si no está asociado a profesor, buscar si está a un aula
-                    rel_aula = Dispositivo_IoT_Aula.objects.get(id_dispositivo=dispositivo)
-                    aula = rel_aula.id_aula
-                    entrada['estado'] = 'Asignado'
-                    entrada['usuario'] = f"Aula {aula.nro_aula}"
-                    entrada['institucion'] = aula.id_institucion.nombre_institucion
-                except Dispositivo_IoT_Aula.DoesNotExist:
-                    # Caso inesperado: activo pero sin usuario
-                    entrada['estado'] = 'Asignado'
-                    entrada['usuario'] = 'Desconocido'
-                    entrada['institucion'] = 'Desconocida'
+            except Relacion_Profesor.DoesNotExist:
+                # Caso no asignado
+                entrada['estado'] = 'Libre'
+                entrada['usuario'] = None
+                entrada['institucion'] = None
 
         resultado.append(entrada)
 
@@ -468,8 +462,42 @@ def vista_dispositivos(request):
     return render(request, 'tabla-iot.html', {'instituciones': instituciones})
 
 def asignar_dispositivo(request):
-    print(request.POST)
-    messages.success(request, "No se ha implementado la asignación de dispositivos aún.")
+    if request.method == 'POST':
+        mac = request.POST.get('mac')
+        institucion_id = request.POST.get('institucion')
+        destino_id = request.POST.get('destino')
+        tipo_destino = request.POST.get('tipo_destino')
+
+        try:
+            dispositivo = Dispositivo_IoT.objects.get(mac_dispositivo=mac)
+
+            # Verificar si el dispositivo ya está asignado
+            if Relacion_Aula.objects.filter(id_dispositivo=dispositivo).exists() or Relacion_Profesor.objects.filter(id_dispositivo=dispositivo).exists():
+                messages.error(request, "Primero debe eliminar la relacion actual.")
+                return redirect('iot')
+
+            if tipo_destino == 'aula':
+                aula = Aula.objects.get(id_aula=destino_id, id_institucion_id=institucion_id)
+                Relacion_Aula.objects.create(id_aula=aula, id_dispositivo=dispositivo, mac=mac)
+            elif tipo_destino == 'profesor':
+                profesor = Profesor.objects.get(id_profesor=destino_id, id_institucion_id=institucion_id)
+                Relacion_Profesor.objects.create(id_profesor=profesor, id_dispositivo=dispositivo, mac=mac)
+            else:
+                messages.error(request, "Tipo de destino no válido.")
+                return redirect('iot')
+
+            messages.success(request, "Dispositivo asignado correctamente.")
+        except Dispositivo_IoT.DoesNotExist:
+            messages.error(request, "Dispositivo no encontrado.")
+        except Aula.DoesNotExist:
+            messages.error(request, "Aula no encontrada.")
+        except Profesor.DoesNotExist:
+            messages.error(request, "Profesor no encontrado.")
+        except IntegrityError:
+            messages.error(request, "El dispositivo ya está asignado.")
+        except Exception as e:
+            messages.error(request, f"Error inesperado: {e}")
+
     return redirect('iot')  # Redirige a la lista de dispositivos después de intentar asignar uno
 
 def obtener_instituciones(request):
