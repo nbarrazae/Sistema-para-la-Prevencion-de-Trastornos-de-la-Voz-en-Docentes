@@ -472,9 +472,26 @@ def asignar_dispositivo(request):
             dispositivo = Dispositivo_IoT.objects.get(mac_dispositivo=mac)
 
             # Verificar si el dispositivo ya está asignado
-            if Relacion_Aula.objects.filter(id_dispositivo=dispositivo).exists() or Relacion_Profesor.objects.filter(id_dispositivo=dispositivo).exists():
-                messages.error(request, "Primero debe eliminar la relacion actual.")
-                return redirect('iot')
+            relacion_aula = Relacion_Aula.objects.filter(id_dispositivo=dispositivo)
+            relacion_profesor = Relacion_Profesor.objects.filter(id_dispositivo=dispositivo)
+
+            mensaje_cambio = None
+
+            if relacion_aula.exists():
+                relacion_aula_obj = relacion_aula.first()
+                if relacion_aula_obj and relacion_aula_obj.id_aula:
+                    aula = relacion_aula_obj.id_aula.nro_aula
+                    relacion_aula.delete()
+                    aula_obj = Aula.objects.get(nro_aula=aula, id_institucion=relacion_aula_obj.id_aula.id_institucion)
+                    nueva_aula = Aula.objects.get(id_aula=destino_id)
+                    mensaje_cambio = f"Se ha cambiado la relación de Aula {aula_obj.nro_aula} de la institución {aula_obj.id_institucion.nombre_institucion} a Aula {nueva_aula.nro_aula} de la institución {nueva_aula.id_institucion.nombre_institucion}."
+            elif relacion_profesor.exists():
+                profesor = relacion_profesor.first().id_profesor
+                relacion_profesor.delete()
+                mensaje_cambio = f"Se ha cambiado la relación de Profesor {profesor.nombre_profesor} {profesor.apellido_profesor} a Profesor {Profesor.objects.get(id_profesor=destino_id).nombre_profesor} {Profesor.objects.get(id_profesor=destino_id).apellido_profesor}."
+
+            if mensaje_cambio:
+                messages.info(request, mensaje_cambio)
 
             if tipo_destino == 'aula':
                 aula = Aula.objects.get(id_aula=destino_id, id_institucion_id=institucion_id)
