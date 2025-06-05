@@ -80,32 +80,33 @@ class Dispositivo_IoT(models.Model):
     id_dispositivo = models.AutoField(primary_key=True)
     mac_dispositivo = models.CharField(max_length=17, unique=True)
     tipo_dispositivo = models.CharField(max_length=1, choices=TIPO_CHOICES, null=False, blank=False)
-    activo = models.BooleanField(default=False)  # 🔹 Campo para indicar si el dispositivo está activo
+
 
     def __str__(self):
         return self.mac_dispositivo
 
-class Dispositivo_IoT_Aula(models.Model):
-    id_dispositivo_aula = models.AutoField(primary_key=True)
-    id_dispositivo = models.ForeignKey(Dispositivo_IoT, on_delete=models.CASCADE)
+class Relacion_Aula(models.Model):
+    # id_relacion_aula, mac, id_aula
+    id_relacion_aula = models.AutoField(primary_key=True)
     id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
-    
-
+    id_dispositivo = models.ForeignKey(Dispositivo_IoT, on_delete=models.CASCADE)
+    mac = models.CharField(max_length=17, null=False, blank=False)
     class Meta:
-        unique_together = ('id_dispositivo', 'id_aula')  # 🔹 Restricción de unicidad
+        unique_together = ('id_aula', 'mac')  # 🔹 Restricción de unicidad
 
     def __str__(self):
-        return f"{self.id_dispositivo} - {self.id_aula}"
+        return f"{self.id_aula} - {self.mac}" 
 
 
 # relacion entre Dispositivo_IoT y profesor
-class Dispositivo_IoT_Profesor(models.Model):
-    id_dispositivo_profesor = models.AutoField(primary_key=True)
-    id_dispositivo = models.ForeignKey(Dispositivo_IoT, on_delete=models.CASCADE)
+class Relacion_Profesor(models.Model):
+    id_relacion_profesor = models.AutoField(primary_key=True)
     id_profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
+    id_dispositivo = models.ForeignKey(Dispositivo_IoT, on_delete=models.CASCADE)
+    mac = models.CharField(max_length=17, null=False, blank=False)
 
     class Meta:
-        unique_together = ('id_dispositivo', 'id_profesor')  # 🔹 Restricción de unicidad
+        unique_together = ('id_profesor', 'mac')  # 🔹 Restricción de unicidad
 
     def __str__(self):
-        return f"{self.id_dispositivo} - {self.id_profesor}"
+        return f"{self.id_profesor} - {self.mac}"
