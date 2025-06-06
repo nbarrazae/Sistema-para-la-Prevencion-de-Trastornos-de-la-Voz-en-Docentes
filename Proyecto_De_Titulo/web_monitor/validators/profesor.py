@@ -185,4 +185,13 @@ def normalizar_correo(correo):
     """
     return correo.lower()
 
+def capitalizar_texto(texto):
+    """
+    Capitaliza la primera letra de cada oración en un texto.
+    """
+    if not texto:
+        return texto
+    oraciones = texto.split('.')
+    oraciones_capitalizadas = [oracion.strip().capitalize() for oracion in oraciones]
+    return '. '.join(oraciones_capitalizadas)
 

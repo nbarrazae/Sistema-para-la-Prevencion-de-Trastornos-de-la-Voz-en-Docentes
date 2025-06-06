@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from .serializer import InstitucionSerializer, ProfesorSerializer, AulaSerializer, HorarioSerializer
-from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT,Relacion_Aula, Relacion_Profesor
+from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT, Relacion_Aula, Relacion_Profesor
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -15,7 +15,7 @@ from django.db.models import Q
 from django.db import IntegrityError
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
+from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, capitalizar_texto, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
 
 def index(request):
@@ -240,8 +240,9 @@ def crear_profesor(request):
             nombre_profe_limpio = normalizar_nombre(request.POST['nombre_profesor'])
             apellido_profe_limpio = normalizar_nombre(request.POST['apellido_profesor'])
             correo_profe_limpio = normalizar_correo(request.POST['correo_profesor'])
+            antecedentes_medicos_limpio = capitalizar_texto(request.POST.get('antecedentes_medicos', ''))
+            area_docencia_limpio = capitalizar_texto(request.POST['area_docencia'])
             
-
             # Validaciones
             validate_rut(rut_profe_limpio)
             validate_email(correo_profe_limpio)
@@ -250,8 +251,8 @@ def crear_profesor(request):
             validate_sexo(request.POST['sexo'])
             validate_altura(request.POST.get('altura', ''))
             validate_peso(request.POST.get('peso', ''))
-            validate_area_docencia(request.POST['area_docencia'])
-            validate_antecedentes_medicos(request.POST.get('antecedentes_medicos', ''))
+            validate_area_docencia(area_docencia_limpio)
+            validate_antecedentes_medicos(antecedentes_medicos_limpio)
 
             # Obtener la institución
             institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
@@ -265,8 +266,8 @@ def crear_profesor(request):
                 sexo=request.POST['sexo'],
                 altura=request.POST.get('altura') or None,
                 peso=request.POST.get('peso') or None,
-                antecedentes_medicos=request.POST.get('antecedentes_medicos') or '',
-                area_docencia=request.POST['area_docencia'],
+                antecedentes_medicos=antecedentes_medicos_limpio,
+                area_docencia=area_docencia_limpio,
                 id_institucion=institucion
             )
             return JsonResponse({'success': True}, status=200)
@@ -286,49 +287,62 @@ def crear_profesor(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-@require_http_methods(["POST"])
 def editar_profesor(request, pk):
-    profesor = get_object_or_404(Profesor, pk=pk)
-    # Validar los datos del formulario
-    try:
-        rut_limpio = normalizar_rut(request.POST['rut_profesor'])
-        validate_rut(rut_limpio)
-        validate_email(request.POST['correo_profesor'])
-        validate_nombre(request.POST['nombre_profesor'])
-        validate_apellido(request.POST['apellido_profesor'])
-        validate_sexo(request.POST['sexo'])
-        validate_altura(request.POST.get('altura', ''))
-        validate_peso(request.POST.get('peso', ''))
-        validate_area_docencia(request.POST['area_docencia'])
-        validate_antecedentes_medicos(request.POST.get('antecedentes_medicos', ''))
-        # Verifica si la institución existe antes de actualizar el profesor
-        institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
-        # Si todo es válido, actualiza el profesor
-    except ValidationError as e:
-        messages.error(request, f"Error de validación: {', '.join(e.messages)}")
-        return redirect('profesores')
-    except Institucion.DoesNotExist:
-        messages.error(request, "La institución seleccionada no existe.")
-        return redirect('profesores')
-    except Exception as e:
-        messages.error(request, f"Error al editar el profesor: {e}")
-        return redirect('profesores')       
+    if request.method == 'POST':
+        try:
+            print("Datos recibidos:", request.POST)  # Agrega este registro para depurar
+            profesor = get_object_or_404(Profesor, pk=pk)
 
-    # Rellenar los datos desde request.POST
-    profesor.nombre_profesor = request.POST.get('nombre_profesor')
-    profesor.apellido_profesor = request.POST.get('apellido_profesor')
-    profesor.rut_profesor = request.POST.get('rut_profesor')
-    profesor.correo_profesor = request.POST.get('correo_profesor')
-    profesor.sexo = request.POST.get('sexo')
-    profesor.altura = request.POST.get('altura')
-    profesor.peso = request.POST.get('peso')
-    profesor.antecedentes_medicos = request.POST.get('antecedentes_medicos')
-    profesor.area_docencia = request.POST.get('area_docencia')
-    profesor.id_institucion_id = request.POST.get('id_institucion')  # usar _id si es clave foránea
+            # Normalizar entradas
+            rut_profe_limpio = normalizar_rut(request.POST['rut_profesor'])
+            nombre_profe_limpio = normalizar_nombre(request.POST['nombre_profesor'])
+            apellido_profe_limpio = normalizar_nombre(request.POST['apellido_profesor'])
+            correo_profe_limpio = normalizar_correo(request.POST['correo_profesor'])
+            antecedentes_medicos_limpio = capitalizar_texto(request.POST.get('antecedentes_medicos', ''))
+            area_docencia_limpio = capitalizar_texto(request.POST['area_docencia'])
+            # Validaciones
+            validate_rut(rut_profe_limpio)
+            validate_email(correo_profe_limpio)
+            validate_nombre(nombre_profe_limpio)
+            validate_apellido(apellido_profe_limpio)
+            validate_sexo(request.POST['sexo'])
+            validate_altura(request.POST.get('altura', ''))
+            validate_peso(request.POST.get('peso', ''))
+            validate_area_docencia(area_docencia_limpio)
+            validate_antecedentes_medicos(antecedentes_medicos_limpio)
 
-    profesor.save()
+            # Obtener la institución
+            institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
 
-    return redirect('profesores')  # o la vista donde se lista todo
+            # Actualizar el profesor
+            profesor.rut_profesor = rut_profe_limpio
+            profesor.nombre_profesor = nombre_profe_limpio
+            profesor.apellido_profesor = apellido_profe_limpio
+            profesor.correo_profesor = correo_profe_limpio
+            profesor.sexo = request.POST['sexo']
+            profesor.altura = request.POST.get('altura') or None
+            profesor.peso = request.POST.get('peso') or None
+            profesor.antecedentes_medicos = antecedentes_medicos_limpio
+            profesor.area_docencia = area_docencia_limpio
+            profesor.id_institucion = institucion
+
+            profesor.save()
+            return JsonResponse({'success': True}, status=200)
+        except Institucion.DoesNotExist:
+            return JsonResponse({'error': 'La institución seleccionada no existe.'}, status=400)
+        except ValidationError as e:
+            return JsonResponse({'error': ', '.join(e.messages)}, status=400)
+        except IntegrityError as e:
+            if 'rut_profesor' in str(e):
+                return JsonResponse({'error': 'Ya existe un profesor con ese RUT.'}, status=400)
+            elif 'correo_profesor' in str(e):
+                return JsonResponse({'error': 'Ya existe un profesor con ese correo.'}, status=400)
+            else:
+                return JsonResponse({'error': 'Error de integridad.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 def eliminar_profesor(request, id_profesor):
