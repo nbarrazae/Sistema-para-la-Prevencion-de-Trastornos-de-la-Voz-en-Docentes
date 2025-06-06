@@ -2,8 +2,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const formulario = document.getElementById('formulario_profesor');
     const modalAgregarProfesor = new bootstrap.Modal(document.getElementById('modalAgregarProfesor'));
     const cancelarModal = document.getElementById('cancelarModal');
+    const modalEditarProfesor = new bootstrap.Modal(document.getElementById('modalEditarProfesor'));
+    const cancelarModalEditar = document.getElementById('cancelarModalEditar');
 
-    
+    // Evento para cerrar el modal al hacer clic en "Cancelar" (Agregar)
+    cancelarModal.addEventListener('click', function () {
+        modalAgregarProfesor.hide(); // Cierra el modal
+    });
+
+    // Evento para cerrar el modal al hacer clic en "Cancelar" (Editar)
+    cancelarModalEditar.addEventListener('click', function () {
+        modalEditarProfesor.hide(); // Cierra el modal
+    });
+
     // Asegúrate de que el evento submit se registre solo una vez
     if (formulario.dataset.iniciado === 'true') {
         return; // Evita registrar el evento más de una vez
@@ -87,9 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
     campos.antecedentes.input.addEventListener('input', validarAntecedentes);
     campos.areaDocencia.input.addEventListener('input', validarAreaDocencia);
 
-    cancelarModal.addEventListener('click', function () {
-        modalAgregarProfesor.hide();
-    });
 
     formulario.addEventListener('submit', async function (event) {
         event.preventDefault();
@@ -154,8 +162,8 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Errores del servidor',
-                    html: `<ul>${Object.values(data).map(error => `<li>${error}</li>`).join('')}</ul>`,
+                    title: 'Errores al ingresar los datos',
+                    html: `Corrige los siguientes campos antes de enviar:<br><ul>${Object.values(data).map(error => `<li>${error}</li>`).join('')}</ul>`,
                     confirmButtonText: 'Entendido',
                     confirmButtonColor: '#d33'
                 });
