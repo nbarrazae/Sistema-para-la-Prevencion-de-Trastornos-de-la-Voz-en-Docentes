@@ -110,3 +110,59 @@ class Relacion_Profesor(models.Model):
 
     def __str__(self):
         return f"{self.id_profesor} - {self.mac}"
+    
+
+
+
+class Aula_CO2(models.Model):
+    # id_aula_co2, fecha_hora ,co2, id_aula fk
+    id_aula_co2 = models.AutoField(primary_key=True)
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    co2 = models.FloatField(null=False, blank=False)
+    id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('fecha_hora', 'id_aula')  # 🔹 Restricción de unicidad
+    def __str__(self):
+        return f"{self.id_aula} - {self.fecha_hora} - {self.co2}"
+class Aula_Temperatura(models.Model):
+    # id_aula_temperatura, fecha_hora ,temperatura, id_aula fk
+    id_aula_temperatura = models.AutoField(primary_key=True)
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    temperatura = models.FloatField(null=False, blank=False)
+    id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('fecha_hora', 'id_aula')  # 🔹 Restricción de unicidad
+    def __str__(self):
+        return f"{self.id_aula} - {self.fecha_hora} - {self.temperatura}"
+class Aula_Humedad(models.Model):
+    # id_aula_humedad, fecha_hora ,humedad, id_aula fk
+    id_aula_humedad = models.AutoField(primary_key=True)
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    humedad = models.FloatField(null=False, blank=False)
+    id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('fecha_hora', 'id_aula')  # 🔹 Restricción de unicidad
+    def __str__(self):
+        return f"{self.id_aula} - {self.fecha_hora} - {self.humedad}"
+class Aula_Ruido(models.Model):
+    # id_aula_ruido, fecha_hora ,ruido, id_aula fk
+    id_aula_ruido = models.AutoField(primary_key=True)
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    ruido = models.FloatField(null=False, blank=False)
+    id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('fecha_hora', 'id_aula')  # 🔹 Restricción de unicidad
+    def __str__(self):
+        return f"{self.id_aula} - {self.fecha_hora} - {self.ruido}"
+    
+class Profesor_Voz(models.Model):
+    # id_profesor_voz, fecha_hora ,voz, id_profesor fk
+    id_profesor_voz = models.AutoField(primary_key=True)
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    Freq = models.FloatField(null=False, blank=False)
+    Intensidad = models.FloatField(null=False, blank=False)
+    id_profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('fecha_hora', 'id_profesor')  # 🔹 Restricción de unicidad
+    def __str__(self):
+        return f"{self.id_profesor} - {self.fecha_hora} - {self.voz}"

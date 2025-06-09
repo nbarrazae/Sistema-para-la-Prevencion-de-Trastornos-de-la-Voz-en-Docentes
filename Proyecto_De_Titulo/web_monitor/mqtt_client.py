@@ -22,6 +22,7 @@ def on_message(client, userdata, msg):
     """ Callback cuando se recibe un mensaje """
     #imprime el mensaje recibido
     print(f"Mensaje recibido({len(msg.payload.decode())}): {msg.topic} {msg.payload.decode()}")
+    
 
 def start_mqtt():
     """ Inicia el cliente MQTT con autenticación opcional """
