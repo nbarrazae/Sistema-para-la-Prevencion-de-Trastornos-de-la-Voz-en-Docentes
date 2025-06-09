@@ -117,7 +117,7 @@ class Relacion_Profesor(models.Model):
 class Aula_CO2(models.Model):
     # id_aula_co2, fecha_hora ,co2, id_aula fk
     id_aula_co2 = models.AutoField(primary_key=True)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
+    fecha_hora = models.DateTimeField()
     co2 = models.FloatField(null=False, blank=False)
     id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
     class Meta:
@@ -127,7 +127,7 @@ class Aula_CO2(models.Model):
 class Aula_Temperatura(models.Model):
     # id_aula_temperatura, fecha_hora ,temperatura, id_aula fk
     id_aula_temperatura = models.AutoField(primary_key=True)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
+    fecha_hora = models.DateTimeField()
     temperatura = models.FloatField(null=False, blank=False)
     id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
     class Meta:
@@ -137,7 +137,7 @@ class Aula_Temperatura(models.Model):
 class Aula_Humedad(models.Model):
     # id_aula_humedad, fecha_hora ,humedad, id_aula fk
     id_aula_humedad = models.AutoField(primary_key=True)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
+    fecha_hora = models.DateTimeField()
     humedad = models.FloatField(null=False, blank=False)
     id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
     class Meta:
@@ -147,7 +147,7 @@ class Aula_Humedad(models.Model):
 class Aula_Ruido(models.Model):
     # id_aula_ruido, fecha_hora ,ruido, id_aula fk
     id_aula_ruido = models.AutoField(primary_key=True)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
+    fecha_hora = models.DateTimeField()
     ruido = models.FloatField(null=False, blank=False)
     id_aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
     class Meta:
