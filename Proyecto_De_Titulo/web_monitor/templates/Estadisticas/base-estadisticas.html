@@ -1,0 +1,49 @@
+{% extends 'sideNavbar.html' %}
+{% load static %}
+
+{% block title %}Estadísticas{% endblock %}
+
+{% block content %}
+<h1 class="text-primary">Estadísticas</h1>
+<p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
+
+<form method="POST">
+  {% csrf_token %}
+  
+  <div class="mb-3">
+    <label for="institucion" class="form-label">Institución</label>
+    <select id="institucion" name="institucion" class="form-select" required>
+      <option value="">Seleccione una institución</option>
+      {% for inst in instituciones %}
+        <option value="{{ inst.id_institucion }}">{{ inst.nombre_institucion }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="profesor" class="form-label">Profesor</label>
+    <select id="profesor" name="profesor" class="form-select" required>
+      <option value="">Seleccione un profesor</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="fecha_inicio" class="form-label">Fecha y hora inicio</label>
+    <input type="datetime-local" id="fecha_inicio" name="fecha_inicio" class="form-control" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="fecha_fin" class="form-label">Fecha y hora fin</label>
+    <input type="datetime-local" id="fecha_fin" name="fecha_fin" class="form-control" required>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Consultar</button>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
+{% endblock %}
+
+

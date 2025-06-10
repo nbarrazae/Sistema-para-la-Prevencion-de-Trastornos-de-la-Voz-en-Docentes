@@ -536,8 +536,29 @@ def aulas_por_institucion(request, id_institucion):
 
 def usuarios(request):
     return render(request, 'usuarios.html')
+
+
+from django.shortcuts import render
+from .models import Institucion
+
 def estadisticas(request):
-    return render(request, 'estadisticas.html')
+    instituciones = Institucion.objects.all()
+
+    if request.method == 'POST':
+        id_institucion = request.POST.get('institucion')
+        id_profesor = request.POST.get('profesor')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+
+        print("Institución:", id_institucion)
+        print("Profesor:", id_profesor)
+        print("Fecha inicio:", fecha_inicio)
+        print("Fecha fin:", fecha_fin)
+
+    return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
+
+
+
 def variables_ambientales(request):
     return render(request, 'variables_ambientales.html')
 def variables_voz(request):
