@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from .serializer import InstitucionSerializer, ProfesorSerializer, AulaSerializer, HorarioSerializer
-from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT, Relacion_Aula, Relacion_Profesor
+from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT, Relacion_Aula, Relacion_Profesor, Aula_CO2, Aula_Temperatura, Aula_Humedad, Aula_Ruido, Profesor_Voz
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -17,6 +17,10 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, capitalizar_texto, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
+from django.utils.timezone import make_aware, is_naive
+from datetime import datetime, timedelta
+import pytz
+
 
 def index(request):
     return render(request, 'index.html')
@@ -613,6 +617,45 @@ def estadisticas(request):
         print("Profesor:", id_profesor)
         print("Fecha inicio:", fecha_inicio)
         print("Fecha fin:", fecha_fin)
+
+        # Convertir fechas a objetos datetime con zona horaria definida en settings.py
+        try:
+            tz = pytz.timezone('America/Santiago')
+
+            fecha_inicio = datetime.strptime(request.POST['fecha_inicio'], '%Y-%m-%dT%H:%M')
+            fecha_fin = datetime.strptime(request.POST['fecha_fin'], '%Y-%m-%dT%H:%M')
+
+            # Asegurarse de que las fechas tengan zona horaria correcta
+            if is_naive(fecha_inicio):
+                fecha_inicio = tz.localize(fecha_inicio)
+            if is_naive(fecha_fin):
+                fecha_fin = tz.localize(fecha_fin)
+
+            # Ajustar fecha_fin para incluir hasta el último segundo del minuto
+            fecha_fin = fecha_fin.replace(second=59, microsecond=999999)
+
+            print("Fechas convertidas:", fecha_inicio, fecha_fin)
+        except Exception as e:
+            print("Error al convertir las fechas:", e)
+            return JsonResponse({'error': 'Fechas inválidas'}, status=400)
+
+        # Consultar datos de CO2, temperatura, humedad y ruido en aulas de la institución
+        aulas = Aula.objects.filter(id_institucion=id_institucion)
+        for aula in aulas:
+            co2_data = Aula_CO2.objects.filter(id_aula=aula, fecha_hora__range=[fecha_inicio, fecha_fin])
+            temperatura_data = Aula_Temperatura.objects.filter(id_aula=aula, fecha_hora__range=[fecha_inicio, fecha_fin])
+            humedad_data = Aula_Humedad.objects.filter(id_aula=aula, fecha_hora__range=[fecha_inicio, fecha_fin])
+            ruido_data = Aula_Ruido.objects.filter(id_aula=aula, fecha_hora__range=[fecha_inicio, fecha_fin])
+
+            print(f"Aula {aula.nro_aula}:")
+            print(f"CO2 ({co2_data.count()} registros):", list(co2_data.values('fecha_hora', 'co2')))
+            print(f"Temperatura ({temperatura_data.count()} registros):", list(temperatura_data.values('fecha_hora', 'temperatura')))
+            print(f"Humedad ({humedad_data.count()} registros):", list(humedad_data.values('fecha_hora', 'humedad')))
+            print(f"Ruido ({ruido_data.count()} registros):", list(ruido_data.values('fecha_hora', 'ruido')))
+
+        # Consultar datos de voz del profesor seleccionado
+        voz_data = Profesor_Voz.objects.filter(id_profesor=id_profesor, fecha_hora__range=[fecha_inicio, fecha_fin])
+        print(f"Datos de voz del profesor ({voz_data.count()} registros):", list(voz_data.values('fecha_hora', 'Freq', 'Intensidad')))
 
     return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
 

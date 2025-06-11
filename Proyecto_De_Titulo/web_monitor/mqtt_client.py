@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from datetime import datetime
 from django.utils.timezone import make_aware
+from pytz import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +42,9 @@ def on_message(client, userdata, msg):
             return
 
         # Convertir timestamp a objeto datetime
+        tz = timezone("America/Santiago")
         fecha_hora = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-        fecha_hora = make_aware(fecha_hora)
+        fecha_hora = tz.localize(fecha_hora)
         print(f"Timestamp recibido: {timestamp}")  # ← Agregado para depurar
         print(f"Fecha y hora convertidas: {fecha_hora}")  # ← Agregado para depurar
         # Guardar los datos en la base de datos según el tipo
