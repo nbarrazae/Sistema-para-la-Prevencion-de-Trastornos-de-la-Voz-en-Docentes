@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, capitalizar_texto, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
+from datetime import datetime, timedelta
 
 def index(request):
     return render(request, 'index.html')
@@ -604,17 +605,150 @@ def estadisticas(request):
     instituciones = Institucion.objects.all()
 
     if request.method == 'POST':
-        id_institucion = request.POST.get('institucion')
-        id_profesor = request.POST.get('profesor')
-        fecha_inicio = request.POST.get('fecha_inicio')
-        fecha_fin = request.POST.get('fecha_fin')
+        id_institucion = int(request.POST.get('institucion'))
+        id_profesor_raw = request.POST.get('profesor')
+        id_profesor = int(id_profesor_raw) if id_profesor_raw else None
 
-        print("Institución:", id_institucion)
-        print("Profesor:", id_profesor)
-        print("Fecha inicio:", fecha_inicio)
-        print("Fecha fin:", fecha_fin)
+        fecha_inicio_raw = request.POST.get('fecha_inicio')
+        fecha_fin_raw = request.POST.get('fecha_fin')
+
+        if fecha_inicio_raw and fecha_fin_raw:
+            fecha_inicio, hora_inicio = fecha_inicio_raw.split('T') 
+            fecha_fin , hora_fin = fecha_fin_raw.split('T')
+
+            _, detalles = generar_rango_fechas_con_dia(fecha_inicio, hora_inicio, fecha_fin, hora_fin)
+
+            for d in detalles:
+                print(f"Fecha: {d['fecha']}, Hora Inicio: {d['hora_inicio']}, Hora Fin: {d['hora_fin']}, Día: {d['dia_semana']}")
+
+            horarios = buscar_horarios(detalles, id_institucion, id_profesor)
+
+
+            horarios_con_fecha = asignar_fechas_a_horarios(horarios, detalles)
+            #ordenar los horarios por fecha y hora de inicio
+            horarios_con_fecha.sort(key=lambda x: (x['fecha'], x['hora_inicio']))
+            for horario in horarios_con_fecha:
+                print(f"Aula: {horario['id_aula']}, Hora Inicio: {horario['hora_inicio']}, Hora Fin: {horario['hora_termino']}, Profesor: {horario['profesor']}, Día: {horario['dia']}, Fecha: {horario['fecha']}")
+
 
     return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
+
+
+from collections import defaultdict
+
+def asignar_fechas_a_horarios(horarios, detalles_por_dia):
+    # Agrupar fechas por día de semana
+    fechas_por_dia = defaultdict(list)
+    for detalle in detalles_por_dia:
+        fechas_por_dia[detalle['dia_semana']].append(detalle['fecha'])
+
+    horarios_con_fecha = []
+
+    for horario in horarios:
+        dia = horario['dia']
+        fechas = fechas_por_dia.get(dia, [])
+
+        for fecha in fechas:
+            horario_con_fecha = horario.copy()
+            horario_con_fecha['fecha'] = fecha
+            horarios_con_fecha.append(horario_con_fecha)
+
+    return horarios_con_fecha
+
+
+
+
+
+from datetime import datetime, timedelta
+
+dias_semana = {
+    0: 'Lunes',
+    1: 'Martes',
+    2: 'Miércoles',
+    3: 'Jueves',
+    4: 'Viernes',
+    5: 'Sábado',
+    6: 'Domingo'
+}
+
+def generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str):
+    inicio = datetime.strptime(f"{fecha_inicio_str} {hora_inicio_str}", "%Y-%m-%d %H:%M")
+    fin = datetime.strptime(f"{fecha_fin_str} {hora_fin_str}", "%Y-%m-%d %H:%M")
+
+    detalles = []
+    fecha_actual = inicio.date()
+
+    while fecha_actual <= fin.date():
+        if fecha_actual == inicio.date() and fecha_actual == fin.date():
+            hora_ini, hora_fin = inicio.time(), fin.time()
+        elif fecha_actual == inicio.date():
+            hora_ini, hora_fin = inicio.time(), datetime.strptime("23:59", "%H:%M").time()
+        elif fecha_actual == fin.date():
+            hora_ini, hora_fin = datetime.strptime("00:00", "%H:%M").time(), fin.time()
+        else:
+            hora_ini = datetime.strptime("00:00", "%H:%M").time()
+            hora_fin = datetime.strptime("23:59", "%H:%M").time()
+
+        detalles.append({
+            "fecha": fecha_actual.strftime("%Y-%m-%d"),
+            "hora_inicio": hora_ini.strftime("%H:%M"),
+            "hora_fin": hora_fin.strftime("%H:%M"),
+            "dia_semana": dias_semana[fecha_actual.weekday()]
+        })
+
+        fecha_actual += timedelta(days=1)
+
+    return [d["fecha"] for d in detalles], detalles
+
+
+
+
+def buscar_horarios(detalles_por_dia, id_institucion, id_profesor=None):
+    resultados = []
+
+    for detalle in detalles_por_dia:
+        dia = detalle['dia_semana']
+        hora_inicio = datetime.strptime(detalle['hora_inicio'], "%H:%M").time()
+        hora_fin = datetime.strptime(detalle['hora_fin'], "%H:%M").time()
+
+        filtros = {
+            'dia': dia,
+            'hora_inicio__gte': hora_inicio,
+            'hora_termino__lte': hora_fin,
+            'id_aula__id_institucion': id_institucion
+        }
+
+        if id_profesor:
+            filtros['id_profesor_id'] = id_profesor
+
+        horarios = Horario.objects.filter(**filtros).select_related('id_profesor', 'id_aula')
+
+        for horario in horarios:
+            resultados.append({
+                "id_aula": horario.id_aula.nro_aula,
+                "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
+                "hora_termino": horario.hora_termino.strftime("%H:%M"),
+                "profesor": horario.id_profesor.nombre_profesor,
+                "dia": horario.dia
+            })
+
+    return resultados
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
