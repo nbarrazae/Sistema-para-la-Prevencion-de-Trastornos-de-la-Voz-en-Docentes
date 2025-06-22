@@ -610,24 +610,19 @@ def estadisticas(request):
 
         fecha_inicio_raw = request.POST.get('fecha_inicio')
         fecha_fin_raw = request.POST.get('fecha_fin')
+        print(f"Fecha Inicio: {fecha_inicio_raw}, Fecha Fin: {fecha_fin_raw}, Institución: {id_institucion}, Profesor: {id_profesor}")
+
         if fecha_inicio_raw and fecha_fin_raw:
-            fecha_inicio, hora_inicio = fecha_inicio_raw.split('T') 
-            fecha_fin , hora_fin = fecha_fin_raw.split('T')
+            fecha_inicio_str, hora_inicio_str = fecha_inicio_raw.split('T')
+            fecha_fin_str, hora_fin_str = fecha_fin_raw.split('T')
 
-            _, detalles = generar_rango_fechas_con_dia(fecha_inicio, hora_inicio, fecha_fin, hora_fin)
+            fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str)
+            horarios = buscar_horarios(detalles, id_institucion, dt_inicio, dt_fin, id_profesor)
+            for h in horarios:
+                print(f"Aula: {h['id_aula']}, Hora Inicio: {h['hora_inicio']}, Hora Fin: {h['hora_termino']}, Profesor: {h['profesor']}, Día: {h['dia']}, Fecha: {h['fecha']}")
+    
+    return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
 
-            for d in detalles:
-                print(f"Fecha: {d['fecha']}, Hora Inicio: {d['hora_inicio']}, Hora Fin: {d['hora_fin']}, Día: {d['dia_semana']}")
-
-            horarios = buscar_horarios(detalles, id_institucion, id_profesor)
-
-
-            horarios_con_fecha = asignar_fechas_a_horarios(horarios, detalles)
-            #ordenar los horarios por fecha y hora de inicio
-            horarios_con_fecha.sort(key=lambda x: (x['fecha'], x['hora_inicio']))
-            for horario in horarios_con_fecha:
-                print(f"Aula: {horario['id_aula']}, Hora Inicio: {horario['hora_inicio']}, Hora Fin: {horario['hora_termino']}, Profesor: {horario['profesor']}, Día: {horario['dia']}, Fecha: {horario['fecha']}")
-            return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
 
 
 from collections import defaultdict
@@ -694,16 +689,16 @@ def generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_st
 
         fecha_actual += timedelta(days=1)
 
-    return [d["fecha"] for d in detalles], detalles
+    return [d["fecha"] for d in detalles], detalles, inicio, fin
 
 
 
-
-def buscar_horarios(detalles_por_dia, id_institucion, id_profesor=None):
+def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_profesor=None):
     resultados = []
 
     for detalle in detalles_por_dia:
         dia = detalle['dia_semana']
+        fecha = detalle['fecha']
         hora_inicio = datetime.strptime(detalle['hora_inicio'], "%H:%M").time()
         hora_fin = datetime.strptime(detalle['hora_fin'], "%H:%M").time()
 
@@ -720,16 +715,21 @@ def buscar_horarios(detalles_por_dia, id_institucion, id_profesor=None):
         horarios = Horario.objects.filter(**filtros).select_related('id_profesor', 'id_aula')
 
         for horario in horarios:
-            resultados.append({
-                "id_aula": horario.id_aula.nro_aula,
-                "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
-                "hora_termino": horario.hora_termino.strftime("%H:%M"),
-                "profesor": horario.id_profesor.nombre_profesor,
-                "dia": horario.dia
-            })
+            # Validación final con fecha y hora combinadas
+            dt_hora_inicio = datetime.strptime(f"{fecha} {horario.hora_inicio.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
+            dt_hora_termino = datetime.strptime(f"{fecha} {horario.hora_termino.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
+
+            if dt_hora_inicio >= dt_inicio and dt_hora_termino <= dt_fin:
+                resultados.append({
+                    "id_aula": horario.id_aula.nro_aula,
+                    "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
+                    "hora_termino": horario.hora_termino.strftime("%H:%M"),
+                    "profesor": horario.id_profesor.nombre_profesor,
+                    "dia": horario.dia,
+                    "fecha": fecha
+                })
 
     return resultados
-
 
 
 
