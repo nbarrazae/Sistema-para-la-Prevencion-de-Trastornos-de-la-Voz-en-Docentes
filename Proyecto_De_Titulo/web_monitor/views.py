@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from .serializer import InstitucionSerializer, ProfesorSerializer, AulaSerializer, HorarioSerializer
-from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT, Relacion_Aula, Relacion_Profesor
+from .models import Institucion, Profesor, Aula, Horario, Dispositivo_IoT, Relacion_Aula, Relacion_Profesor, Aula_CO2, Aula_Temperatura, Aula_Humedad, Aula_Ruido, Profesor_Voz
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -18,7 +18,6 @@ from django.views.decorators.http import require_http_methods
 from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, capitalizar_texto, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
-
 def index(request):
     return render(request, 'index.html')
 
@@ -611,7 +610,6 @@ def estadisticas(request):
 
         fecha_inicio_raw = request.POST.get('fecha_inicio')
         fecha_fin_raw = request.POST.get('fecha_fin')
-
         if fecha_inicio_raw and fecha_fin_raw:
             fecha_inicio, hora_inicio = fecha_inicio_raw.split('T') 
             fecha_fin , hora_fin = fecha_fin_raw.split('T')
@@ -629,9 +627,7 @@ def estadisticas(request):
             horarios_con_fecha.sort(key=lambda x: (x['fecha'], x['hora_inicio']))
             for horario in horarios_con_fecha:
                 print(f"Aula: {horario['id_aula']}, Hora Inicio: {horario['hora_inicio']}, Hora Fin: {horario['hora_termino']}, Profesor: {horario['profesor']}, Día: {horario['dia']}, Fecha: {horario['fecha']}")
-
-
-    return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
+            return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
 
 
 from collections import defaultdict
