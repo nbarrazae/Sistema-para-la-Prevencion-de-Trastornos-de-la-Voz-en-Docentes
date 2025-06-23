@@ -618,9 +618,29 @@ def estadisticas(request):
 
             fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str)
             horarios = buscar_horarios(detalles, id_institucion, dt_inicio, dt_fin, id_profesor)
-            for h in horarios:
-                print(f"Aula: {h['id_aula']}, Hora Inicio: {h['hora_inicio']}, Hora Fin: {h['hora_termino']}, Profesor: {h['profesor']}, Día: {h['dia']}, Fecha: {h['fecha']}")
-    
+
+            resultados = []
+
+            contador = 0  # Inicializar contador
+            for horario in horarios:
+                print(f"\nAula: {horario['id_aula']}, Fecha: {horario['fecha']}, Hora Inicio: {horario['hora_inicio']}")
+                
+                for medicion in horario['registros_ruido']:
+                    contador += 1
+                    print(f"  Ruido {contador}. {medicion['fecha_hora']}: {medicion['ruido']} dB")
+                
+                for medicion in horario['registros_humedad']:
+                    print(f"  Humedad: {medicion['fecha_hora']}: {medicion['humedad']}%")
+                
+                for medicion in horario['registros_temperatura']:
+                    print(f"  Temperatura: {medicion['fecha_hora']}: {medicion['temperatura']}°C")
+                
+                for medicion in horario['registros_co2']:
+                    print(f"  CO2: {medicion['fecha_hora']}: {medicion['co2']} ppm")
+                
+                for medicion in horario['registros_voz']:
+                    print(f"  Voz: {medicion['fecha_hora']}: Frecuencia {medicion['freq']} Hz, Intensidad {medicion['intensidad']} dB")
+
     return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
 
 
@@ -693,6 +713,7 @@ def generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_st
 
 
 
+
 def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_profesor=None):
     resultados = []
 
@@ -713,23 +734,107 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
             filtros['id_profesor_id'] = id_profesor
 
         horarios = Horario.objects.filter(**filtros).select_related('id_profesor', 'id_aula')
-
         for horario in horarios:
-            # Validación final con fecha y hora combinadas
             dt_hora_inicio = datetime.strptime(f"{fecha} {horario.hora_inicio.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
             dt_hora_termino = datetime.strptime(f"{fecha} {horario.hora_termino.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
 
+
+
             if dt_hora_inicio >= dt_inicio and dt_hora_termino <= dt_fin:
+                # 🔹 Obtener registros de ruido
+                registros_ruido = Aula_Ruido.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_ruido = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'ruido': registro.ruido
+                    }
+                    for registro in registros_ruido
+                ]
+
+                # 🔹 Obtener registros de humedad
+                registros_humedad = Aula_Humedad.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_humedad = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'humedad': registro.humedad
+                    }
+                    for registro in registros_humedad
+                ]
+
+                # 🔹 Obtener registros de temperatura
+                registros_temperatura = Aula_Temperatura.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_temperatura = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'temperatura': registro.temperatura
+                    }
+                    for registro in registros_temperatura
+                ]
+
+                # 🔹 Obtener registros de CO2
+                registros_co2 = Aula_CO2.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_co2 = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'co2': registro.co2
+                    }
+                    for registro in registros_co2
+                ]
+
+                # 🔹 Obtener registros de intensidad de voz
+                registros_voz = Profesor_Voz.objects.filter(
+                    id_profesor=horario.id_profesor,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_voz = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'freq': registro.Freq,
+                        'intensidad': registro.Intensidad
+                    }
+                    for registro in registros_voz
+                ]
+
                 resultados.append({
-                    "id_aula": horario.id_aula.nro_aula,
+                    "id_aula": horario.id_aula.id_aula,
                     "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
                     "hora_termino": horario.hora_termino.strftime("%H:%M"),
                     "profesor": horario.id_profesor.nombre_profesor,
                     "dia": horario.dia,
-                    "fecha": fecha
+                    "fecha": fecha,
+                    "registros_ruido": lista_ruido,
+                    "registros_humedad": lista_humedad,
+                    "registros_temperatura": lista_temperatura,
+                    "registros_co2": lista_co2,
+                    "registros_voz": lista_voz
                 })
 
     return resultados
+
+
+
+
+
+
+
+
 
 
 
