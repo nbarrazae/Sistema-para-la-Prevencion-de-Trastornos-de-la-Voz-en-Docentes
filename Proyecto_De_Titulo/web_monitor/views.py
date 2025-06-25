@@ -18,6 +18,23 @@ from django.views.decorators.http import require_http_methods
 from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, capitalizar_texto, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
+from web_monitor.validators.instituciones import (
+    validate_nombre,
+    validate_rut,
+    validate_direccion,
+    validate_sitio_web,
+    validate_representante_legal,
+    validate_telefono,
+    validate_email,
+    normalizar_rut,
+    normalizar_nombre,
+    normalizar_direccion,
+    normalizar_sitio_web,
+    normalizar_representante_legal,
+    normalizar_telefono,
+    normalizar_email
+)
+
 def index(request):
     return render(request, 'index.html')
 
@@ -74,35 +91,97 @@ def eliminar_institucion(request, pk):
 def editar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == "POST":
-        institucion.nombre_institucion = request.POST.get("nombre_institucion")
-        institucion.rut_institucion = request.POST.get("rut_institucion")
-        institucion.direccion = request.POST.get("direccion")
-        institucion.telefono_institucion = request.POST.get("telefono_institucion")
-        institucion.correo_institucion = request.POST.get("correo_institucion")
-        institucion.save()
-        return redirect('instituciones')  # o tu vista actual
+        try:
+            # Normalizar entradas
+            nombre_institucion = normalizar_nombre(request.POST.get("nombre_institucion"))
+            rut_institucion = normalizar_rut(request.POST.get("rut_institucion"))
+            direccion = normalizar_direccion(request.POST.get("direccion"))
+            sitio_web = normalizar_sitio_web(request.POST.get("sitio_web"))
+            representante_legal = normalizar_representante_legal(request.POST.get("representante_legal"))
+            telefono_institucion = normalizar_telefono(request.POST.get("telefono_institucion"))
+            correo_institucion = normalizar_email(request.POST.get("correo_institucion"))
+
+            # Validaciones
+            validate_nombre(nombre_institucion)
+            validate_rut(rut_institucion)
+            validate_direccion(direccion)
+            validate_sitio_web(sitio_web)
+            validate_representante_legal(representante_legal)
+            validate_telefono(telefono_institucion)
+            validate_email(correo_institucion)
+
+            # Actualizar la institución
+            institucion.nombre_institucion = nombre_institucion
+            institucion.rut_institucion = rut_institucion
+            institucion.direccion = direccion
+            institucion.sitio_web = sitio_web
+            institucion.representante_legal = representante_legal
+            institucion.telefono_institucion = telefono_institucion
+            institucion.correo_institucion = correo_institucion
+            institucion.save()
+            messages.success(request, "Institución actualizada correctamente.")
+        except ValidationError as e:
+            messages.error(request, f"Error de validación: {', '.join(e.messages)}")
+        except IntegrityError:
+            messages.error(request, "Error: ya existe una institución con ese RUT.")
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
+        return redirect('instituciones')
 
 def crear_institucion(request):
     if request.method == "POST":
         try:
+            # Normalizar entradas
+            nombre_institucion = normalizar_nombre(request.POST.get("nombre_institucion"))
+            rut_institucion = normalizar_rut(request.POST.get("rut_institucion"))
+            direccion = normalizar_direccion(request.POST.get("direccion"))
+            sitio_web = normalizar_sitio_web(request.POST.get("sitio_web"))
+            representante_legal = normalizar_representante_legal(request.POST.get("representante_legal"))
+            telefono_institucion = normalizar_telefono(request.POST.get("telefono_institucion"))
+            correo_institucion = normalizar_email(request.POST.get("correo_institucion"))
+
+            # Validaciones
+            validate_nombre(nombre_institucion)
+            validate_rut(rut_institucion)
+            validate_direccion(direccion)
+            validate_sitio_web(sitio_web)
+            validate_representante_legal(representante_legal)
+            validate_telefono(telefono_institucion)
+            validate_email(correo_institucion)
+
+            # Verificar unicidad
+            errores = []
+            if Institucion.objects.filter(nombre_institucion=nombre_institucion).exists():
+                errores.append('Ya existe una institución con ese nombre.')
+            if Institucion.objects.filter(rut_institucion=rut_institucion).exists():
+                errores.append('Ya existe una institución con ese RUT.')
+            if Institucion.objects.filter(correo_institucion=correo_institucion).exists():
+                errores.append('Ya existe una institución con ese correo.')
+
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+
+            # Crear la institución
             institucion = Institucion(
-                nombre_institucion=request.POST.get("nombre_institucion"),
-                rut_institucion=request.POST.get("rut_institucion"),
-                direccion=request.POST.get("direccion"),
-                sitio_web=request.POST.get("sitio_web"),
-                representante_legal=request.POST.get("representante_legal"),
-                telefono_institucion=request.POST.get("telefono_institucion"),
-                correo_institucion=request.POST.get("correo_institucion")
+                nombre_institucion=nombre_institucion,
+                rut_institucion=rut_institucion,
+                direccion=direccion,
+                sitio_web=sitio_web,
+                representante_legal=representante_legal,
+                telefono_institucion=telefono_institucion,
+                correo_institucion=correo_institucion
             )
             institucion.save()
             messages.success(request, "Institución creada correctamente.")
+            return JsonResponse({'success': True}, status=200)
+        except ValidationError as e:
+            return JsonResponse({'error': e.messages}, status=400)
         except IntegrityError as e:
-            print(e)
-            messages.error(request, "Error: ya existe una institución con ese RUT.")
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
         except Exception as e:
-            print(e)
-            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
-        return redirect('instituciones')
+            print(f"❌ Error inesperado: {str(e)}")  # Agrega este registro para depuración
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
 
 def obtener_aulas(request, pk):
@@ -364,8 +443,8 @@ def horarios_por_profesor(request, id_profesor):
         {
             'id_horario': h.id_horario,
             'dia': h.dia,
-            'hora_inicio': str(h.hora_inicio),
-            'hora_termino': str(h.hora_termino),
+            'hora_inicio': str(hora_inicio),
+            'hora_termino': str(hora_termino),
             'nombre_aula': h.id_aula.nro_aula,
         }
         for h in horarios
