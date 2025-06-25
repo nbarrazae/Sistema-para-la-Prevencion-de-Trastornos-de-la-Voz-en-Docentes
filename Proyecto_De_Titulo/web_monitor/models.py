@@ -4,10 +4,10 @@ from django.db import models
 class Institucion(models.Model):
     id_institucion = models.AutoField(primary_key=True)
     rut_institucion = models.CharField(max_length=12, unique=True)
-    nombre_institucion = models.CharField(max_length=50, unique=True)
-    direccion = models.CharField(max_length=50, null=False, blank=False)
+    nombre_institucion = models.CharField(max_length=100, unique=True)
+    direccion = models.CharField(max_length=100, null=False, blank=False)
     sitio_web = models.CharField(max_length=50, null=True, blank=True)
-    representante_legal = models.CharField(max_length=50, null=False, blank=False)
+    representante_legal = models.CharField(max_length=100, null=False, blank=False)
     telefono_institucion = models.CharField(max_length=12, null=False, blank=False)
     correo_institucion = models.EmailField(max_length=50, null=False, blank=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)

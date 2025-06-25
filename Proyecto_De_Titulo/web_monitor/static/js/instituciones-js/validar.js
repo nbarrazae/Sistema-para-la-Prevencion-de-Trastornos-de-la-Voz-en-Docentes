@@ -34,20 +34,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // Funciones de validación individuales
     const validarNombre = () => {
         const nombre = campos.nombre.input.value.trim();
-        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$/;
-        campos.nombre.error.textContent = patron.test(nombre) ? '' : 'Nombre inválido (mínimo 2 caracteres, solo letras y caracteres especiales).';
+        const patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$/; // Se agregó "0-9" para permitir números
+        if (nombre.length > 100) {
+            campos.nombre.error.textContent = 'El nombre no puede exceder los 100 caracteres.';
+        } else {
+            campos.nombre.error.textContent = patron.test(nombre) ? '' : 'Nombre inválido.';
+        }
     };
 
     const validarRut = () => {
         const rut = campos.rut.input.value.trim();
         const patron = /^\d{1,2}\.\d{3}\.\d{3}-[0-9Kk]$|^\d{7,8}-[0-9Kk]$/;
-        campos.rut.error.textContent = patron.test(rut) ? '' : 'RUT inválido (formato XX.XXX.XXX-X o XXXXXXXX-X).';
+        campos.rut.error.textContent = patron.test(rut) ? '' : 'Formato de RUT inválido';
     };
 
     const validarDireccion = () => {
         const direccion = campos.direccion.input.value.trim();
         const patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:\'"]+$/;
-        campos.direccion.error.textContent = patron.test(direccion) ? '' : 'Dirección inválida (mínimo 5 caracteres).';
+        if (direccion.length > 100) {
+            campos.direccion.error.textContent = 'La dirección no puede exceder los 100 caracteres.';
+        } else {
+            campos.direccion.error.textContent = patron.test(direccion) ? '' : 'Dirección inválida.';
+        }
     };
 
     const validarSitioWeb = () => {
@@ -58,14 +66,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const validarRepresentanteLegal = () => {
         const representanteLegal = campos.representanteLegal.input.value.trim();
-        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$/;
-        campos.representanteLegal.error.textContent = patron.test(representanteLegal) ? '' : 'Representante legal inválido (mínimo 2 caracteres).';
+        const patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$/; // Se agregó "0-9" para permitir números
+        if (representanteLegal.length > 100) {
+            campos.representanteLegal.error.textContent = 'El representante legal no puede exceder los 100 caracteres.';
+        } else {
+            campos.representanteLegal.error.textContent = patron.test(representanteLegal) ? '' : 'Representante legal inválido.';
+        }
     };
 
     const validarTelefono = () => {
         const telefono = campos.telefono.input.value.trim();
         const patron = /^\+?56\s?9\s?\d{4}\s?\d{4}$|^\d{8,12}$/;
-        campos.telefono.error.textContent = patron.test(telefono) ? '' : 'Teléfono inválido (formato +56 9 XXXX XXXX o XXXXXXXX).';
+        campos.telefono.error.textContent = patron.test(telefono) ? '' : 'Teléfono inválido.';
     };
 
     const validarCorreo = () => {

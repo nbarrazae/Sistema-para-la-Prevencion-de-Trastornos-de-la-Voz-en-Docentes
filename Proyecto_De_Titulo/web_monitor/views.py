@@ -173,7 +173,7 @@ def crear_institucion(request):
                 correo_institucion=correo_institucion
             )
             institucion.save()
-            messages.success(request, "Institución creada correctamente.")
+            # messages.success(request, "Institución creada correctamente.")
             return JsonResponse({'success': True}, status=200)
         except ValidationError as e:
             return JsonResponse({'error': e.messages}, status=400)

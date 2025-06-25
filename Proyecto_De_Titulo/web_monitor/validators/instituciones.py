@@ -5,13 +5,13 @@ from django.utils.translation import gettext as _
 def validate_nombre(value):
     """
     Valida el campo de nombre.
-    Debe tener al menos 2 caracteres y solo contener letras, espacios y caracteres especiales.
+    Debe tener al menos 2 caracteres, maximo 100 y solo contener letras, numeros, espacios y caracteres especiales.
     Permite nombres con espacios y acentos.
     Ejemplo: 'Juan Pérez', 'María del Carmen'.
     """
-    if len(value) < 2 or not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$', value):
+    if len(value) < 2 or len(value) > 100 or not re.match(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:\'"]+$', value):
         raise ValidationError(
-            _('El nombre debe tener al menos 2 caracteres y solo contener letras, espacios y caracteres especiales.'),
+            _('El nombre debe tener al menos 2 caracteres, máximo 100 y solo contener letras, números, espacios y caracteres especiales.'),
             params={'value': value},
         )
 
@@ -30,13 +30,13 @@ def validate_rut(value):
 def validate_direccion(value):
     """
     Valida el campo de dirección.
-    Debe tener al menos 5 caracteres y solo contener letras, números, espacios y caracteres especiales.
+    Debe tener al menos 5 caracteres, maximo 100 y solo contener letras, números, espacios y caracteres especiales.
     Permite direcciones con espacios y acentos.
     Ejemplo: 'Avenida Libertador Bernardo O'Higgins 1234'.
     """
-    if len(value) < 5 or not re.match(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:\'"]+$', value):
+    if len(value) < 5 or len(value) > 100 or not re.match(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$', value):
         raise ValidationError(
-            _('La dirección debe tener al menos 5 caracteres y solo contener letras, números, espacios y caracteres especiales.'),
+            _('La dirección debe tener al menos 5 caracteres, máximo 100 y solo contener letras, números, espacios y caracteres especiales.'),
             params={'value': value},
         )
 
@@ -56,15 +56,16 @@ def validate_sitio_web(value):
 def validate_representante_legal(value):
     """
     Valida el campo de representante legal.
-    Debe tener al menos 2 caracteres y solo contener letras, espacios y caracteres especiales.
+    Debe tener al menos 2 caracteres maximo 100 y solo contener letras, espacios y caracteres especiales.
     Permite nombres con espacios y acentos.
     Ejemplo: 'Juan Pérez', 'María del Carmen'.
     """
-    if len(value) < 2 or not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$', value):
+    if len(value) < 2 or len(value) > 100 or not re.match(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:\'"]+$', value):
         raise ValidationError(
-            _('El representante legal debe tener al menos 2 caracteres y solo contener letras, espacios'),
+            _('El representante legal debe tener al menos 2 caracteres, máximo 100 y solo contener letras, números, espacios y caracteres especiales.'),
             params={'value': value},
         )
+
 
 def validate_telefono(value):
     """
