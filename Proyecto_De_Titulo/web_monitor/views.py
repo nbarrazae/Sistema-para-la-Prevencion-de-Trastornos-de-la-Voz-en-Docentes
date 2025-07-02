@@ -736,7 +736,7 @@ def estadisticas(request):
 
             contador = 0  # Inicializar contador
             for horario in horarios:
-                print(f"\nAula: {horario['id_aula']}, Fecha: {horario['fecha']}, Hora Inicio: {horario['hora_inicio']}")
+                print(f"\nAula: {horario['id_aula']}, Fecha: {horario['fecha']}, Horario: {horario['hora_inicio']} - {horario['hora_termino']}")
                 
                 for medicion in horario['registros_ruido']:
                     contador += 1
@@ -938,7 +938,7 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
                     "registros_co2": lista_co2,
                     "registros_voz": lista_voz
                 })
-
+    print(f"Resultados encontrados: {len(resultados)}")
     return resultados
 
 
