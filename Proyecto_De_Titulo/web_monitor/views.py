@@ -43,8 +43,23 @@ def instituciones(request):
     page = request.GET.get('page')
     page_obj = paginator.get_page(page)
 
+    # cálculo de rango de páginas para mostrar
+    page_range = []
+    if paginator.num_pages <= 10:
+        page_range = range(1, paginator.num_pages + 1)
+    else:
+        if page_obj.number <= 6:
+            page_range = list(range(1, 8)) + ['…', paginator.num_pages]
+        elif page_obj.number > paginator.num_pages - 6:
+            page_range = [1, '…'] + list(range(paginator.num_pages - 6, paginator.num_pages + 1))
+        else:
+            page_range = [1, '…'] + list(range(page_obj.number - 2, page_obj.number + 3)) + ['…', paginator.num_pages]
+
     context = {
         'page_obj': page_obj,
+        'page_range': page_range,
+        'orden': orden,
+        'direccion': direccion,
     }
     return render(request, 'instituciones/base-instituciones.html', context)
 
@@ -451,14 +466,33 @@ def dispositivos_iot(request):
 
         resultado.append(entrada)
 
+    paginator = Paginator(resultado, 10)  # 10 dispositivos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Cálculo de rango de páginas para mostrar
+    page_range = []
+    if paginator.num_pages <= 10:
+        page_range = range(1, paginator.num_pages + 1)
+    else:
+        if page_obj.number <= 6:
+            page_range = list(range(1, 8)) + ['…', paginator.num_pages]
+        elif page_obj.number > paginator.num_pages - 6:
+            page_range = [1, '…'] + list(range(paginator.num_pages - 6, paginator.num_pages + 1))
+        else:
+            page_range = [1, '…'] + list(range(page_obj.number - 2, page_obj.number + 3)) + ['…', paginator.num_pages]
+
     instituciones = Institucion.objects.all()
     context = {
-        'dispositivos': resultado,
+        'dispositivos': page_obj,  # Aquí pasamos solo la página actual
+        'page_obj': page_obj,
+        'page_range': page_range,
         'busqueda': busqueda,
         'instituciones': instituciones,
     }
-
+    # print("Contexto para renderizar:", context)  # Para depurar
     return render(request, 'Dispositivos-IoT/base-IoT.html', context)
+
 
 
 
