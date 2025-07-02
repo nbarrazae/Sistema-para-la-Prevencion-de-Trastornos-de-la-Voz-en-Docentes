@@ -458,8 +458,8 @@ def horarios_por_profesor(request, id_profesor):
         {
             'id_horario': h.id_horario,
             'dia': h.dia,
-            'hora_inicio': str(hora_inicio),
-            'hora_termino': str(hora_termino),
+            'hora_inicio': str(h.hora_inicio),
+            'hora_termino': str(h.hora_termino),
             'nombre_aula': h.id_aula.nro_aula,
         }
         for h in horarios
