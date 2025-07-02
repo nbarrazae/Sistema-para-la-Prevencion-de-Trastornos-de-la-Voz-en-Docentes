@@ -18,6 +18,23 @@ from django.views.decorators.http import require_http_methods
 from web_monitor.validators.profesor import normalizar_correo, normalizar_nombre, capitalizar_texto, normalizar_rut, validate_rut, validate_email, validate_nombre, validate_apellido, validate_sexo, validate_area_docencia, validate_antecedentes_medicos, validate_altura, validate_peso
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
+from web_monitor.validators.instituciones import (
+    validate_nombre,
+    validate_rut,
+    validate_direccion,
+    validate_sitio_web,
+    validate_representante_legal,
+    validate_telefono,
+    validate_email,
+    normalizar_rut,
+    normalizar_nombre,
+    normalizar_direccion,
+    normalizar_sitio_web,
+    normalizar_representante_legal,
+    normalizar_telefono,
+    normalizar_email
+)
+
 def index(request):
     return render(request, 'index.html')
 
@@ -89,35 +106,97 @@ def eliminar_institucion(request, pk):
 def editar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == "POST":
-        institucion.nombre_institucion = request.POST.get("nombre_institucion")
-        institucion.rut_institucion = request.POST.get("rut_institucion")
-        institucion.direccion = request.POST.get("direccion")
-        institucion.telefono_institucion = request.POST.get("telefono_institucion")
-        institucion.correo_institucion = request.POST.get("correo_institucion")
-        institucion.save()
-        return redirect('instituciones')  # o tu vista actual
+        try:
+            # Normalizar entradas
+            nombre_institucion = normalizar_nombre(request.POST.get("nombre_institucion"))
+            rut_institucion = normalizar_rut(request.POST.get("rut_institucion"))
+            direccion = normalizar_direccion(request.POST.get("direccion"))
+            sitio_web = normalizar_sitio_web(request.POST.get("sitio_web"))
+            representante_legal = normalizar_representante_legal(request.POST.get("representante_legal"))
+            telefono_institucion = normalizar_telefono(request.POST.get("telefono_institucion"))
+            correo_institucion = normalizar_email(request.POST.get("correo_institucion"))
+
+            # Validaciones
+            validate_nombre(nombre_institucion)
+            validate_rut(rut_institucion)
+            validate_direccion(direccion)
+            validate_sitio_web(sitio_web)
+            validate_representante_legal(representante_legal)
+            validate_telefono(telefono_institucion)
+            validate_email(correo_institucion)
+
+            # Actualizar la institución
+            institucion.nombre_institucion = nombre_institucion
+            institucion.rut_institucion = rut_institucion
+            institucion.direccion = direccion
+            institucion.sitio_web = sitio_web
+            institucion.representante_legal = representante_legal
+            institucion.telefono_institucion = telefono_institucion
+            institucion.correo_institucion = correo_institucion
+            institucion.save()
+            messages.success(request, "Institución actualizada correctamente.")
+        except ValidationError as e:
+            messages.error(request, f"Error de validación: {', '.join(e.messages)}")
+        except IntegrityError:
+            messages.error(request, "Error: ya existe una institución con ese RUT.")
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
+        return redirect('instituciones')
 
 def crear_institucion(request):
     if request.method == "POST":
         try:
+            # Normalizar entradas
+            nombre_institucion = normalizar_nombre(request.POST.get("nombre_institucion"))
+            rut_institucion = normalizar_rut(request.POST.get("rut_institucion"))
+            direccion = normalizar_direccion(request.POST.get("direccion"))
+            sitio_web = normalizar_sitio_web(request.POST.get("sitio_web"))
+            representante_legal = normalizar_representante_legal(request.POST.get("representante_legal"))
+            telefono_institucion = normalizar_telefono(request.POST.get("telefono_institucion"))
+            correo_institucion = normalizar_email(request.POST.get("correo_institucion"))
+
+            # Validaciones
+            validate_nombre(nombre_institucion)
+            validate_rut(rut_institucion)
+            validate_direccion(direccion)
+            validate_sitio_web(sitio_web)
+            validate_representante_legal(representante_legal)
+            validate_telefono(telefono_institucion)
+            validate_email(correo_institucion)
+
+            # Verificar unicidad
+            errores = []
+            if Institucion.objects.filter(nombre_institucion=nombre_institucion).exists():
+                errores.append('Ya existe una institución con ese nombre.')
+            if Institucion.objects.filter(rut_institucion=rut_institucion).exists():
+                errores.append('Ya existe una institución con ese RUT.')
+            if Institucion.objects.filter(correo_institucion=correo_institucion).exists():
+                errores.append('Ya existe una institución con ese correo.')
+
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+
+            # Crear la institución
             institucion = Institucion(
-                nombre_institucion=request.POST.get("nombre_institucion"),
-                rut_institucion=request.POST.get("rut_institucion"),
-                direccion=request.POST.get("direccion"),
-                sitio_web=request.POST.get("sitio_web"),
-                representante_legal=request.POST.get("representante_legal"),
-                telefono_institucion=request.POST.get("telefono_institucion"),
-                correo_institucion=request.POST.get("correo_institucion")
+                nombre_institucion=nombre_institucion,
+                rut_institucion=rut_institucion,
+                direccion=direccion,
+                sitio_web=sitio_web,
+                representante_legal=representante_legal,
+                telefono_institucion=telefono_institucion,
+                correo_institucion=correo_institucion
             )
             institucion.save()
-            messages.success(request, "Institución creada correctamente.")
+            # messages.success(request, "Institución creada correctamente.")
+            return JsonResponse({'success': True}, status=200)
+        except ValidationError as e:
+            return JsonResponse({'error': e.messages}, status=400)
         except IntegrityError as e:
-            print(e)
-            messages.error(request, "Error: ya existe una institución con ese RUT.")
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
         except Exception as e:
-            print(e)
-            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
-        return redirect('instituciones')
+            print(f"❌ Error inesperado: {str(e)}")  # Agrega este registro para depuración
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
 
 def obtener_aulas(request, pk):
@@ -379,8 +458,8 @@ def horarios_por_profesor(request, id_profesor):
         {
             'id_horario': h.id_horario,
             'dia': h.dia,
-            'hora_inicio': str(h.hora_inicio),
-            'hora_termino': str(h.hora_termino),
+            'hora_inicio': str(hora_inicio),
+            'hora_termino': str(hora_termino),
             'nombre_aula': h.id_aula.nro_aula,
         }
         for h in horarios
@@ -652,9 +731,29 @@ def estadisticas(request):
 
             fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str)
             horarios = buscar_horarios(detalles, id_institucion, dt_inicio, dt_fin, id_profesor)
-            for h in horarios:
-                print(f"Aula: {h['id_aula']}, Hora Inicio: {h['hora_inicio']}, Hora Fin: {h['hora_termino']}, Profesor: {h['profesor']}, Día: {h['dia']}, Fecha: {h['fecha']}")
-    
+
+            resultados = []
+
+            contador = 0  # Inicializar contador
+            for horario in horarios:
+                print(f"\nAula: {horario['id_aula']}, Fecha: {horario['fecha']}, Hora Inicio: {horario['hora_inicio']}")
+                
+                for medicion in horario['registros_ruido']:
+                    contador += 1
+                    print(f"  Ruido {contador}. {medicion['fecha_hora']}: {medicion['ruido']} dB")
+                
+                for medicion in horario['registros_humedad']:
+                    print(f"  Humedad: {medicion['fecha_hora']}: {medicion['humedad']}%")
+                
+                for medicion in horario['registros_temperatura']:
+                    print(f"  Temperatura: {medicion['fecha_hora']}: {medicion['temperatura']}°C")
+                
+                for medicion in horario['registros_co2']:
+                    print(f"  CO2: {medicion['fecha_hora']}: {medicion['co2']} ppm")
+                
+                for medicion in horario['registros_voz']:
+                    print(f"  Voz: {medicion['fecha_hora']}: Frecuencia {medicion['freq']} Hz, Intensidad {medicion['intensidad']} dB")
+
     return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
 
 
@@ -727,6 +826,7 @@ def generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_st
 
 
 
+
 def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_profesor=None):
     resultados = []
 
@@ -747,23 +847,107 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
             filtros['id_profesor_id'] = id_profesor
 
         horarios = Horario.objects.filter(**filtros).select_related('id_profesor', 'id_aula')
-
         for horario in horarios:
-            # Validación final con fecha y hora combinadas
             dt_hora_inicio = datetime.strptime(f"{fecha} {horario.hora_inicio.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
             dt_hora_termino = datetime.strptime(f"{fecha} {horario.hora_termino.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
 
+
+
             if dt_hora_inicio >= dt_inicio and dt_hora_termino <= dt_fin:
+                # 🔹 Obtener registros de ruido
+                registros_ruido = Aula_Ruido.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_ruido = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'ruido': registro.ruido
+                    }
+                    for registro in registros_ruido
+                ]
+
+                # 🔹 Obtener registros de humedad
+                registros_humedad = Aula_Humedad.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_humedad = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'humedad': registro.humedad
+                    }
+                    for registro in registros_humedad
+                ]
+
+                # 🔹 Obtener registros de temperatura
+                registros_temperatura = Aula_Temperatura.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_temperatura = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'temperatura': registro.temperatura
+                    }
+                    for registro in registros_temperatura
+                ]
+
+                # 🔹 Obtener registros de CO2
+                registros_co2 = Aula_CO2.objects.filter(
+                    id_aula=horario.id_aula,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_co2 = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'co2': registro.co2
+                    }
+                    for registro in registros_co2
+                ]
+
+                # 🔹 Obtener registros de intensidad de voz
+                registros_voz = Profesor_Voz.objects.filter(
+                    id_profesor=horario.id_profesor,
+                    fecha_hora__range=(dt_hora_inicio, dt_hora_termino)
+                ).order_by('fecha_hora')
+
+                lista_voz = [
+                    {
+                        'fecha_hora': registro.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+                        'freq': registro.Freq,
+                        'intensidad': registro.Intensidad
+                    }
+                    for registro in registros_voz
+                ]
+
                 resultados.append({
-                    "id_aula": horario.id_aula.nro_aula,
+                    "id_aula": horario.id_aula.id_aula,
                     "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
                     "hora_termino": horario.hora_termino.strftime("%H:%M"),
                     "profesor": horario.id_profesor.nombre_profesor,
                     "dia": horario.dia,
-                    "fecha": fecha
+                    "fecha": fecha,
+                    "registros_ruido": lista_ruido,
+                    "registros_humedad": lista_humedad,
+                    "registros_temperatura": lista_temperatura,
+                    "registros_co2": lista_co2,
+                    "registros_voz": lista_voz
                 })
 
     return resultados
+
+
+
+
+
+
+
+
 
 
 
