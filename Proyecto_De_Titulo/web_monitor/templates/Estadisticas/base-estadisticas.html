@@ -48,74 +48,90 @@
 <hr class="my-4">
 
 <div class="row g-4">
-    {% for grafico in graficos %}
-<div class="col-12">
-    <h5 class="mb-2">{{ grafico.0 }}</h5>
-    <div class="grafico-scroll bg-white p-2 rounded shadow-sm">
-        <canvas id="{{ grafico.1 }}"></canvas>
+    <div class="col-12">
+        <h5 class="mb-2">Frecuencia Fundamental (Hz)</h5>
+        <div class="chart-scroll-container">
+            <div id="graficoFrecuencia"></div>
+        </div>
     </div>
-</div>
-{% endfor %}
-
+    <div class="col-12">
+        <h5 class="mb-2">Intensidad de la Voz (dB)</h5>
+        <div class="chart-scroll-container">
+            <div id="graficoIntensidad"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Ruido Ambiental (dB)</h5>
+        <div class="chart-scroll-container">
+            <div id="graficoRuido"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Temperatura (°C)</h5>
+        <div class="chart-scroll-container">
+            <div id="graficoTemperatura"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Humedad Relativa (%)</h5>
+        <div class="chart-scroll-container">
+            <div id="graficoHumedad"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Concentración de CO₂ (ppm)</h5>
+        <div class="chart-scroll-container">
+            <div id="graficoCO2"></div>
+        </div>
+    </div>
 </div>
 {% endif %}
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist/plotly.min.js"></script>
 <script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
 
 {% if resultados_json %}
 <script>
     const resultados = {{ resultados_json|safe }};
+    const extract = (clave) => resultados.flatMap(h => h[clave]);
 
-    const extraerRegistros = (clave) => resultados.flatMap(h => h[clave]);
+    function plotGraph(containerId, title, datos, prop, color) {
+        const x = datos.map(r => r.fecha_hora);
+        const y = datos.map(r => r[prop]);
+        Plotly.newPlot(containerId, [{
+            x: x,
+            y: y,
+            mode: 'lines',
+            line: {color: color}
+        }], {
+            title: title,
+            xaxis: { title: 'Tiempo' },
+            yaxis: { title: title },
+            autosize: false,
+            width: 12000,
+            height: 400
+        }, {responsive: false});
+    }
 
-    const crearGrafico = (canvasId, label, datos, color) => {
-        const labels = datos.map(r => r.fecha_hora);
-        const valores = datos.map(r => Object.values(r).find(v => typeof v === 'number'));
-        new Chart(document.getElementById(canvasId), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: label,
-                    data: valores,
-                    borderColor: color,
-                    backgroundColor: color + '20',
-                    fill: false,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        ticks: { maxRotation: 45, minRotation: 45 },
-                    }
-                }
-            }
-        });
-    };
-
-    crearGrafico('graficoFrecuencia', 'Frecuencia (Hz)', extraerRegistros('registros_voz').map(r => ({...r, valor: r.freq})), 'blue');
-    crearGrafico('graficoIntensidad', 'Intensidad de Voz (dB)', extraerRegistros('registros_voz').map(r => ({...r, valor: r.intensidad})), 'orange');
-    crearGrafico('graficoRuido', 'Ruido Ambiental (dB)', extraerRegistros('registros_ruido'), 'green');
-    crearGrafico('graficoTemperatura', 'Temperatura (°C)', extraerRegistros('registros_temperatura'), 'red');
-    crearGrafico('graficoHumedad', 'Humedad Relativa (%)', extraerRegistros('registros_humedad'), 'purple');
-    crearGrafico('graficoCO2', 'CO₂ (ppm)', extraerRegistros('registros_co2'), 'brown');
+    plotGraph('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', extract('registros_voz'), 'freq', 'blue');
+    plotGraph('graficoIntensidad', 'Intensidad de Voz (dB)', extract('registros_voz'), 'intensidad', 'orange');
+    plotGraph('graficoRuido', 'Ruido Ambiental (dB)', extract('registros_ruido'), 'valor', 'green');
+    plotGraph('graficoTemperatura', 'Temperatura (°C)', extract('registros_temperatura'), 'valor', 'red');
+    plotGraph('graficoHumedad', 'Humedad Relativa (%)', extract('registros_humedad'), 'valor', 'purple');
+    plotGraph('graficoCO2', 'CO₂ (ppm)', extract('registros_co2'), 'valor', 'brown');
 </script>
 {% endif %}
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.grafico-scroll {
+.chart-scroll-container {
     overflow-x: auto;
-}
-.grafico-scroll canvas {
-    min-width: 1000px;
-    height: 400px;
+    white-space: nowrap;
+    max-width: 100%;
+    border: 1px solid #ccc;
 }
 </style>
 {% endblock %}
