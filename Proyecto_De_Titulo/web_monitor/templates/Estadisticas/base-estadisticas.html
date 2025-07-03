@@ -100,31 +100,62 @@
     const extraerRegistros = (clave) => resultados.flatMap(h => h[clave] || []);
 
     const crearGraficoPlotly = (divId, titulo, datos, campo, color) => {
-        if (!datos.length) return;
+    const x = datos.map(r => r.fecha_hora);
+    const y = datos.map(r => r[campo]);
 
-        const x = datos.map(r => r.fecha_hora);
-        const y = datos.map(r => r[campo]);
+    let data, layout;
 
-        const data = [{
+    if (!datos.length) {
+        data = [];
+        layout = {
+            title: titulo,
+            xaxis: { visible: false },
+            yaxis: { visible: false },
+            annotations: [
+                {
+                    text: "Sin datos disponibles",
+                    xref: "paper",
+                    yref: "paper",
+                    showarrow: false,
+                    font: {
+                        size: 20,
+                        color: "gray"
+                    },
+                    x: 0.5,
+                    y: 0.5,
+                    align: "center"
+                }
+            ],
+            autosize: true,
+            height: 400,
+            margin: { t: 50, b: 50 }
+        };
+    } else {
+        data = [{
             x: x,
             y: y,
             mode: 'lines',
             line: { color: color }
         }];
-
-        const layout = {
+        layout = {
             title: titulo,
-            xaxis: { title: 'Fecha y Hora' },
+            xaxis: {
+                title: 'Fecha y Hora',
+                tickangle: -45,         // Inclina los textos del eje X para mejor lectura
+                tickmode: 'auto',       // Automático pero controlable
+                nticks: 50              // Ajusta cuántas marcas mostrar (puedes cambiar el número)
+            },
             yaxis: { title: campo },
             autosize: true,
             height: 400,
             margin: { t: 50, b: 50 },
-            width: 20000
+            width: 15000
         };
+    }
 
+    Plotly.newPlot(divId, data, layout);
+};
 
-        Plotly.newPlot(divId, data, layout);
-    };
 
     // Voz
     crearGraficoPlotly('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', extraerRegistros('registros_voz'), 'freq', 'blue');

@@ -68,3 +68,50 @@ for i in range(TOTAL_MINUTOS):
 
 client.disconnect()
 print("Finalizado.")
+
+########## Datos de Voz  ################
+# import paho.mqtt.client as mqtt
+# import json
+# from datetime import datetime, timedelta
+# import random
+
+# # ---------- CONFIGURACIÓN ----------
+# BROKER = "localhost"
+# TOPIC = "test/topic"
+# MAC = "00:1A:2B:3C:4D:5E"
+
+# # Cantidad total de datos a generar
+# TOTAL_MINUTOS = 60  # Por ejemplo, una hora de datos
+# DATOS_POR_MINUTO = 6  # Uno cada 10 segundos
+
+# # Inicializar cliente MQTT
+# client = mqtt.Client()
+# client.connect(BROKER)
+
+# # Tiempo base (simulado)
+# hora_inicio = datetime(2025, 7, 1, 8, 0, 0)  # Puedes cambiar la hora de inicio
+# delta = timedelta(seconds=60 // DATOS_POR_MINUTO)
+
+# print(f"Generando {TOTAL_MINUTOS * DATOS_POR_MINUTO} registros...")
+
+# # Bucle para enviar todos los datos simulados
+# for i in range(TOTAL_MINUTOS * DATOS_POR_MINUTO):
+#     timestamp = hora_inicio + i * delta
+#     timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+#     FF = str(random.randint(100, 200))
+#     IV = str(random.randint(50, 100))
+
+#     payload = {
+#         "Mac": MAC,
+#         "timestamp": timestamp_str,
+#         "FF": FF,
+#         "IV": IV
+#     }
+
+#     client.publish(TOPIC, json.dumps(payload))
+#     print("Enviado: ", payload)
+
+# client.disconnect()
+# print("Finalizado.")
+
