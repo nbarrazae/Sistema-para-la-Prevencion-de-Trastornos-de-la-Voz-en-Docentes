@@ -89,49 +89,67 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist/plotly.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
 
 {% if resultados_json %}
 <script>
     const resultados = {{ resultados_json|safe }};
-    const extract = (clave) => resultados.flatMap(h => h[clave]);
+    console.log(resultados);
 
-    function plotGraph(containerId, title, datos, prop, color) {
+    const extraerRegistros = (clave) => resultados.flatMap(h => h[clave] || []);
+
+    const crearGraficoPlotly = (divId, titulo, datos, campo, color) => {
+        if (!datos.length) return;
+
         const x = datos.map(r => r.fecha_hora);
-        const y = datos.map(r => r[prop]);
-        Plotly.newPlot(containerId, [{
+        const y = datos.map(r => r[campo]);
+
+        const data = [{
             x: x,
             y: y,
             mode: 'lines',
-            line: {color: color}
-        }], {
-            title: title,
-            xaxis: { title: 'Tiempo' },
-            yaxis: { title: title },
-            autosize: false,
-            width: 12000,
-            height: 400
-        }, {responsive: false});
-    }
+            line: { color: color }
+        }];
 
-    plotGraph('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', extract('registros_voz'), 'freq', 'blue');
-    plotGraph('graficoIntensidad', 'Intensidad de Voz (dB)', extract('registros_voz'), 'intensidad', 'orange');
-    plotGraph('graficoRuido', 'Ruido Ambiental (dB)', extract('registros_ruido'), 'valor', 'green');
-    plotGraph('graficoTemperatura', 'Temperatura (°C)', extract('registros_temperatura'), 'valor', 'red');
-    plotGraph('graficoHumedad', 'Humedad Relativa (%)', extract('registros_humedad'), 'valor', 'purple');
-    plotGraph('graficoCO2', 'CO₂ (ppm)', extract('registros_co2'), 'valor', 'brown');
+        const layout = {
+            title: titulo,
+            xaxis: { title: 'Fecha y Hora' },
+            yaxis: { title: campo },
+            autosize: true,
+            height: 400,
+            margin: { t: 50, b: 50 },
+            width: 20000
+        };
+
+
+        Plotly.newPlot(divId, data, layout);
+    };
+
+    // Voz
+    crearGraficoPlotly('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', extraerRegistros('registros_voz'), 'freq', 'blue');
+    crearGraficoPlotly('graficoIntensidad', 'Intensidad de Voz (dB)', extraerRegistros('registros_voz'), 'intensidad', 'orange');
+
+    // Ambientales
+    crearGraficoPlotly('graficoRuido', 'Ruido Ambiental (dB)', extraerRegistros('registros_ruido'), 'ruido', 'green');
+    crearGraficoPlotly('graficoTemperatura', 'Temperatura (°C)', extraerRegistros('registros_temperatura'), 'temperatura', 'red');
+    crearGraficoPlotly('graficoHumedad', 'Humedad Relativa (%)', extraerRegistros('registros_humedad'), 'humedad', 'purple');
+    crearGraficoPlotly('graficoCO2', 'Concentración de CO₂ (ppm)', extraerRegistros('registros_co2'), 'co2', 'brown');
 </script>
 {% endif %}
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.chart-scroll-container {
-    overflow-x: auto;
-    white-space: nowrap;
-    max-width: 100%;
-    border: 1px solid #ccc;
-}
-</style>
-{% endblock %}
+    .chart-scroll-container {
+        overflow-x: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        max-width: 100%; /* contenedor no crece más allá de la pantalla */
+    }
+    
+    .plot-inner {
+        min-width: 3000px; /* fuerza que el contenido sea más ancho para activar scroll */
+    }
+    </style>
+{% endblock %}    

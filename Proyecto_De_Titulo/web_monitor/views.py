@@ -738,7 +738,11 @@ def estadisticas(request):
 
             for horario in horarios:
                 # Procesamiento (todo lo que ya tienes)
+                #print(f"Procesando horario: {horario}")
                 resultados.append(horario)
+
+  
+    
 
     context = {
         'instituciones': instituciones,

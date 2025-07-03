@@ -63,22 +63,22 @@ def on_message(client, userdata, msg):
                 Aula_Ruido.objects.create(fecha_hora=fecha_hora, ruido=value, id_aula=relacion_aula.id_aula)
                 print(f"Datos guardados: {data_type} - {value}")  # ← Agregado para depurar
             else:
-                logger.warning(f"Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
+                logger.warning(f"(RUIDO)Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
         elif data_type == "humedad":
             if not Aula_Humedad.objects.filter(fecha_hora=fecha_hora, id_aula=relacion_aula.id_aula).exists():
                 Aula_Humedad.objects.create(fecha_hora=fecha_hora, humedad=value, id_aula=relacion_aula.id_aula)
             else:
-                logger.warning(f"Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
+                logger.warning(f"(HUMEDAD)Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
         elif data_type == "temperatura":
             if not Aula_Temperatura.objects.filter(fecha_hora=fecha_hora, id_aula=relacion_aula.id_aula).exists():
                 Aula_Temperatura.objects.create(fecha_hora=fecha_hora, temperatura=value, id_aula=relacion_aula.id_aula)
             else:
-                logger.warning(f"Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
+                logger.warning(f"(TEMPERATURA)Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
         elif data_type == "CO2":
             if not Aula_CO2.objects.filter(fecha_hora=fecha_hora, id_aula=relacion_aula.id_aula).exists():
                 Aula_CO2.objects.create(fecha_hora=fecha_hora, co2=value, id_aula=relacion_aula.id_aula)
             else:
-                logger.warning(f"Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
+                logger.warning(f"(CO2)Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
         # elif {'Mac': '00:1B:44:11:3A:B7', 'timestamp': '2025-07-02 15:01:54', 'FF': '150', 'IV': '60'}
         elif data_type == "FF":
             profesor_voz = Profesor_Voz(
