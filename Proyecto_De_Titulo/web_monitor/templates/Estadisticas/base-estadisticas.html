@@ -4,13 +4,13 @@
 {% block title %}Estadísticas{% endblock %}
 
 {% block content %}
-<h1 class="text-primary">Estadísticas</h1>
+<h1 class="text-primary mb-3">Estadísticas</h1>
 <p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
 
-<form method="POST">
+<form method="POST" class="mb-4">
     {% csrf_token %}
     
-    <div class="row mb-3">
+    <div class="row g-3">
         <div class="col-md-4">
             <label for="institucion" class="form-label">Institución</label>
             <select id="institucion" name="institucion" class="form-select" required>
@@ -26,24 +26,96 @@
                 <option value="">Seleccione un profesor</option>
             </select>
         </div>
-        <div class="col-md-4 form-fecha-hora" >
+        <div class="col-md-4">
             <label for="fecha_inicio" class="form-label">Fecha y hora inicio</label>
             <input type="datetime-local" id="fecha_inicio" name="fecha_inicio" class="form-control" required>
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-4 offset-md-8 form-fecha-hora">
+    <div class="row g-3 mt-3">
+        <div class="col-md-4 offset-md-8">
             <label for="fecha_fin" class="form-label">Fecha y hora fin</label>
             <input type="datetime-local" id="fecha_fin" name="fecha_fin" class="form-control" required>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Consultar</button>
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary w-100">Consultar</button>
+    </div>
 </form>
 
+{% if resultados_json %}
+<hr class="my-4">
+
+<div class="row g-4">
+    {% for grafico in graficos %}
+<div class="col-12">
+    <h5 class="mb-2">{{ grafico.0 }}</h5>
+    <div class="grafico-scroll bg-white p-2 rounded shadow-sm">
+        <canvas id="{{ grafico.1 }}"></canvas>
+    </div>
+</div>
+{% endfor %}
+
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
+
+{% if resultados_json %}
+<script>
+    const resultados = {{ resultados_json|safe }};
+
+    const extraerRegistros = (clave) => resultados.flatMap(h => h[clave]);
+
+    const crearGrafico = (canvasId, label, datos, color) => {
+        const labels = datos.map(r => r.fecha_hora);
+        const valores = datos.map(r => Object.values(r).find(v => typeof v === 'number'));
+        new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: valores,
+                    borderColor: color,
+                    backgroundColor: color + '20',
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        ticks: { maxRotation: 45, minRotation: 45 },
+                    }
+                }
+            }
+        });
+    };
+
+    crearGrafico('graficoFrecuencia', 'Frecuencia (Hz)', extraerRegistros('registros_voz').map(r => ({...r, valor: r.freq})), 'blue');
+    crearGrafico('graficoIntensidad', 'Intensidad de Voz (dB)', extraerRegistros('registros_voz').map(r => ({...r, valor: r.intensidad})), 'orange');
+    crearGrafico('graficoRuido', 'Ruido Ambiental (dB)', extraerRegistros('registros_ruido'), 'green');
+    crearGrafico('graficoTemperatura', 'Temperatura (°C)', extraerRegistros('registros_temperatura'), 'red');
+    crearGrafico('graficoHumedad', 'Humedad Relativa (%)', extraerRegistros('registros_humedad'), 'purple');
+    crearGrafico('graficoCO2', 'CO₂ (ppm)', extraerRegistros('registros_co2'), 'brown');
+</script>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.grafico-scroll {
+    overflow-x: auto;
+}
+.grafico-scroll canvas {
+    min-width: 1000px;
+    height: 400px;
+}
+</style>
 {% endblock %}

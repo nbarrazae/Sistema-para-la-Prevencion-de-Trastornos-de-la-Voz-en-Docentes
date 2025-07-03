@@ -34,6 +34,7 @@ from web_monitor.validators.instituciones import (
     normalizar_telefono,
     normalizar_email
 )
+from django.utils.safestring import mark_safe
 
 def index(request):
     return render(request, 'index.html')
@@ -715,6 +716,7 @@ from .models import Institucion
 
 def estadisticas(request):
     instituciones = Institucion.objects.all()
+    resultados = []  # <-- Asegura que siempre exista
 
     if request.method == 'POST':
         id_institucion = int(request.POST.get('institucion'))
@@ -729,32 +731,33 @@ def estadisticas(request):
             fecha_inicio_str, hora_inicio_str = fecha_inicio_raw.split('T')
             fecha_fin_str, hora_fin_str = fecha_fin_raw.split('T')
 
-            fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str)
+            fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(
+                fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str
+            )
             horarios = buscar_horarios(detalles, id_institucion, dt_inicio, dt_fin, id_profesor)
 
-            resultados = []
-
-            contador = 0  # Inicializar contador
             for horario in horarios:
-                print(f"\nAula: {horario['id_aula']}, Fecha: {horario['fecha']}, Horario: {horario['hora_inicio']} - {horario['hora_termino']}")
-                
-                for medicion in horario['registros_ruido']:
-                    contador += 1
-                    print(f"  Ruido {contador}. {medicion['fecha_hora']}: {medicion['ruido']} dB")
-                
-                for medicion in horario['registros_humedad']:
-                    print(f"  Humedad: {medicion['fecha_hora']}: {medicion['humedad']}%")
-                
-                for medicion in horario['registros_temperatura']:
-                    print(f"  Temperatura: {medicion['fecha_hora']}: {medicion['temperatura']}°C")
-                
-                for medicion in horario['registros_co2']:
-                    print(f"  CO2: {medicion['fecha_hora']}: {medicion['co2']} ppm")
-                
-                for medicion in horario['registros_voz']:
-                    print(f"  Voz: {medicion['fecha_hora']}: Frecuencia {medicion['freq']} Hz, Intensidad {medicion['intensidad']} dB")
+                # Procesamiento (todo lo que ya tienes)
+                resultados.append(horario)
 
-    return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
+    context = {
+        'instituciones': instituciones,
+        'graficos': [
+            ("Frecuencia Fundamental (Hz)", "graficoFrecuencia"),
+            ("Intensidad de la Voz (dB)", "graficoIntensidad"),
+            ("Ruido Ambiental (dB)", "graficoRuido"),
+            ("Temperatura (°C)", "graficoTemperatura"),
+            ("Humedad Relativa (%)", "graficoHumedad"),
+            ("Concentración de CO₂ (ppm)", "graficoCO2"),
+        ],
+    }
+
+    if resultados:
+        context['resultados_json'] = mark_safe(json.dumps(resultados))
+
+    return render(request, 'Estadisticas/base-estadisticas.html', context)
+
+
 
 
 
@@ -836,24 +839,22 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
         hora_inicio = datetime.strptime(detalle['hora_inicio'], "%H:%M").time()
         hora_fin = datetime.strptime(detalle['hora_fin'], "%H:%M").time()
 
-        filtros = {
-            'dia': dia,
-            'hora_inicio__gte': hora_inicio,
-            'hora_termino__lte': hora_fin,
-            'id_aula__id_institucion': id_institucion
-        }
+        filtros = Q(dia=dia) & Q(id_aula__id_institucion=id_institucion) & (
+            Q(hora_inicio__lte=hora_fin) & Q(hora_termino__gte=hora_inicio)
+        )
 
         if id_profesor:
-            filtros['id_profesor_id'] = id_profesor
+            filtros &= Q(id_profesor_id=id_profesor)
 
-        horarios = Horario.objects.filter(**filtros).select_related('id_profesor', 'id_aula')
+        horarios = Horario.objects.filter(filtros).select_related('id_profesor', 'id_aula')
+
         for horario in horarios:
             dt_hora_inicio = datetime.strptime(f"{fecha} {horario.hora_inicio.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
             dt_hora_termino = datetime.strptime(f"{fecha} {horario.hora_termino.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
 
 
 
-            if dt_hora_inicio >= dt_inicio and dt_hora_termino <= dt_fin:
+            if dt_hora_inicio <= dt_fin and dt_hora_termino >= dt_inicio:
                 # 🔹 Obtener registros de ruido
                 registros_ruido = Aula_Ruido.objects.filter(
                     id_aula=horario.id_aula,

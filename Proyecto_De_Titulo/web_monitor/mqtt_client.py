@@ -22,7 +22,7 @@ def on_connect(client, userdata, flags, rc):
         logger.error(f"Fallo en la conexión MQTT, código de error: {rc}")
 
 def on_message(client, userdata, msg):
-    from .models import Aula_Ruido, Aula_Humedad, Aula_Temperatura, Aula_CO2, Relacion_Aula
+    from .models import Aula_Ruido, Aula_Humedad, Aula_Temperatura, Aula_CO2, Relacion_Aula, Profesor_Voz, Relacion_Profesor
     """ Callback cuando se recibe un mensaje """
     try:
         payload = json.loads(msg.payload.decode())
@@ -37,9 +37,19 @@ def on_message(client, userdata, msg):
 
         # Buscar la relación entre el dispositivo y el aula
         relacion_aula = Relacion_Aula.objects.filter(mac=mac).first()
+        relacion_profesor = None  # inicializar por si se necesita más tarde
+
         if not relacion_aula:
-            logger.error(f"No se encontró relación para el dispositivo con MAC: {mac}")
-            return
+            # Si no se encuentra la relación con el aula, buscar si es un profesor
+            relacion_profesor = Relacion_Profesor.objects.filter(mac=mac).first()
+            if relacion_profesor:
+                # Usar el dispositivo del profesor para buscar su aula (si existe)
+                dispositivo = relacion_profesor.id_dispositivo
+                relacion_aula = Relacion_Aula.objects.filter(id_dispositivo=dispositivo).first()
+            else:
+                logger.error(f"No se encontró relación para el dispositivo con MAC: {mac}")
+                return
+
 
         # Convertir timestamp a objeto datetime
         tz = timezone("America/Santiago")
@@ -69,6 +79,17 @@ def on_message(client, userdata, msg):
                 Aula_CO2.objects.create(fecha_hora=fecha_hora, co2=value, id_aula=relacion_aula.id_aula)
             else:
                 logger.warning(f"Registro duplicado detectado: fecha_hora={fecha_hora}, id_aula={relacion_aula.id_aula}")
+        # elif {'Mac': '00:1B:44:11:3A:B7', 'timestamp': '2025-07-02 15:01:54', 'FF': '150', 'IV': '60'}
+        elif data_type == "FF":
+            profesor_voz = Profesor_Voz(
+                fecha_hora=fecha_hora,
+                Freq=float(value),
+                Intensidad=float(payload.get("IV", 0)),  # Valor por defecto si IV no está presente
+                id_profesor=relacion_profesor.id_profesor if relacion_profesor else None
+            )
+            print(f"Datos guardados: {data_type} - Freq: {value}, Intensidad: {payload.get('IV', 0)}")  # ← Agregado para depurar
+            profesor_voz.save()
+
         else:
             logger.error(f"Tipo de dato desconocido: {data_type}")
             return
