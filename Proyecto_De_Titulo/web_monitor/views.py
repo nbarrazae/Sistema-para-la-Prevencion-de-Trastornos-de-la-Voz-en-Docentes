@@ -931,7 +931,7 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
                 ]
 
                 resultados.append({
-                    "id_aula": horario.id_aula.id_aula,
+                    "id_aula": horario.id_aula.nro_aula,
                     "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
                     "hora_termino": horario.hora_termino.strftime("%H:%M"),
                     "profesor": horario.id_profesor.nombre_profesor,

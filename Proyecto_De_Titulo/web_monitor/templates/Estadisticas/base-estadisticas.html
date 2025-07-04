@@ -99,73 +99,92 @@
 
     const extraerRegistros = (clave) => resultados.flatMap(h => h[clave] || []);
 
-    const crearGraficoPlotly = (divId, titulo, datos, campo, color) => {
-    const x = datos.map(r => r.fecha_hora);
-    const y = datos.map(r => r[campo]);
+    const crearGraficoPlotly = (divId, titulo, todosLosDatos, campoDatos, campoValor, coloresBase) => {
+    const datosPorAula = {};
 
-    let data, layout;
+    todosLosDatos.forEach(horario => {
+        const aula = horario.id_aula || 'Desconocido';
+        const registros = horario[campoDatos] || [];
 
-    if (!datos.length) {
-        data = [];
-        layout = {
-            title: titulo,
-            xaxis: { visible: false },
-            yaxis: { visible: false },
-            annotations: [
-                {
-                    text: "Sin datos disponibles",
-                    xref: "paper",
-                    yref: "paper",
-                    showarrow: false,
-                    font: {
-                        size: 20,
-                        color: "gray"
-                    },
-                    x: 0.5,
-                    y: 0.5,
-                    align: "center"
-                }
-            ],
-            autosize: true,
-            height: 400,
-            margin: { t: 50, b: 50 }
-        };
-    } else {
-        data = [{
-            x: x,
-            y: y,
-            mode: 'lines',
-            line: { color: color }
-        }];
-        layout = {
-            title: titulo,
-            xaxis: {
-                title: 'Fecha y Hora',
-                tickangle: -45,         // Inclina los textos del eje X para mejor lectura
-                tickmode: 'auto',       // Automático pero controlable
-                nticks: 50              // Ajusta cuántas marcas mostrar (puedes cambiar el número)
-            },
-            yaxis: { title: campo },
-            autosize: true,
-            height: 400,
-            margin: { t: 50, b: 50 },
-            width: 15000
-        };
-    }
+        if (!datosPorAula[aula]) datosPorAula[aula] = [];
+
+        registros.forEach(r => {
+            if (r[campoValor] !== undefined) {
+                datosPorAula[aula].push({
+                    x: r.fecha_hora,
+                    y: r[campoValor],
+                });
+            }
+        });
+    });
+
+    const aulas = Object.keys(datosPorAula);
+    const colores = coloresBase || [
+        'blue', 'orange', 'green', 'red', 'purple', 'brown', 'teal', 'pink', 'gray', 'black'
+    ];
+
+    const data = aulas.map((aula, idx) => ({
+        x: datosPorAula[aula].map(p => p.x),
+        y: datosPorAula[aula].map(p => p.y),
+        name: aula,
+        mode: 'lines',
+        line: { color: colores[idx % colores.length] }
+    }));
+
+    const hayDatos = data.some(trace => trace.x.length > 0 && trace.y.length > 0);
+
+    const layout = hayDatos ? {
+        width: 12000,
+        title: titulo,
+        xaxis: {
+            title: 'Fecha y Hora',
+            tickangle: -45,
+            tickmode: 'auto',
+            nticks: 20
+        },
+        yaxis: { title: campoValor },
+        autosize: true,
+        height: 400,
+        margin: { t: 50, b: 50 },
+        legend: { orientation: "h", x: 0, y: -0.2 }
+    } : {
+        title: titulo,
+        xaxis: { visible: false },
+        yaxis: { visible: false },
+        annotations: [
+            {
+                text: "Sin datos disponibles",
+                xref: "paper",
+                yref: "paper",
+                showarrow: false,
+                font: {
+                    size: 20,
+                    color: "gray"
+                },
+                x: 0.5,
+                y: 0.5,
+                align: "center"
+            }
+        ],
+        autosize: true,
+        height: 400,
+        margin: { t: 50, b: 50 }
+    };
 
     Plotly.newPlot(divId, data, layout);
 };
 
 
-    // Voz
-    crearGraficoPlotly('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', extraerRegistros('registros_voz'), 'freq', 'blue');
-    crearGraficoPlotly('graficoIntensidad', 'Intensidad de Voz (dB)', extraerRegistros('registros_voz'), 'intensidad', 'orange');
 
-    // Ambientales
-    crearGraficoPlotly('graficoRuido', 'Ruido Ambiental (dB)', extraerRegistros('registros_ruido'), 'ruido', 'green');
-    crearGraficoPlotly('graficoTemperatura', 'Temperatura (°C)', extraerRegistros('registros_temperatura'), 'temperatura', 'red');
-    crearGraficoPlotly('graficoHumedad', 'Humedad Relativa (%)', extraerRegistros('registros_humedad'), 'humedad', 'purple');
-    crearGraficoPlotly('graficoCO2', 'Concentración de CO₂ (ppm)', extraerRegistros('registros_co2'), 'co2', 'brown');
+
+crearGraficoPlotly('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', resultados, 'registros_voz', 'freq', ['#1f77b4', '#ff7f0e']);
+crearGraficoPlotly('graficoIntensidad', 'Intensidad de Voz (dB)', resultados, 'registros_voz', 'intensidad', ['#2ca02c', '#d62728']);
+crearGraficoPlotly('graficoRuido', 'Ruido Ambiental (dB)', resultados, 'registros_ruido', 'ruido');
+crearGraficoPlotly('graficoTemperatura', 'Temperatura (°C)', resultados, 'registros_temperatura', 'temperatura');
+crearGraficoPlotly('graficoHumedad', 'Humedad Relativa (%)', resultados, 'registros_humedad', 'humedad');
+crearGraficoPlotly('graficoCO2', 'CO₂ (ppm)', resultados, 'registros_co2', 'co2');
+
+
 </script>
 {% endif %}
 {% endblock %}
