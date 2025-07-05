@@ -530,7 +530,10 @@ def aulas_por_institucion(request, id_institucion):
     return JsonResponse(list(aulas), safe=False)
 
 def horarios_por_profesor(request, id_profesor):
-    horarios = Horario.objects.filter(id_profesor=id_profesor).select_related('id_aula')
+    horarios = Horario.objects.filter(id_profesor=id_profesor).select_related('id_aula').order_by('dia', 'hora_inicio')
+    dias_ordenados = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+    horarios_ordenados = sorted(horarios, key=lambda h: dias_ordenados.index(h.dia))
+
     data = [
         {
             'id_horario': h.id_horario,
@@ -539,7 +542,7 @@ def horarios_por_profesor(request, id_profesor):
             'hora_termino': str(h.hora_termino),
             'nombre_aula': h.id_aula.nro_aula,
         }
-        for h in horarios
+        for h in horarios_ordenados
     ]
     return JsonResponse(data, safe=False)
 
@@ -672,7 +675,7 @@ def dispositivos_iot(request):
             rel_aula = Relacion_Aula.objects.get(id_dispositivo=dispositivo)
             aula = rel_aula.id_aula
             entrada['estado'] = 'Asignado'
-            entrada['usuario'] = f"Aula {aula.nro_aula}"
+            entrada['usuario'] = f"{aula.nro_aula}"
             entrada['institucion'] = aula.id_institucion.nombre_institucion
         except Relacion_Aula.DoesNotExist:
             try:

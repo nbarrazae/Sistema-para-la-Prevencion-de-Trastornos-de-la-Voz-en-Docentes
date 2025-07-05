@@ -26,8 +26,11 @@
     
       <div class="card-body text-center" style="background-color: white;">
         <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a>
-        <a href="{% url 'exportar_instituciones_csv' %}" class="btn btn-success">Exportar a Excel</a>
+        <a href="{% url 'exportar_instituciones_csv' %}" class="btn btn-success">
+          <i class="fas fa-file-excel"></i> Exportar
+        </a>
       </div>
+      
       {% include 'instituciones/modals/agregar.html' %}
       
       {% include 'instituciones/modals/agregar.html' %}
