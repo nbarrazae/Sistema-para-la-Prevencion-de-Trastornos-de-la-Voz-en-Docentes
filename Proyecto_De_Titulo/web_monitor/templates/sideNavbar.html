@@ -27,8 +27,15 @@
 
 
                 <div class="text-center mb-4 logo-full">
-                    <img src="{% static 'img/88bbca1de26907e33a26206f2f6815d5427fae37.png' %}" alt="Logo" class="img-fluid" style="max-width: 80%;">
-                </div>  
+                    <a href="/" class="btn btn-link p-0" style="text-decoration: none;">
+                        <img src="{% static 'img/88bbca1de26907e33a26206f2f6815d5427fae37.png' %}" alt="Logo" class="img-fluid" style="max-width: 80%;">
+                    </a>
+                </div>
+                <style>
+                    .logo-full a:hover {
+                        background-color: #396ba3; /* Same color as the page background */
+                    }
+                </style>
 
                 <!-- Logo pequeño solo en modo colapsado -->
                 <div class="text-center mb-4 logo-mini d-none">
@@ -125,4 +132,5 @@
 </body>
 
 {% block extra_js %}{% endblock %}
+{% block extra_css %}{% endblock %}
 </html>

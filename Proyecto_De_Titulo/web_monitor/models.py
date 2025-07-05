@@ -158,7 +158,7 @@ class Aula_Ruido(models.Model):
 class Profesor_Voz(models.Model):
     # id_profesor_voz, fecha_hora ,voz, id_profesor fk
     id_profesor_voz = models.AutoField(primary_key=True)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
+    fecha_hora = models.DateTimeField()
     Freq = models.FloatField(null=False, blank=False)
     Intensidad = models.FloatField(null=False, blank=False)
     id_profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
