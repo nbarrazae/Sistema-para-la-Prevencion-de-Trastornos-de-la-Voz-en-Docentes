@@ -1,1 +1,54 @@
-chao
+<hr class="my-4">
+<div class="row g-4">
+    <div class="col-12">
+        <h5 class="mb-2">Frecuencia Fundamental (Hz)</h5>
+        <div class="chart-scroll-container">
+            <div id="boxFrecuencia"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Intensidad de la Voz (dB)</h5>
+        <div class="chart-scroll-container">
+            <div id="boxIntensidad"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Ruido Ambiental (dB)</h5>
+        <div class="chart-scroll-container">
+            <div id="boxRuido"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Temperatura (°C)</h5>
+        <div class="chart-scroll-container">
+            <div id="boxTemperatura"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Humedad Relativa (%)</h5>
+        <div class="chart-scroll-container">
+            <div id="boxHumedad"></div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h5 class="mb-2">Concentración de CO₂ (ppm)</h5>
+        <div class="chart-scroll-container">
+            <div id="boxCO2"></div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .chart-scroll-container {
+        overflow-x: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    .plot-inner {
+        min-width: 1000px;
+    }
+</style>
+{% endblock %}
