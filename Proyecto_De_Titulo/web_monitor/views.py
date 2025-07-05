@@ -36,6 +36,11 @@ from web_monitor.validators.instituciones import (
 )
 from django.utils.safestring import mark_safe
 
+
+import csv
+from django.http import HttpResponse
+
+
 def index(request):
     return render(request, 'index.html')
 
@@ -280,6 +285,77 @@ def eliminar_aula(request, pk):
 # def profesores(request):
 #     return render(request, 'profesores/base-profesores.html')
 
+
+import xlsxwriter
+def exportar_instituciones_y_aulas_csv(request):
+    instituciones = Institucion.objects.all()
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="instituciones_y_aulas.xlsx"'
+
+    # Crear el libro y las hojas
+    workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+    worksheet_instituciones = workbook.add_worksheet("Instituciones")
+    worksheet_aulas = workbook.add_worksheet("Aulas")
+
+    # Formato para encabezados
+    header_format = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'bg_color': '#D9EAD3'})
+
+    # Página de Instituciones
+    worksheet_instituciones.write_row('A1', [
+        'Nombre Institución', 'RUT Institución', 'Dirección', 'Sitio Web', 
+        'Representante Legal', 'Teléfono', 'Correo'
+    ], header_format)
+
+    row = 1
+    for institucion in instituciones:
+        worksheet_instituciones.write_row(row, 0, [
+            institucion.nombre_institucion,
+            institucion.rut_institucion,
+            institucion.direccion,
+            institucion.sitio_web,
+            institucion.representante_legal,
+            institucion.telefono_institucion,
+            institucion.correo_institucion
+        ])
+        row += 1
+
+    row = 0
+    for institucion in instituciones:
+        # Escribir el nombre de la institución como encabezado
+        worksheet_aulas.write(row, 0, institucion.nombre_institucion, header_format)
+        row += 2  # Dejar una línea en blanco después del encabezado
+
+        # Escribir los encabezados de las aulas
+        worksheet_aulas.write_row(row, 0, [
+            'Número Aula', 'Tamaño', 'Cantidad Alumnos', 'Descripción'
+        ], header_format)
+        row += 1
+
+        # Escribir las aulas de la institución
+        aulas = Aula.objects.filter(id_institucion=institucion)
+        if aulas.exists():
+            for aula in aulas:
+                worksheet_aulas.write_row(row, 0, [
+                    aula.nro_aula,
+                    aula.tamaño,
+                    aula.cantidad_alumnos,
+                    aula.descripcion
+                ])
+                row += 1
+        else:
+            # Si no hay aulas, escribir "sin información"
+            worksheet_aulas.write_row(row, 0, ['-', '-', '-', '-'])
+            row += 1
+
+        # Dejar una línea en blanco entre instituciones
+        row += 1
+
+    workbook.close()
+    return response
+
+
+
+
 def profesores(request):
     # Búsqueda
     busqueda = request.GET.get('busqueda', '')
@@ -501,6 +577,71 @@ def agregar_horario(request):
         return JsonResponse({'success': True, 'message': 'Horario agregado correctamente'})
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
+def exportar_profesores_y_horarios_csv(request):
+    profesores = Profesor.objects.all()
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="profesores_y_horarios.xlsx"'
+
+    # Crear el libro y la hoja
+    workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+    worksheet_profesores = workbook.add_worksheet("Profesores")
+    worksheet = workbook.add_worksheet("Profesores y Horarios")
+
+    # Formato para encabezados
+    header_format = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'bg_color': '#D9EAD3'})
+    subheader_format = workbook.add_format({'bold': True, 'align': 'left', 'valign': 'vcenter', 'bg_color': '#F4CCCC'})
+
+    # Página de Profesores
+    worksheet_profesores.write_row('A1', [
+        'RUT Profesor', 'Nombre Completo', 'Correo', 'Sexo', 'Altura', 'Peso', 
+        'Antecedentes Médicos', 'Área de Docencia'
+    ], header_format)
+
+    row = 1
+    for profesor in profesores:
+        nombre_completo = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
+        worksheet_profesores.write_row(row, 0, [
+            profesor.rut_profesor,
+            nombre_completo,
+            profesor.correo_profesor,
+            profesor.sexo,
+            profesor.altura or '',
+            profesor.peso or '',
+            profesor.antecedentes_medicos or '',
+            profesor.area_docencia
+        ])
+        row += 1
+
+
+    row = 0
+    for profesor in profesores:
+        # Escribir el nombre del profesor como subencabezado
+        nombre_completo = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
+        worksheet.write(row, 0, nombre_completo, subheader_format)
+        row += 1
+
+        # Escribir encabezados para los horarios
+        worksheet.write_row(row, 0, ['Día', 'Hora Inicio', 'Hora Término', 'Aula'], header_format)
+        row += 1
+
+        # Escribir los horarios del profesor
+        horarios = Horario.objects.filter(id_profesor=profesor).select_related('id_aula')
+        for horario in horarios:
+            worksheet.write_row(row, 0, [
+                horario.dia,
+                horario.hora_inicio.strftime('%H:%M'),
+                horario.hora_termino.strftime('%H:%M'),
+                horario.id_aula.nro_aula
+            ])
+            row += 1
+
+        # Línea en blanco entre profesores
+        row += 1
+
+    workbook.close()
+    return response
+
+
 
 
 
@@ -512,7 +653,10 @@ def dispositivos_iot(request):
     if busqueda:
         dispositivos = dispositivos.filter(
             Q(mac_dispositivo__icontains=busqueda) |
-            Q(tipo_dispositivo__icontains=busqueda)
+            Q(tipo_dispositivo__icontains=busqueda) |
+            Q(relacion_aula__id_aula__nro_aula__icontains=busqueda) |
+            Q(relacion_profesor__id_profesor__nombre_profesor__icontains=busqueda) |
+            Q(relacion_profesor__id_profesor__apellido_profesor__icontains=busqueda) 
         )
 
     resultado = []
@@ -690,6 +834,71 @@ def asignar_dispositivo(request):
 
     return redirect('iot')  # Redirige a la lista de dispositivos después de intentar asignar uno
 
+def exportar_dispositivos_iot_csv(request):
+    dispositivos = Dispositivo_IoT.objects.all()
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="dispositivos_iot.xlsx"'
+
+    # Crear el libro y la hoja
+    workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+    worksheet = workbook.add_worksheet("Dispositivos IoT")
+
+    # Formato para encabezados
+    header_format = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'bg_color': '#D9EAD3'})
+
+    # Escribir encabezados
+    worksheet.write_row('A1', ['MAC Dispositivo', 'Tipo Dispositivo', 'Estado', 'Usuario', 'Institución'], header_format)
+
+    row = 1
+    for dispositivo in dispositivos:
+        entrada = {
+            'mac': dispositivo.mac_dispositivo,
+            'tipo': dispositivo.get_tipo_dispositivo_display(),
+        }
+
+        # Verificar si está asociado a un aula
+        try:
+            rel_aula = Relacion_Aula.objects.get(id_dispositivo=dispositivo)
+            aula = rel_aula.id_aula
+            entrada['estado'] = 'Asignado'
+            entrada['usuario'] = f"Aula {aula.nro_aula}"
+            entrada['institucion'] = aula.id_institucion.nombre_institucion
+        except Relacion_Aula.DoesNotExist:
+            try:
+                # Si no está asociado a aula, buscar si está a un profesor
+                rel_profesor = Relacion_Profesor.objects.get(id_dispositivo=dispositivo)
+                profesor = rel_profesor.id_profesor
+                entrada['estado'] = 'Asignado'
+                entrada['usuario'] = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
+                entrada['institucion'] = profesor.id_institucion.nombre_institucion
+            except Relacion_Profesor.DoesNotExist:
+                # Caso no asignado
+                entrada['estado'] = 'Libre'
+                entrada['usuario'] = None
+                entrada['institucion'] = None
+
+        worksheet.write_row(row, 0, [
+            entrada['mac'],
+            entrada['tipo'],
+            entrada['estado'],
+            entrada['usuario'] or '-',
+            entrada['institucion'] or '-'
+        ])
+        row += 1
+    workbook.close()
+    return response
+
+
+
+
+
+
+
+
+
+
+
+
 def obtener_instituciones(request):
     instituciones = Institucion.objects.all().values('id', 'nombre_institucion')
     return JsonResponse(list(instituciones), safe=False)
@@ -717,7 +926,7 @@ from .models import Institucion
 def estadisticas(request):
     instituciones = Institucion.objects.all()
     resultados = []  # <-- Asegura que siempre exista
-
+    fechas_iguales = False  # Variable para indicar si las fechas son iguales
     if request.method == 'POST':
         id_institucion = int(request.POST.get('institucion'))
         id_profesor_raw = request.POST.get('profesor')
@@ -725,6 +934,16 @@ def estadisticas(request):
 
         fecha_inicio_raw = request.POST.get('fecha_inicio')
         fecha_fin_raw = request.POST.get('fecha_fin')
+
+        #comprueba si la fecha inicio y fin son iguales True o False
+        if fecha_inicio_raw and fecha_fin_raw:
+            fecha_inicio_comp = datetime.strptime(fecha_inicio_raw, '%Y-%m-%dT%H:%M')
+            fecha_fin_comp = datetime.strptime(fecha_fin_raw, '%Y-%m-%dT%H:%M')
+            fechas_iguales = fecha_inicio_comp.date() == fecha_fin_comp.date()
+        else:
+            fechas_iguales = False
+
+
         print(f"Fecha Inicio: {fecha_inicio_raw}, Fecha Fin: {fecha_fin_raw}, Institución: {id_institucion}, Profesor: {id_profesor}")
 
         if fecha_inicio_raw and fecha_fin_raw:
@@ -740,8 +959,7 @@ def estadisticas(request):
                 # Procesamiento (todo lo que ya tienes)
                 #print(f"Procesando horario: {horario}")
                 resultados.append(horario)
-
-  
+    
     
 
     context = {
@@ -756,7 +974,10 @@ def estadisticas(request):
         ],
     }
 
+    print(f"Fechas Iguales: {fechas_iguales}")
+
     if resultados:
+        context['fechas_iguales'] = fechas_iguales
         context['resultados_json'] = mark_safe(json.dumps(resultados))
 
     return render(request, 'Estadisticas/base-estadisticas.html', context)
@@ -934,7 +1155,7 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
                     "id_aula": horario.id_aula.nro_aula,
                     "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
                     "hora_termino": horario.hora_termino.strftime("%H:%M"),
-                    "profesor": horario.id_profesor.nombre_profesor,
+                    "profesor": f"{horario.id_profesor.nombre_profesor} {horario.id_profesor.apellido_profesor}",
                     "dia": horario.dia,
                     "fecha": fecha,
                     "registros_ruido": lista_ruido,
@@ -943,8 +1164,9 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
                     "registros_co2": lista_co2,
                     "registros_voz": lista_voz
                 })
-    print(f"Resultados encontrados: {len(resultados)}")
+    #print(f"Resultados encontrados: {len(resultados)}")
     return resultados
+
 
 
 

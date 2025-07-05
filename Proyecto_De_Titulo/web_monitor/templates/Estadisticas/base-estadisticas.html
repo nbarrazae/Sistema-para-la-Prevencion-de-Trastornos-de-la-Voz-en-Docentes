@@ -1,7 +1,7 @@
 {% extends 'sideNavbar.html' %}
 {% load static %}
-
 {% block title %}Estadísticas{% endblock %}
+{% load custom_filters %}
 
 {% block content %}
 <h1 class="text-primary mb-3">Estadísticas</h1>
@@ -45,161 +45,28 @@
 </form>
 
 {% if resultados_json %}
-<hr class="my-4">
+    <script>
+        const resultados = {{ resultados_json|safe }};
+        const fechas_iguales = {{ fechas_iguales|safe }};
+    </script>
 
-<div class="row g-4">
-    <div class="col-12">
-        <h5 class="mb-2">Frecuencia Fundamental (Hz)</h5>
-        <div class="chart-scroll-container">
-            <div id="graficoFrecuencia"></div>
-        </div>
-    </div>
-    <div class="col-12">
-        <h5 class="mb-2">Intensidad de la Voz (dB)</h5>
-        <div class="chart-scroll-container">
-            <div id="graficoIntensidad"></div>
-        </div>
-    </div>
-    <div class="col-12">
-        <h5 class="mb-2">Ruido Ambiental (dB)</h5>
-        <div class="chart-scroll-container">
-            <div id="graficoRuido"></div>
-        </div>
-    </div>
-    <div class="col-12">
-        <h5 class="mb-2">Temperatura (°C)</h5>
-        <div class="chart-scroll-container">
-            <div id="graficoTemperatura"></div>
-        </div>
-    </div>
-    <div class="col-12">
-        <h5 class="mb-2">Humedad Relativa (%)</h5>
-        <div class="chart-scroll-container">
-            <div id="graficoHumedad"></div>
-        </div>
-    </div>
-    <div class="col-12">
-        <h5 class="mb-2">Concentración de CO₂ (ppm)</h5>
-        <div class="chart-scroll-container">
-            <div id="graficoCO2"></div>
-        </div>
-    </div>
-</div>
+    {% if fechas_iguales %}
+        {% include 'Estadisticas/partials/grafico-lineal.html' %}
+        
+    {% else %}
+        {% include 'Estadisticas/partials/diagrama-cajas.html' %}
+    {% endif %}
 {% endif %}
-{% endblock %}
 
+
+{% endblock %}
 {% block extra_js %}
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
-
-{% if resultados_json %}
-<script>
-    const resultados = {{ resultados_json|safe }};
-    console.log(resultados);
-
-    const extraerRegistros = (clave) => resultados.flatMap(h => h[clave] || []);
-
-    const crearGraficoPlotly = (divId, titulo, todosLosDatos, campoDatos, campoValor, coloresBase) => {
-    const datosPorAula = {};
-
-    todosLosDatos.forEach(horario => {
-        const aula = horario.id_aula || 'Desconocido';
-        const registros = horario[campoDatos] || [];
-
-        if (!datosPorAula[aula]) datosPorAula[aula] = [];
-
-        registros.forEach(r => {
-            if (r[campoValor] !== undefined) {
-                datosPorAula[aula].push({
-                    x: r.fecha_hora,
-                    y: r[campoValor],
-                });
-            }
-        });
-    });
-
-    const aulas = Object.keys(datosPorAula);
-    const colores = coloresBase || [
-        'blue', 'orange', 'green', 'red', 'purple', 'brown', 'teal', 'pink', 'gray', 'black'
-    ];
-
-    const data = aulas.map((aula, idx) => ({
-        x: datosPorAula[aula].map(p => p.x),
-        y: datosPorAula[aula].map(p => p.y),
-        name: aula,
-        mode: 'lines',
-        line: { color: colores[idx % colores.length] }
-    }));
-
-    const hayDatos = data.some(trace => trace.x.length > 0 && trace.y.length > 0);
-
-    const layout = hayDatos ? {
-        width: 12000,
-        title: titulo,
-        xaxis: {
-            title: 'Fecha y Hora',
-            tickangle: -45,
-            tickmode: 'auto',
-            nticks: 20
-        },
-        yaxis: { title: campoValor },
-        autosize: true,
-        height: 400,
-        margin: { t: 50, b: 50 },
-        legend: { orientation: "h", x: 0, y: -0.2 }
-    } : {
-        title: titulo,
-        xaxis: { visible: false },
-        yaxis: { visible: false },
-        annotations: [
-            {
-                text: "Sin datos disponibles",
-                xref: "paper",
-                yref: "paper",
-                showarrow: false,
-                font: {
-                    size: 20,
-                    color: "gray"
-                },
-                x: 0.5,
-                y: 0.5,
-                align: "center"
-            }
-        ],
-        autosize: true,
-        height: 400,
-        margin: { t: 50, b: 50 }
-    };
-
-    Plotly.newPlot(divId, data, layout);
-};
-
-
-
-
-crearGraficoPlotly('graficoFrecuencia', 'Frecuencia Fundamental (Hz)', resultados, 'registros_voz', 'freq', ['#1f77b4', '#ff7f0e']);
-crearGraficoPlotly('graficoIntensidad', 'Intensidad de Voz (dB)', resultados, 'registros_voz', 'intensidad', ['#2ca02c', '#d62728']);
-crearGraficoPlotly('graficoRuido', 'Ruido Ambiental (dB)', resultados, 'registros_ruido', 'ruido');
-crearGraficoPlotly('graficoTemperatura', 'Temperatura (°C)', resultados, 'registros_temperatura', 'temperatura');
-crearGraficoPlotly('graficoHumedad', 'Humedad Relativa (%)', resultados, 'registros_humedad', 'humedad');
-crearGraficoPlotly('graficoCO2', 'CO₂ (ppm)', resultados, 'registros_co2', 'co2');
-
-
-</script>
-{% endif %}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    {% if resultados_json and fechas_iguales %}
+        <script src="{% static 'js/EStadisticas/grafico-lineal.js' %}"></script>
+    {% elif resultados_json %}
+        <script src="{% static 'js/EStadisticas/diagrama-cajas.js' %}"></script>
+    {% endif %}
 {% endblock %}
-
-{% block extra_css %}
-<style>
-    .chart-scroll-container {
-        overflow-x: auto;
-        border: 1px solid #ccc;
-        padding: 10px;
-        max-width: 100%; /* contenedor no crece más allá de la pantalla */
-    }
-    
-    .plot-inner {
-        min-width: 3000px; /* fuerza que el contenido sea más ancho para activar scroll */
-    }
-    </style>
-{% endblock %}    
