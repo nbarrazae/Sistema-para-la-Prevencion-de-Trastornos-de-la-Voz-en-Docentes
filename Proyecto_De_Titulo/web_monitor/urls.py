@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario, crear_dispositivo, eliminar_dispositivo, obtener_opciones, asignar_dispositivo, obtener_instituciones, profesores_por_institucion, aulas_por_institucion, exportar_instituciones_y_aulas_csv,exportar_profesores_y_horarios_csv, exportar_dispositivos_iot_csv
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario, crear_dispositivo, eliminar_dispositivo, obtener_opciones, asignar_dispositivo, obtener_instituciones, profesores_por_institucion, aulas_por_institucion, exportar_instituciones_y_aulas_csv,exportar_profesores_y_horarios_csv, exportar_dispositivos_iot_csv, login_view, logout_view
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
@@ -20,7 +20,9 @@ urlpatterns = [
         name='horario-detail'
     ),
     path('api/registrovar', registrarvar, name='registrarvar'),
-    path('', index, name='index'),
+    path('home', index, name='index'),
+    path('', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
 
 
     

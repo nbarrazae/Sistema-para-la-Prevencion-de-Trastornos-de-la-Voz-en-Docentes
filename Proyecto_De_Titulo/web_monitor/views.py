@@ -41,9 +41,13 @@ import csv
 from django.http import HttpResponse
 
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def index(request):
     return render(request, 'index.html')
 
+@login_required
 def instituciones(request):
     busqueda = request.GET.get('busqueda', '')
 
@@ -86,6 +90,8 @@ def instituciones(request):
     }
     return render(request, 'instituciones/base-instituciones.html', context)
 
+
+@login_required
 def listar_instituciones(request):
     orden = request.GET.get('orden', 'nombre_institucion')
     direccion = request.GET.get('direccion', 'asc')
@@ -102,6 +108,8 @@ def listar_instituciones(request):
     contexto = {'page_obj': page_obj}
     return render(request, 'instituciones.html', contexto)
 
+
+@login_required
 def eliminar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == 'POST':
@@ -109,6 +117,8 @@ def eliminar_institucion(request, pk):
         return redirect('instituciones')  # Nombre de tu vista principal
 
     return render(request, 'confirmar_eliminacion.html', {'institucion': institucion})
+
+@login_required
 def editar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == "POST":
@@ -149,6 +159,7 @@ def editar_institucion(request, pk):
             messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
         return redirect('instituciones')
 
+@login_required
 def crear_institucion(request):
     if request.method == "POST":
         try:
@@ -204,7 +215,7 @@ def crear_institucion(request):
             print(f"❌ Error inesperado: {str(e)}")  # Agrega este registro para depuración
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
-
+@login_required
 def obtener_aulas(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     #busca todas las aulas de la institucion
@@ -221,6 +232,7 @@ def obtener_aulas(request, pk):
 
 import json
 
+@login_required
 def crear_aula(request, pk):
     if request.method == "POST":
         print("📥 Recibido POST JSON")
@@ -240,6 +252,7 @@ def crear_aula(request, pk):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
+@login_required
 def eliminar_aula(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
     if request.method == 'POST':
@@ -248,7 +261,7 @@ def eliminar_aula(request, pk):
 
     return render(request, 'confirmar_eliminacion.html', {'aula': aula})
     
-
+@login_required
 def modificar_aula(request, pk):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -264,7 +277,7 @@ def modificar_aula(request, pk):
             return JsonResponse({"success": False, "error": "Aula no encontrada"})
 
 
-@csrf_exempt  # solo si no estás manejando CSRF correctamente en el fetch
+@login_required
 def eliminar_aula(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
     if request.method == 'POST':
@@ -287,6 +300,7 @@ def eliminar_aula(request, pk):
 
 
 import xlsxwriter
+@login_required
 def exportar_instituciones_y_aulas_csv(request):
     instituciones = Institucion.objects.all()
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -355,7 +369,7 @@ def exportar_instituciones_y_aulas_csv(request):
 
 
 
-
+@login_required
 def profesores(request):
     # Búsqueda
     busqueda = request.GET.get('busqueda', '')
@@ -402,6 +416,8 @@ def profesores(request):
         'busqueda': busqueda,
     })
 
+
+@login_required
 def crear_profesor(request):
     if request.method == 'POST':
         try:
@@ -458,6 +474,8 @@ def crear_profesor(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+
+@login_required
 def editar_profesor(request, pk):
     if request.method == 'POST':
         try:
@@ -516,6 +534,8 @@ def editar_profesor(request, pk):
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
+
+@login_required
 def eliminar_profesor(request, id_profesor):
     profesor = get_object_or_404(Profesor, id_profesor=id_profesor)
     if request.method == 'POST':
@@ -523,12 +543,16 @@ def eliminar_profesor(request, id_profesor):
         messages.success(request, 'Profesor eliminado exitosamente.')
     return redirect('profesores')
 
+
+@login_required
 def aulas_por_institucion(request, id_institucion):
     print(id_institucion)
     aulas = Aula.objects.filter(id_institucion=id_institucion).values('id_aula', 'nro_aula')
     print(aulas)
     return JsonResponse(list(aulas), safe=False)
 
+
+@login_required
 def horarios_por_profesor(request, id_profesor):
     horarios = Horario.objects.filter(id_profesor=id_profesor).select_related('id_aula').order_by('dia', 'hora_inicio')
     dias_ordenados = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
@@ -546,7 +570,8 @@ def horarios_por_profesor(request, id_profesor):
     ]
     return JsonResponse(data, safe=False)
 
-@csrf_exempt
+
+@login_required
 def eliminar_horario(request, id_horario):
     if request.method == 'POST':
         try:
@@ -559,7 +584,7 @@ def eliminar_horario(request, id_horario):
 
 from datetime import time
 
-@csrf_exempt  # Solo si no manejas CSRF en el fetch, de lo contrario omite esto
+@login_required
 def agregar_horario(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -580,6 +605,7 @@ def agregar_horario(request):
         return JsonResponse({'success': True, 'message': 'Horario agregado correctamente'})
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
+@login_required
 def exportar_profesores_y_horarios_csv(request):
     profesores = Profesor.objects.all()
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -648,7 +674,7 @@ def exportar_profesores_y_horarios_csv(request):
 
 
 
-
+@login_required
 def dispositivos_iot(request):
     busqueda = request.GET.get('busqueda', '')
     dispositivos = Dispositivo_IoT.objects.all()
@@ -724,7 +750,7 @@ def dispositivos_iot(request):
 
 
 
-
+@login_required
 def crear_dispositivo(request):
     if request.method == 'POST':
         mac_dispositivo = request.POST.get('mac_dispositivo')
@@ -756,6 +782,8 @@ def crear_dispositivo(request):
 
     return redirect('iot')  # Redirige a la lista de dispositivos después de agregar uno
 
+
+@login_required
 def eliminar_dispositivo(request, mac):
     dispositivo = get_object_or_404(Dispositivo_IoT, mac_dispositivo=mac)
     if request.method == 'POST':
@@ -765,6 +793,8 @@ def eliminar_dispositivo(request, mac):
 
     return render(request, 'confirmar_eliminacion.html', {'dispositivo': dispositivo})
 
+
+@login_required
 def obtener_opciones(request, institucion_id, tipo):
     if tipo == 'aula':
         aulas = Aula.objects.filter(id_institucion=institucion_id)
@@ -776,11 +806,12 @@ def obtener_opciones(request, institucion_id, tipo):
         data = []
     return JsonResponse(data, safe=False)
 
-
+@login_required
 def vista_dispositivos(request):
     instituciones = Institucion.objects.all()
     return render(request, 'tabla-iot.html', {'instituciones': instituciones})
 
+@login_required
 def asignar_dispositivo(request):
     if request.method == 'POST':
         mac = request.POST.get('mac')
@@ -837,6 +868,8 @@ def asignar_dispositivo(request):
 
     return redirect('iot')  # Redirige a la lista de dispositivos después de intentar asignar uno
 
+
+@login_required
 def exportar_dispositivos_iot_csv(request):
     dispositivos = Dispositivo_IoT.objects.all()
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -901,17 +934,19 @@ def exportar_dispositivos_iot_csv(request):
 
 
 
-
+@login_required
 def obtener_instituciones(request):
     instituciones = Institucion.objects.all().values('id', 'nombre_institucion')
     return JsonResponse(list(instituciones), safe=False)
 
+@login_required
 def profesores_por_institucion(request, id_institucion):
     profesores = Profesor.objects.filter(id_institucion_id=id_institucion).values(
         'id_profesor', 'nombre_profesor', 'apellido_profesor'
     )
     return JsonResponse(list(profesores), safe=False)
 
+@login_required
 def aulas_por_institucion(request, id_institucion):
     aulas = Aula.objects.filter(id_institucion_id=id_institucion).values(
         'id_aula', 'nro_aula'
@@ -919,12 +954,14 @@ def aulas_por_institucion(request, id_institucion):
     return JsonResponse(list(aulas), safe=False)
 
 
+@login_required
 def usuarios(request):
     return render(request, 'usuarios.html')
 
 
 from django.shortcuts import render
 from .models import Institucion
+
 
 def estadisticas(request):
     instituciones = Institucion.objects.all()
@@ -991,6 +1028,7 @@ def estadisticas(request):
 
 from collections import defaultdict
 
+
 def asignar_fechas_a_horarios(horarios, detalles_por_dia):
     # Agrupar fechas por día de semana
     fechas_por_dia = defaultdict(list)
@@ -1025,6 +1063,7 @@ dias_semana = {
     5: 'Sábado',
     6: 'Domingo'
 }
+
 
 def generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str):
     inicio = datetime.strptime(f"{fecha_inicio_str} {hora_inicio_str}", "%Y-%m-%d %H:%M")
@@ -1176,6 +1215,43 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
 
 
 
+
+
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.models import Group
+from django.urls import reverse
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+
+            # Redirección según tipo de usuario
+            if user.is_staff:
+                return redirect(reverse('admin:index'))  
+            elif user.groups.filter(name='Fonoaudiólogo').exists():
+                return redirect('index')
+            elif user.groups.filter(name='Académico').exists():
+                return redirect('index')
+            else:
+                return redirect('home')  # por defecto
+        else:
+            return render(request, 'login.html', {'error': 'Credenciales inválidas'})
+    return render(request, 'login.html')
+
+@login_required    
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 
 
