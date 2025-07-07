@@ -34,8 +34,11 @@
         </th>
         <th>Institución</th>
         <th>Detalle</th>
+        {% if request.user.groups.all.0.name != "Académico" %}
+
         <th>Editar</th>
         <th>Eliminar</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -62,6 +65,8 @@
             <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
           </a>
         </td>
+        {% if request.user.groups.all.0.name != "Académico" %}
+
         <td class="text-center">
           <a href="#" class="text-primary"
             data-bs-toggle="modal"
@@ -91,9 +96,12 @@
           </a>
 
         </td>
+        {% endif %}
 
         <td>
           <a href="#" class="btn btn-outline-primary btn-sm" 
+             data-es-academico="{% if request.user.groups.all.0.name == 'Académico' %}true{% else %}false{% endif %}"
+             {% if request.user.groups.all.0.name != "Académico" %}class="text-primary"{% endif %}
              data-bs-toggle="modal" 
              data-bs-target="#modalHorarioProfesor"
              data-id="{{ profesor.id_profesor }}"

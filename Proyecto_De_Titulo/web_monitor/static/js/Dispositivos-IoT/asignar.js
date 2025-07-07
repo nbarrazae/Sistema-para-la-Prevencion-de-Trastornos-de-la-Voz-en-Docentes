@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         datos.forEach(item => {
           const nombre = tipoDestino === 'profesor'
             ? `${item.nombre_profesor} ${item.apellido_profesor}`
-            : `Aula ${item.nro_aula}`;
+            : `${item.nro_aula}`;
         
           const id = tipoDestino === 'profesor'
             ? item.id_profesor

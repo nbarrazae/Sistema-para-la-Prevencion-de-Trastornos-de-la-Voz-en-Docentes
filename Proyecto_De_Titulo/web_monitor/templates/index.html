@@ -15,7 +15,7 @@
     #guide {
         max-width: 1200px;
         margin: auto;
-        padding: 20px;
+        padding: 5px;
         background-color: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -26,6 +26,11 @@
         margin-top: 10%;
         padding: 20px;
         text-align: center;
+    }
+
+    #guide .container {
+        margin-top: 0.5%;
+        text-align: left;
     }
 
     h1 {
@@ -63,6 +68,12 @@
         border-bottom: 2px solid #007BFF;
         padding-bottom: 5px;
     }
+    .titulos {
+        text-align: center; 
+        display: block; /* Ensure it behaves as a block element */
+        margin: 0 auto; /* Center horizontally */
+    }
+
 </style>
 
 <div class="container mt-5">
@@ -71,14 +82,14 @@
     <p>Bienvenido a la plataforma de monitoreo y análisis de datos. Aquí podrás gestionar instituciones, profesores, dispositivos IoT y visualizar estadísticas de manera eficiente.</p>
     <p>Utiliza el botón de abajo para desplazarte rápidamente a la guía de uso.</p>
 
-    <button class="scroll-button" onclick="scrollToGuide()">↓</button>
+    <button class="scroll-button fas fa-angle-double-down" onclick="scrollToGuide()"></button>
 </div>
 
 <section id="guide">
     <div class="container">
         <h2>Cómo usar la plataforma</h2>
         
-        <strong>Instituciones</strong>
+        <strong class="titulos">Instituciones</strong>
         <p>En la página de instituciones, puedes realizar las siguientes acciones:</p>
         <ul>
             <li><strong>Agregar Institución:</strong> Haz clic en el botón "Agregar Institución" para registrar una nueva institución en el sistema.</li>
@@ -90,7 +101,7 @@
             <li><strong>Gestionar Aulas:</strong> Accede a la gestión de aulas asociadas a una institución.</li>
         </ul>
         
-        <strong>Profesores:</strong>
+        <strong class="titulos">Profesores:</strong>
         <p>En la página de profesores, puedes realizar las siguientes acciones:</p>
         <ul>
             <li><strong>Agregar Profesor:</strong> Haz clic en el botón "Agregar Profesor" para registrar un nuevo profesor en el sistema.</li>
@@ -102,7 +113,7 @@
             <li><strong>Gestionar Horarios:</strong> Accede a la gestión de horarios asociados a un profesor.</li>
         </ul>
         
-        <strong>Dispositivos IoT:</strong>
+        <strong class="titulos">Dispositivos IoT:</strong>
         <p>En la página de Dispositivos IoT, puedes realizar las siguientes acciones:</p>
         <ul>
             <li><strong>Agregar Dispositivo IoT:</strong> Haz clic en el botón "Agregar Dispositivo IoT" para registrar un nuevo dispositivo en el sistema.</li>
@@ -114,7 +125,7 @@
             <li><strong>Asignar Dispositivo:</strong> Asocia un dispositivo IoT a una institución o aula específica.</li>
         </ul>
         
-        <strong>Visualización de datos:</strong>
+        <strong class="titulos">Visualización de datos:</strong>
         <p>En la página de estadísticas, puedes realizar las siguientes acciones:</p>
         <ul>
             <li><strong>Seleccionar Institución:</strong> Elige una institución para filtrar los datos relacionados.</li>

@@ -52,8 +52,10 @@
               
               <th class="direccion">Dirección</th>
               <th class="detalle">Detalle</th>
+              {% if request.user.groups.all.0.name != "Académico" %}
               <th class="editar">Editar</th>
               <th class="eliminar">Eliminar</th>
+              {% endif %}
               <th class="aulas">Aulas</th>
             </tr>
         </thead>
@@ -80,6 +82,7 @@
                   <i class="fas fa-eye" style='color:rgb(13, 138, 25)'></i>
                   </a>
               </td>
+              {% if request.user.groups.all.0.name != "Académico" %}
               <td class="editar text-center">
                   <a href="#" class="text-primary"
                   data-bs-toggle="modal"
@@ -105,6 +108,7 @@
                       <i class="far fa-trash-alt"></i>
                   </a>
               </td>
+              {% endif %}
               <td class="aulas text-center">
                 <a href="#" class="text-primary" data-bs-toggle="modal"
                    data-bs-target="#modalAulas"
