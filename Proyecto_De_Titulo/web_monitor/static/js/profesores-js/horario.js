@@ -29,20 +29,28 @@ document.addEventListener('DOMContentLoaded', function () {
       horariosDiv.innerHTML = 'Cargando horarios...';
   
       const horarios = await fetch(`/horarios_por_profesor/${profesorId}/`).then(r => r.json());
-  
-      horariosDiv.innerHTML = horarios.map(h => `
-        <div class="border p-2 mb-2 d-flex justify-content-between align-items-center">
-          <span>${h.dia}: ${h.hora_inicio} - ${h.hora_termino} | Aula: ${h.nombre_aula}</span>
+      const esAcademico = document.querySelector('[data-es-academico]').getAttribute('data-es-academico') === 'true';
+      console.log("esAcademico:", esAcademico);
+      horariosDiv.innerHTML = horarios.map(h => {
+        const eliminarBtn = esAcademico ? '' : `
           <button class="btn btn-sm btn-danger" onclick="eliminarHorario(${h.id_horario})">Eliminar</button>
-        </div>
-      `).join('');
+        `;
+        return `
+          <div class="border p-2 mb-2 d-flex justify-content-between align-items-center">
+            <span>${h.dia}: ${h.hora_inicio} - ${h.hora_termino} | Aula: ${h.nombre_aula}</span>
+            ${eliminarBtn}
+          </div>
+        `;
+      }).join('');
+
     });
   });
   
 
   document.getElementById('formHorarioProfesor').addEventListener('submit', async function (e) {
     e.preventDefault(); // Prevenir recarga
-  
+    const esAcademico = document.querySelector('[data-es-academico]').getAttribute('data-es-academico') === 'true';
+
     const id_profesor = document.getElementById('idProfesorHorario').value;
     const dia = this.dia.value;
     const hora_inicio = this.hora_inicio.value;
@@ -68,12 +76,20 @@ document.addEventListener('DOMContentLoaded', function () {
       // Refresca la lista de horarios
       const horarios = await fetch(`/horarios_por_profesor/${id_profesor}/`).then(r => r.json());
       const horariosDiv = document.getElementById('listaHorariosProfesor');
-      horariosDiv.innerHTML = horarios.map(h => `
-        <div class="border p-2 mb-2 d-flex justify-content-between align-items-center">
-          <span>${h.dia}: ${h.hora_inicio} - ${h.hora_termino} | Aula: ${h.nombre_aula}</span>
+      
+      
+
+      horariosDiv.innerHTML = horarios.map(h => {
+        const eliminarBtn = esAcademico ? '' : `
           <button class="btn btn-sm btn-danger" onclick="eliminarHorario(${h.id_horario})">Eliminar</button>
-        </div>
-      `).join('');
+        `;
+        return `
+          <div class="border p-2 mb-2 d-flex justify-content-between align-items-center">
+            <span>${h.dia}: ${h.hora_inicio} - ${h.hora_termino} | Aula: ${h.nombre_aula}</span>
+            ${eliminarBtn}
+          </div>
+        `;
+      }).join('');
       
   
       // Limpia el formulario (opcional)

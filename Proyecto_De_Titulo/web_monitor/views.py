@@ -829,17 +829,25 @@ def asignar_dispositivo(request):
             mensaje_cambio = None
 
             if relacion_aula.exists():
-                relacion_aula_obj = relacion_aula.first()
-                if relacion_aula_obj and relacion_aula_obj.id_aula:
-                    aula = relacion_aula_obj.id_aula.nro_aula
-                    relacion_aula.delete()
-                    aula_obj = Aula.objects.get(nro_aula=aula, id_institucion=relacion_aula_obj.id_aula.id_institucion)
-                    nueva_aula = Aula.objects.get(id_aula=destino_id)
-                    mensaje_cambio = f"Se ha cambiado la relación de Aula {aula_obj.nro_aula} de la institución {aula_obj.id_institucion.nombre_institucion} a Aula {nueva_aula.nro_aula} de la institución {nueva_aula.id_institucion.nombre_institucion}."
+                if request.user.is_superuser or request.user.groups.filter(name='Fonoaudiólogo').exists():
+                    relacion_aula_obj = relacion_aula.first()
+                    if relacion_aula_obj and relacion_aula_obj.id_aula:
+                        aula = relacion_aula_obj.id_aula.nro_aula
+                        relacion_aula.delete()
+                        aula_obj = Aula.objects.get(nro_aula=aula, id_institucion=relacion_aula_obj.id_aula.id_institucion)
+                        nueva_aula = Aula.objects.get(id_aula=destino_id)
+                        mensaje_cambio = f"Se ha cambiado la relación de Aula {aula_obj.nro_aula} de la institución {aula_obj.id_institucion.nombre_institucion} a Aula {nueva_aula.nro_aula} de la institución {nueva_aula.id_institucion.nombre_institucion}."
+                else:
+                    messages.error(request, "No tienes permiso para cambiar la relación de un aula.")
+                    return redirect('iot')
             elif relacion_profesor.exists():
-                profesor = relacion_profesor.first().id_profesor
-                relacion_profesor.delete()
-                mensaje_cambio = f"Se ha cambiado la relación de Profesor {profesor.nombre_profesor} {profesor.apellido_profesor} a Profesor {Profesor.objects.get(id_profesor=destino_id).nombre_profesor} {Profesor.objects.get(id_profesor=destino_id).apellido_profesor}."
+                if request.user.is_superuser or request.user.groups.filter(name='Fonoaudiólogo').exists():
+                    profesor = relacion_profesor.first().id_profesor
+                    relacion_profesor.delete()
+                    mensaje_cambio = f"Se ha cambiado la relación de Profesor {profesor.nombre_profesor} {profesor.apellido_profesor} a Profesor {Profesor.objects.get(id_profesor=destino_id).nombre_profesor} {Profesor.objects.get(id_profesor=destino_id).apellido_profesor}."
+                else:
+                    messages.error(request, "No tienes permiso para cambiar la relación de un profesor.")
+                    return redirect('iot')
 
             if mensaje_cambio:
                 messages.info(request, mensaje_cambio)
@@ -1227,6 +1235,19 @@ from django.urls import reverse
 
 
 def login_view(request):
+
+    if request.user.is_authenticated:
+        # Redirección según tipo de usuario
+        if request.user.is_staff:
+            return redirect(reverse('admin:index'))  
+        elif request.user.groups.filter(name='Fonoaudiólogo').exists():
+            return redirect('index')
+        elif request.user.groups.filter(name='Académico').exists():
+            return redirect('index')
+        else:
+            return render(request, 'login.html', {'error': 'Ha ocurrido un error al iniciar sesión.'})
+
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -1243,7 +1264,7 @@ def login_view(request):
             elif user.groups.filter(name='Académico').exists():
                 return redirect('index')
             else:
-                return redirect('home')  # por defecto
+                return render(request, 'login.html', {'error': 'Ha ocurrido un error al iniciar sesión.'})
         else:
             return render(request, 'login.html', {'error': 'Credenciales inválidas'})
     return render(request, 'login.html')
@@ -1253,7 +1274,8 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-
+def error_404_view(request, exception):
+    return render(request, '404.html', status=404)
 
 
 
