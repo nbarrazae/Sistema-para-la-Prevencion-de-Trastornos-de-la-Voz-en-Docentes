@@ -1,46 +1,63 @@
+{% load static %}
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
 <div class="modal fade" id="modalEditarInstitucion" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form method="POST" id="formEditar">
+      <form method="POST" id="formEditarInstitucion">
         {% csrf_token %}
         <div class="modal-header">
           <h5 class="modal-title" id="modalEditarLabel">Editar Institución</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" class="form-control" name="nombre_institucion" id="inputNombre">
+
+          <div class="row">
+            <div class="mb-3 col-md-6">
+              <label for="nombre">Nombre</label>
+            <input type="text" id="inputNombre" name="nombre_institucion" class="form-control" placeholder="Ingrese nombre" required>
+            <span id="editarNombre-error" class="text-danger small"></span>
           </div>
-          <div class="mb-3">
-            <label for="rut" class="form-label">RUT</label>
-            <input type="text" class="form-control" name="rut_institucion" id="inputRut">
+          <div class="mb-3 col-md-6">
+            <label for="rut">RUT</label>
+            <input type="text" id="inputRut" name="rut_institucion" class="form-control" placeholder="12345678-9" required>
+            <span id="editarRut-error" class="text-danger small"></span>
           </div>
-          <div class="mb-3">
-            <label for="direccion" class="form-label">Dirección</label>
-            <input type="text" class="form-control" name="direccion" id="inputDireccion">
+          <div class="mb-3 col-md-6">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="inputDireccion" name="direccion" class="form-control" placeholder="Ingrese dirección" required>
+            <span id="editarDireccion-error" class="text-danger small"></span>
           </div>
-          <div class="mb-3">
-            <label for="sitio_web" class="form-label">Sitio Web</label>
-            <input type="text" class="form-control" name="sitio_web" id="inputSitioWeb">
+          <div class="mb-3 col-md-6">
+            <label for="telefono">Teléfono</label>
+            <input type="text" id="inputTelefono" name="telefono_institucion" class="form-control" placeholder="Ingrese teléfono" required>
+            <span id="editarTelefono-error" class="text-danger small"></span>
           </div>
-          <div class="mb-3">
-            <label for="representante_legal" class="form-label">Representante Legal</label>
-            <input type="text" class="form-control" name="representante_legal" id="inputRepresentanteLegal">
+          <div class="mb-3 col-md-6">
+            <label for="correo electronico">Correo Electrónico</label>
+            <input type="email" id="inputCorreo" name="correo_institucion" class="form-control" placeholder="example@gmail.com" required>
+            <span id="editarCorreo-error" class="text-danger small"></span>
           </div>  
-          <div class="mb-3">
-            <label for="telefono" class="form-label">Teléfono</label>
-            <input type="text" class="form-control" name="telefono_institucion" id="inputTelefono">
+          <div class="mb-3 col-md-6">
+            <label for="sitio web">Sitio Web</label>
+            <input type="text" id="inputSitioWeb" name="sitio_web" class="form-control" placeholder="Ingrese sitio web" required>
+            <span id="editarSitioWeb-error" class="text-danger small"></span>
           </div>
           <div class="mb-3">
-            <label for="correo" class="form-label">Correo</label>
-            <input type="email" class="form-control" name="correo_institucion" id="inputCorreo">
-          </div>
+            <label for="representante_legal">Representante Legal</label>
+            <textarea type="text" id="inputRepresentanteLegal" name="representante_legal" class="form-control" placeholder="Ingrese representante legal" required></textarea>
+            <span id="editarRepresentanteLegal-error" class="text-danger small"></span>
+            </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </div>
+        <script src="{% static 'js/instituciones-js/editar.js' %}"></script>
       </form>
     </div>
   </div>

@@ -34,6 +34,16 @@ from web_monitor.validators.instituciones import (
     normalizar_telefono,
     normalizar_email
 )
+from web_monitor.validators.aulas import (
+    validate_nro_aula,
+    validate_tamano,
+    validate_cantidad_alumnos,
+    validate_descripcion,
+    normalizar_nro_aula,
+    normalizar_descripcion
+)
+
+
 
 def index(request):
     return render(request, 'index.html')
@@ -88,74 +98,90 @@ def eliminar_institucion(request, pk):
         return redirect('instituciones')  # Nombre de tu vista principal
 
     return render(request, 'confirmar_eliminacion.html', {'institucion': institucion})
+
 def editar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == "POST":
         try:
             # Normalizar entradas
-            nombre_institucion = normalizar_nombre(request.POST.get("nombre_institucion"))
-            rut_institucion = normalizar_rut(request.POST.get("rut_institucion"))
-            direccion = normalizar_direccion(request.POST.get("direccion"))
-            sitio_web = normalizar_sitio_web(request.POST.get("sitio_web"))
-            representante_legal = normalizar_representante_legal(request.POST.get("representante_legal"))
-            telefono_institucion = normalizar_telefono(request.POST.get("telefono_institucion"))
-            correo_institucion = normalizar_email(request.POST.get("correo_institucion"))
+            nombre_institucion_limpio = normalizar_nombre(request.POST.get("nombre_institucion"))
+            rut_institucion_limpio = normalizar_rut(request.POST.get("rut_institucion"))
+            direccion_limpio = normalizar_direccion(request.POST.get("direccion"))
+            sitio_web_limpio = normalizar_sitio_web(request.POST.get("sitio_web"))
+            representante_legal_limpio = normalizar_representante_legal(request.POST.get("representante_legal"))
+            telefono_institucion_limpio = normalizar_telefono(request.POST.get("telefono_institucion"))
+            correo_institucion_limpio = normalizar_email(request.POST.get("correo_institucion"))
 
             # Validaciones
-            validate_nombre(nombre_institucion)
-            validate_rut(rut_institucion)
-            validate_direccion(direccion)
-            validate_sitio_web(sitio_web)
-            validate_representante_legal(representante_legal)
-            validate_telefono(telefono_institucion)
-            validate_email(correo_institucion)
+            validate_nombre(nombre_institucion_limpio)
+            validate_rut(rut_institucion_limpio)
+            validate_direccion(direccion_limpio)
+            validate_sitio_web(sitio_web_limpio)
+            validate_representante_legal(representante_legal_limpio)
+            validate_telefono(telefono_institucion_limpio)
+            validate_email(correo_institucion_limpio)
 
+            # Verificar unicidad
+            errores = []
+            if Institucion.objects.filter(nombre_institucion=nombre_institucion_limpio).exclude(pk=pk).exists():
+                errores.append('Ya existe una institución con ese nombre.')
+            if Institucion.objects.filter(rut_institucion=rut_institucion_limpio).exclude(pk=pk).exists():
+                errores.append('Ya existe una institución con ese RUT.')
+            if Institucion.objects.filter(correo_institucion=correo_institucion_limpio).exclude(pk=pk).exists():
+                errores.append('Ya existe una institución con ese correo.')
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+            
             # Actualizar la institución
-            institucion.nombre_institucion = nombre_institucion
-            institucion.rut_institucion = rut_institucion
-            institucion.direccion = direccion
-            institucion.sitio_web = sitio_web
-            institucion.representante_legal = representante_legal
-            institucion.telefono_institucion = telefono_institucion
-            institucion.correo_institucion = correo_institucion
+            institucion.nombre_institucion = nombre_institucion_limpio
+            institucion.rut_institucion = rut_institucion_limpio
+            institucion.direccion = direccion_limpio
+            institucion.sitio_web = sitio_web_limpio
+            institucion.representante_legal = representante_legal_limpio
+            institucion.telefono_institucion = telefono_institucion_limpio
+            institucion.correo_institucion = correo_institucion_limpio
+
             institucion.save()
-            messages.success(request, "Institución actualizada correctamente.")
+            return JsonResponse({'success': True}, status=200)
         except ValidationError as e:
-            messages.error(request, f"Error de validación: {', '.join(e.messages)}")
-        except IntegrityError:
-            messages.error(request, "Error: ya existe una institución con ese RUT.")
+            return JsonResponse({'error': e.messages}, status=400)
+        except IntegrityError as e:
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
         except Exception as e:
-            messages.error(request, f"Ocurrió un error inesperado: {str(e)}")
-        return redirect('instituciones')
+            print(f"❌ Error inesperado: {str(e)}")
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
 def crear_institucion(request):
     if request.method == "POST":
         try:
+            print("Datos recibidos:", request.POST)  # Registro para depuración
+
             # Normalizar entradas
-            nombre_institucion = normalizar_nombre(request.POST.get("nombre_institucion"))
-            rut_institucion = normalizar_rut(request.POST.get("rut_institucion"))
-            direccion = normalizar_direccion(request.POST.get("direccion"))
-            sitio_web = normalizar_sitio_web(request.POST.get("sitio_web"))
-            representante_legal = normalizar_representante_legal(request.POST.get("representante_legal"))
-            telefono_institucion = normalizar_telefono(request.POST.get("telefono_institucion"))
-            correo_institucion = normalizar_email(request.POST.get("correo_institucion"))
+            nombre_institucion_limpio = normalizar_nombre(request.POST.get("nombre_institucion"))
+            rut_institucion_limpio = normalizar_rut(request.POST.get("rut_institucion"))
+            direccion_limpio = normalizar_direccion(request.POST.get("direccion"))
+            sitio_web_limpio = normalizar_sitio_web(request.POST.get("sitio_web"))
+            representante_legal_limpio = normalizar_representante_legal(request.POST.get("representante_legal"))
+            telefono_institucion_limpio = normalizar_telefono(request.POST.get("telefono_institucion"))
+            correo_institucion_limpio = normalizar_email(request.POST.get("correo_institucion"))
 
             # Validaciones
-            validate_nombre(nombre_institucion)
-            validate_rut(rut_institucion)
-            validate_direccion(direccion)
-            validate_sitio_web(sitio_web)
-            validate_representante_legal(representante_legal)
-            validate_telefono(telefono_institucion)
-            validate_email(correo_institucion)
+            validate_nombre(nombre_institucion_limpio)
+            validate_rut(rut_institucion_limpio)
+            validate_direccion(direccion_limpio)
+            validate_sitio_web(sitio_web_limpio)
+            validate_representante_legal(representante_legal_limpio)
+            validate_telefono(telefono_institucion_limpio)
+            validate_email(correo_institucion_limpio)
 
             # Verificar unicidad
             errores = []
-            if Institucion.objects.filter(nombre_institucion=nombre_institucion).exists():
+            if Institucion.objects.filter(nombre_institucion=nombre_institucion_limpio).exists():
                 errores.append('Ya existe una institución con ese nombre.')
-            if Institucion.objects.filter(rut_institucion=rut_institucion).exists():
+            if Institucion.objects.filter(rut_institucion=rut_institucion_limpio).exists():
                 errores.append('Ya existe una institución con ese RUT.')
-            if Institucion.objects.filter(correo_institucion=correo_institucion).exists():
+            if Institucion.objects.filter(correo_institucion=correo_institucion_limpio).exists():
                 errores.append('Ya existe una institución con ese correo.')
 
             # Si hay errores, devolverlos todos juntos
@@ -164,13 +190,13 @@ def crear_institucion(request):
 
             # Crear la institución
             institucion = Institucion(
-                nombre_institucion=nombre_institucion,
-                rut_institucion=rut_institucion,
-                direccion=direccion,
-                sitio_web=sitio_web,
-                representante_legal=representante_legal,
-                telefono_institucion=telefono_institucion,
-                correo_institucion=correo_institucion
+                nombre_institucion=nombre_institucion_limpio,
+                rut_institucion=rut_institucion_limpio,
+                direccion=direccion_limpio,
+                sitio_web=sitio_web_limpio,
+                representante_legal=representante_legal_limpio,
+                telefono_institucion=telefono_institucion_limpio,
+                correo_institucion=correo_institucion_limpio
             )
             institucion.save()
             # messages.success(request, "Institución creada correctamente.")
@@ -180,9 +206,9 @@ def crear_institucion(request):
         except IntegrityError as e:
             return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
         except Exception as e:
-            print(f"❌ Error inesperado: {str(e)}")  # Agrega este registro para depuración
+            print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
-
+            
 
 def obtener_aulas(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
@@ -202,21 +228,49 @@ import json
 
 def crear_aula(request, pk):
     if request.method == "POST":
-        print("📥 Recibido POST JSON")
+        try:
+            print("📥 Recibido POST JSON")
 
-        data = json.loads(request.body)
-        print("Contenido del JSON:", data)  # 👈 Aquí ves qué se está enviando
+            data = json.loads(request.body)
+            print("Contenido del JSON:", data)  # 👈 Aquí ves qué se está enviando
 
-        aula = Aula(
-            nro_aula=data.get("nro_aula"),
-            tamaño=data.get("tamanio"),
-            cantidad_alumnos=data.get("cantidad_alumnos"),
-            descripcion=data.get("descripcion"),
-            id_institucion_id=pk  # 👈 Ya viene en la URL
-        )
-        aula.save()
+            # Normalizar entradas
+            nro_aula_limpio = normalizar_nro_aula(data.get("nro_aula"))
+            descripcion_limpio = normalizar_descripcion(data.get("descripcion"))
 
-        return JsonResponse({"success": True})
+            # Validaciones
+            validate_nro_aula(nro_aula_limpio)
+            validate_tamano(data.get("tamanio"))
+            validate_cantidad_alumnos(data.get("cantidad_alumnos"))
+            validate_descripcion(descripcion_limpio)
+
+            # Verificar unicidad
+            errores = []
+            if Aula.objects.filter(nro_aula=nro_aula_limpio, id_institucion_id=pk).exists():
+                errores.append('Ya existe un aula con ese número en esta institución.')
+
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+
+            # Crear el aula
+            aula = Aula(
+                nro_aula=nro_aula_limpio,
+                tamaño=data.get("tamanio"),
+                cantidad_alumnos=data.get("cantidad_alumnos"),
+                descripcion=descripcion_limpio,
+                id_institucion_id=pk  # 👈 Ya viene en la URL
+            )
+            aula.save()
+
+            return JsonResponse({"success": True}, status=200)
+        except ValidationError as e:
+            return JsonResponse({'error': e.messages}, status=400)
+        except IntegrityError as e:
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
+        except Exception as e:
+            print(f"❌ Error inesperado: {str(e)}")
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
 def eliminar_aula(request, pk):
@@ -230,17 +284,47 @@ def eliminar_aula(request, pk):
 
 def modificar_aula(request, pk):
     if request.method == "POST":
-        data = json.loads(request.body)
         try:
+            data = json.loads(request.body)
+
+            # Normalizar entradas
+            nro_aula_limpio = normalizar_nro_aula(data.get("nro_aula"))
+            descripcion_limpio = normalizar_descripcion(data.get("descripcion"))
+
+            # Validaciones
+            validate_nro_aula(nro_aula_limpio)
+            validate_tamano(data.get("tamanio"))
+            validate_cantidad_alumnos(data.get("cantidad_alumnos"))
+            validate_descripcion(descripcion_limpio)
+
+            # Verificar unicidad
+            errores = []
+            if Aula.objects.filter(nro_aula=nro_aula_limpio).exclude(pk=pk).exists():
+                errores.append('Ya existe un aula con ese número en esta institución.')
+
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+
+            # Actualizar el aula
             aula = Aula.objects.get(pk=pk)
-            aula.nro_aula = data.get("nro_aula", aula.nro_aula)
+            aula.nro_aula = nro_aula_limpio
             aula.tamaño = data.get("tamanio", aula.tamaño)
             aula.cantidad_alumnos = data.get("cantidad_alumnos", aula.cantidad_alumnos)
-            aula.descripcion = data.get("descripcion", aula.descripcion)
+            aula.descripcion = descripcion_limpio
             aula.save()
-            return JsonResponse({"success": True})
+
+            return JsonResponse({"success": True}, status=200)
         except Aula.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Aula no encontrada"})
+            return JsonResponse({"success": False, "error": "Aula no encontrada"}, status=404)
+        except ValidationError as e:
+            return JsonResponse({'error': e.messages}, status=400)
+        except IntegrityError as e:
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
+        except Exception as e:
+            print(f"❌ Error inesperado: {str(e)}")
+            return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
 
 @csrf_exempt  # solo si no estás manejando CSRF correctamente en el fetch
@@ -336,6 +420,17 @@ def crear_profesor(request):
             # Obtener la institución
             institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
 
+            # Verificar unicidad
+            errores = []
+            if Profesor.objects.filter(rut_profesor=rut_profe_limpio).exists():
+                errores.append('Ya existe un profesor con ese RUT.')
+            if Profesor.objects.filter(correo_profesor=correo_profe_limpio).exists():
+                errores.append('Ya existe un profesor con ese correo.')
+            
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+            
             # Crear el profesor
             Profesor.objects.create(
                 rut_profesor=rut_profe_limpio,
@@ -355,16 +450,10 @@ def crear_profesor(request):
         except ValidationError as e:
             return JsonResponse({'error': ', '.join(e.messages)}, status=400)
         except IntegrityError as e:
-            if 'rut_profesor' in str(e):
-                return JsonResponse({'error': 'Ya existe un profesor con ese RUT.'}, status=400)
-            elif 'correo_profesor' in str(e):
-                return JsonResponse({'error': 'Ya existe un profesor con ese correo.'}, status=400)
-            else:
-                return JsonResponse({'error': 'Error de integridad.'}, status=400)
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
         except Exception as e:
+            print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
-
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def editar_profesor(request, pk):
     if request.method == 'POST':
@@ -393,6 +482,16 @@ def editar_profesor(request, pk):
             # Obtener la institución
             institucion = Institucion.objects.get(id_institucion=request.POST['id_institucion'])
 
+            # Verificar unicidad
+            errores = []
+            if Profesor.objects.filter(rut_profesor=rut_profe_limpio).exclude(pk=pk).exists():
+                errores.append('Ya existe un profesor con ese RUT.')
+            if Profesor.objects.filter(correo_profesor=correo_profe_limpio).exclude(pk=pk).exists():
+                errores.append('Ya existe un profesor con ese correo.')
+            # Si hay errores, devolverlos todos juntos
+            if errores:
+                return JsonResponse({'error': errores}, status=400)
+            
             # Actualizar el profesor
             profesor.rut_profesor = rut_profe_limpio
             profesor.nombre_profesor = nombre_profe_limpio
@@ -412,16 +511,10 @@ def editar_profesor(request, pk):
         except ValidationError as e:
             return JsonResponse({'error': ', '.join(e.messages)}, status=400)
         except IntegrityError as e:
-            if 'rut_profesor' in str(e):
-                return JsonResponse({'error': 'Ya existe un profesor con ese RUT.'}, status=400)
-            elif 'correo_profesor' in str(e):
-                return JsonResponse({'error': 'Ya existe un profesor con ese correo.'}, status=400)
-            else:
-                return JsonResponse({'error': 'Error de integridad.'}, status=400)
+            return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
         except Exception as e:
+            print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
-
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 def eliminar_profesor(request, id_profesor):

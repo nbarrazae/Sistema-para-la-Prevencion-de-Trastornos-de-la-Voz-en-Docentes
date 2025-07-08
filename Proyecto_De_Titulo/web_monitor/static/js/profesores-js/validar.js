@@ -55,37 +55,87 @@ document.addEventListener('DOMContentLoaded', function () {
     const validarNombre = () => {
         const nombre = campos.nombre.input.value.trim();
         const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u;
-        campos.nombre.error.textContent = patron.test(nombre) ? '' : 'Nombre inválido';
+
+        if (nombre.length < 2) {
+            campos.nombre.error.textContent = 'El nombre debe tener mínimo 2 caracteres';
+        } else if (nombre.length > 50) {
+            campos.nombre.error.textContent = 'El nombre debe tener máximo 50 caracteres';
+        } else if (!patron.test(nombre)) {
+            campos.nombre.error.textContent = 'Nombre inválido';
+        } else {
+            campos.nombre.error.textContent = '';
+        }
     };
 
     const validarApellido = () => {
         const apellido = campos.apellido.input.value.trim();
         const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u;
-        campos.apellido.error.textContent = patron.test(apellido) ? '' : 'Apellido inválido';
+
+        if (apellido.length < 2) {
+            campos.apellido.error.textContent = 'El apellido debe tener mínimo 2 caracteres';
+        } else if (apellido.length > 50) {
+            campos.apellido.error.textContent = 'El apellido debe tener máximo 50 caracteres';
+        } else if (!patron.test(apellido)) {
+            campos.apellido.error.textContent = 'Apellido inválido';
+        } else {
+            campos.apellido.error.textContent = '';
+        }
     };
 
     const validarAltura = () => {
         const altura = parseInt(campos.altura.input.value, 10);
-        campos.altura.error.textContent = (!Number.isInteger(altura) || altura < 50 || altura > 250)
-            ? 'Altura inválida (debe ser entre 50 y 250 cm)' : '';
+        if (!Number.isInteger(altura)) {
+            campos.altura.error.textContent = 'La altura debe ser un número entero';
+        } else if (altura < 50) {
+            campos.altura.error.textContent = 'La altura debe ser al menos 50 cm';
+        } else if (altura > 250) {
+            campos.altura.error.textContent = 'La altura no puede superar los 250 cm';
+        } else {
+            campos.altura.error.textContent = '';
+        }
     };
 
     const validarPeso = () => {
-        const peso = parseInt(campos.peso.input.value, 10);
-        campos.peso.error.textContent = (!Number.isInteger(peso) || peso < 20 || peso > 300)
-            ? 'Peso inválido (debe ser entre 20 y 300 kg)' : '';
+        const peso = parseFloat(campos.peso.input.value);
+        if (isNaN(peso)) {
+            campos.peso.error.textContent = 'El peso debe ser un número válido';
+        } else if (peso < 20) {
+            campos.peso.error.textContent = 'El peso debe ser al menos 20 kg';
+        } else if (peso > 300) {
+            campos.peso.error.textContent = 'El peso no puede superar los 300 kg';
+        } else {
+            campos.peso.error.textContent = '';
+        }
     };
 
     const validarAntecedentes = () => {
         const texto = campos.antecedentes.input.value.trim();
-        campos.antecedentes.error.textContent = (texto.length < 3 || texto.length > 300)
-            ? 'Antecedentes deben tener entre 3 y 300 caracteres' : '';
+        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,0-9]+$/u;
+
+        if (texto.length < 3) {
+            campos.antecedentes.error.textContent = 'Antecedentes deben tener mínimo 3 caracteres';
+        } else if (texto.length > 300) {
+            campos.antecedentes.error.textContent = 'Antecedentes deben tener máximo 300 caracteres';
+        } else if (!patron.test(texto)) {
+            campos.antecedentes.error.textContent = 'Antecedentes contienen caracteres inválidos';
+        } else {
+            campos.antecedentes.error.textContent = '';
+        }
     };
 
     const validarAreaDocencia = () => {
         const texto = campos.areaDocencia.input.value.trim();
-        campos.areaDocencia.error.textContent = (texto.length < 3 || texto.length > 100)
-            ? 'Área de docencia debe tener entre 3 y 100 caracteres' : '';
+        const patron = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,0-9]+$/u;
+
+        if (texto.length < 3) {
+            campos.areaDocencia.error.textContent = 'Área de docencia debe tener mínimo 3 caracteres';
+        } else if (texto.length > 100) {
+            campos.areaDocencia.error.textContent = 'Área de docencia debe tener máximo 100 caracteres';
+        } else if (!patron.test(texto)) {
+            campos.areaDocencia.error.textContent = 'Área de docencia contiene caracteres inválidos';
+        } else {
+            campos.areaDocencia.error.textContent = '';
+        }
     };
 
     // Asignar listeners a los inputs
@@ -160,10 +210,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     location.reload();
                 });
             } else {
+                // Mostrar múltiples errores
+                const errores = Object.values(data.error).map(mensaje => `<li>${mensaje}</li>`).join('');
                 Swal.fire({
                     icon: 'error',
                     title: 'Errores al ingresar los datos',
-                    html: `Corrige los siguientes campos antes de enviar:<br><ul>${Object.values(data).map(error => `<li>${error}</li>`).join('')}</ul>`,
+                    html: `Corrige los siguientes campos antes de enviar:<br><ul>${errores}</ul>`,
                     confirmButtonText: 'Entendido',
                     confirmButtonColor: '#d33'
                 });
