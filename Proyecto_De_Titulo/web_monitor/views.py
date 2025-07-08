@@ -132,7 +132,6 @@ def eliminar_institucion(request, pk):
     return render(request, 'confirmar_eliminacion.html', {'institucion': institucion})
 
 
-=======
 @login_required
 def editar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
