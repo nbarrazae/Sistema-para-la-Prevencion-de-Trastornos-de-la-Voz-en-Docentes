@@ -1,0 +1,52 @@
+(7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}]
+0
+: 
+{id_aula: 79, hora_inicio: '12:00', hora_termino: '17:30', profesor: 'Nicolas', dia: 'Martes', …}
+1
+: 
+{id_aula: 79, hora_inicio: '08:01', hora_termino: '11:30', profesor: 'Nicolas', dia: 'Martes', …}
+2
+: 
+{id_aula: 79, hora_inicio: '10:00', hora_termino: '12:40', profesor: 'Nicolas', dia: 'Miércoles', …}
+3
+: 
+{id_aula: 79, hora_inicio: '14:00', hora_termino: '15:30', profesor: 'Nicolas', dia: 'Miércoles', …}
+4
+: 
+{id_aula: 79, hora_inicio: '15:40', hora_termino: '17:00', profesor: 'Nicolas', dia: 'Miércoles', …}
+5
+: 
+{id_aula: 80, hora_inicio: '18:02', hora_termino: '22:02', profesor: 'Nicolas', dia: 'Miércoles', …}
+6
+: 
+{id_aula: 79, hora_inicio: '12:00', hora_termino: '17:30', profesor: 'Nicolas', dia: 'Jueves', …}
+
+
+
+
+
+
+
+
+(7) [{…}, {…}, {…}, {…}, {…}, {…}, {…}]
+0
+: 
+{id_aula: 'FABLAB', hora_inicio: '12:00', hora_termino: '17:30', profesor: 'Nicolas', dia: 'Martes', …}
+1
+: 
+{id_aula: 'FABLAB', hora_inicio: '08:01', hora_termino: '11:30', profesor: 'Nicolas', dia: 'Martes', …}
+2
+: 
+{id_aula: 'FABLAB', hora_inicio: '10:00', hora_termino: '12:40', profesor: 'Nicolas', dia: 'Miércoles', …}
+3
+: 
+{id_aula: 'FABLAB', hora_inicio: '14:00', hora_termino: '15:30', profesor: 'Nicolas', dia: 'Miércoles', …}
+4
+: 
+{id_aula: 'FABLAB', hora_inicio: '15:40', hora_termino: '17:00', profesor: 'Nicolas', dia: 'Miércoles', …}
+5
+: 
+{id_aula: 'CIM', hora_inicio: '18:02', hora_termino: '22:02', profesor: 'Nicolas', dia: 'Miércoles', …}
+6
+: 
+{id_aula: 'FABLAB', hora_inicio: '12:00', hora_termino: '17:30', profesor: 'Nicolas', dia

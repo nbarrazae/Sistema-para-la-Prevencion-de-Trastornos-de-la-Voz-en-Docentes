@@ -27,8 +27,15 @@
 
 
                 <div class="text-center mb-4 logo-full">
-                    <img src="{% static 'img/88bbca1de26907e33a26206f2f6815d5427fae37.png' %}" alt="Logo" class="img-fluid" style="max-width: 80%;">
-                </div>  
+                    <a href="/" class="btn btn-link p-0" style="text-decoration: none;">
+                        <img src="{% static 'img/88bbca1de26907e33a26206f2f6815d5427fae37.png' %}" alt="Logo" class="img-fluid" style="max-width: 80%;">
+                    </a>
+                </div>
+                <style>
+                    .logo-full a:hover {
+                        background-color: #396ba3; /* Same color as the page background */
+                    }
+                </style>
 
                 <!-- Logo pequeño solo en modo colapsado -->
                 <div class="text-center mb-4 logo-mini d-none">
@@ -89,23 +96,42 @@
                     </button>
                 </ul>
                 
+
+
+                <div class="d-flex align-items-center shadow-sm rounded">
+                    <i class="fas fa-user-circle fa-2x text-secondary me-2"></i>
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold text-uppercase fs-5">
+                            {{ request.user.groups.all.0.name|default:"ERROR" }}
+                        </span>
+                        <span class="text-muted small text-uppercase bg-white">
+                            {{ request.user.get_full_name|default:request.user.username }}
+                        </span>
+                    </div>
+                </div>
                 <div class="logout mt-4 text-center">
-                    <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Log out</span></a>
+                    <a href=" {% url 'logout' %} " class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Log out</span></a>
                 </div>
             </div>
 
             <!-- Contenido principal -->
             <div class="col py-3" id="mainContainer">
-                <div class="topbar">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
-                        <select class="form-select form-select-sm w-auto">
-                            <option selected>ADMIN</option>
-                        </select>
+                <div class="topbar" style="position: fixed; left: 0; top: 0; width: 100%; z-index: 1000;">
+                    <div class="d-flex align-items-center p-3 bg-white shadow-sm rounded" style="min-width: 200px;">
+                        <i class="fas fa-user-circle fa-2x text-secondary me-2"></i>
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-uppercase fs-5">
+                                {{ request.user.groups.all.0.name|default:"ERROR" }}
+                            </span>
+                            <span class="text-muted small">
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            </span>
+                        </div>
                     </div>
                 </div>
+                
 
-                <div class="container text-center" style="background-color: #f3f3f3;" >
+                <div class="container text-center" style="background-color: #f3f3f3; margin-top: 10%;" >
                     {% block content %}
                     {% endblock %}
                 </div>
@@ -125,4 +151,5 @@
 </body>
 
 {% block extra_js %}{% endblock %}
+{% block extra_css %}{% endblock %}
 </html>

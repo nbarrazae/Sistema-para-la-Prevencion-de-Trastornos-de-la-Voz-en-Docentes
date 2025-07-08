@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario, crear_dispositivo, eliminar_dispositivo, obtener_opciones, asignar_dispositivo, obtener_instituciones, profesores_por_institucion, aulas_por_institucion
+from .views import InstitucionViewSet, ProfesorViewSet, AulaViewSet, HorarioViewSet, registrarvar, index, instituciones, profesores, usuarios, estadisticas, variables_ambientales, variables_voz, dispositivos_iot, eliminar_institucion, editar_institucion, crear_institucion, obtener_aulas, crear_aula, eliminar_aula, modificar_aula, eliminar_aula,crear_profesor, editar_profesor, eliminar_profesor, aulas_por_institucion, horarios_por_profesor, eliminar_horario, agregar_horario, crear_dispositivo, eliminar_dispositivo, obtener_opciones, asignar_dispositivo, obtener_instituciones, profesores_por_institucion, aulas_por_institucion, exportar_instituciones_y_aulas_csv,exportar_profesores_y_horarios_csv, exportar_dispositivos_iot_csv, login_view, logout_view,error_404_view
 
 router = DefaultRouter()
 router.register(r'instituciones', InstitucionViewSet)
@@ -20,7 +20,9 @@ urlpatterns = [
         name='horario-detail'
     ),
     path('api/registrovar', registrarvar, name='registrarvar'),
-    path('', index, name='index'),
+    path('home', index, name='index'),
+    path('', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
 
 
     
@@ -35,6 +37,7 @@ urlpatterns = [
     path('instituciones/eliminar/<int:pk>/', eliminar_institucion, name='eliminar_institucion'),
     path('instituciones/editar/<int:pk>/', editar_institucion, name='editar_institucion'),
     path('instituciones/crear/', crear_institucion, name='crear_institucion'),
+    path('instituciones/exportar_csv/', exportar_instituciones_y_aulas_csv, name='exportar_instituciones_csv'),
 
     path('institucion/<int:pk>/aulas/', obtener_aulas, name='obtener_aulas'),
     path('institucion/<int:pk>/aulas/agregar/', crear_aula, name='agregar_aula'),
@@ -46,6 +49,7 @@ urlpatterns = [
     path('profesores/crear/', crear_profesor, name='crear_profesor'),
     path('profesores/editar/<int:pk>/', editar_profesor, name='editar_profesor'),
     path('profesores/eliminar/<int:id_profesor>/', eliminar_profesor, name='eliminar_profesor'),
+    path('profesores/exportar_csv/', exportar_profesores_y_horarios_csv, name='exportar_profesores_y_horarios_csv'),
 
     path('aulas_por_institucion/<int:id_institucion>/', aulas_por_institucion),
     path('horarios_por_profesor/<int:id_profesor>/', horarios_por_profesor),
@@ -61,8 +65,9 @@ urlpatterns = [
     path('obtener-instituciones/', obtener_instituciones, name='obtener_instituciones'),
     path('api/profesores_por_institucion/<int:id_institucion>/', profesores_por_institucion, name='profesores_por_institucion'),
     path('api/aulas_por_institucion/<int:id_institucion>/', aulas_por_institucion, name='aulas_por_institucion'),
+    path('exportar_dispositivos_iot_csv/', exportar_dispositivos_iot_csv, name='exportar_dispositivos_iot_csv'),
 
-
+    path('error_404/', error_404_view, name='error_404_view'),
 
 
 

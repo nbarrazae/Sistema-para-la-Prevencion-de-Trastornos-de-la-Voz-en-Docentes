@@ -34,6 +34,7 @@ from web_monitor.validators.instituciones import (
     normalizar_telefono,
     normalizar_email
 )
+
 from web_monitor.validators.aulas import (
     validate_nro_aula,
     validate_tamano,
@@ -45,9 +46,21 @@ from web_monitor.validators.aulas import (
 
 
 
+from django.utils.safestring import mark_safe
+
+
+
+import csv
+from django.http import HttpResponse
+
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def index(request):
     return render(request, 'index.html')
 
+@login_required
 def instituciones(request):
     busqueda = request.GET.get('busqueda', '')
 
@@ -70,11 +83,28 @@ def instituciones(request):
     page = request.GET.get('page')
     page_obj = paginator.get_page(page)
 
+    # cálculo de rango de páginas para mostrar
+    page_range = []
+    if paginator.num_pages <= 10:
+        page_range = range(1, paginator.num_pages + 1)
+    else:
+        if page_obj.number <= 6:
+            page_range = list(range(1, 8)) + ['…', paginator.num_pages]
+        elif page_obj.number > paginator.num_pages - 6:
+            page_range = [1, '…'] + list(range(paginator.num_pages - 6, paginator.num_pages + 1))
+        else:
+            page_range = [1, '…'] + list(range(page_obj.number - 2, page_obj.number + 3)) + ['…', paginator.num_pages]
+
     context = {
         'page_obj': page_obj,
+        'page_range': page_range,
+        'orden': orden,
+        'direccion': direccion,
     }
     return render(request, 'instituciones/base-instituciones.html', context)
 
+
+@login_required
 def listar_instituciones(request):
     orden = request.GET.get('orden', 'nombre_institucion')
     direccion = request.GET.get('direccion', 'asc')
@@ -91,6 +121,8 @@ def listar_instituciones(request):
     contexto = {'page_obj': page_obj}
     return render(request, 'instituciones.html', contexto)
 
+
+@login_required
 def eliminar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == 'POST':
@@ -99,6 +131,9 @@ def eliminar_institucion(request, pk):
 
     return render(request, 'confirmar_eliminacion.html', {'institucion': institucion})
 
+
+=======
+@login_required
 def editar_institucion(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     if request.method == "POST":
@@ -152,6 +187,7 @@ def editar_institucion(request, pk):
             print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
+@login_required
 def crear_institucion(request):
     if request.method == "POST":
         try:
@@ -210,6 +246,8 @@ def crear_institucion(request):
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
             
 
+
+@login_required
 def obtener_aulas(request, pk):
     institucion = get_object_or_404(Institucion, pk=pk)
     #busca todas las aulas de la institucion
@@ -226,6 +264,7 @@ def obtener_aulas(request, pk):
 
 import json
 
+@login_required
 def crear_aula(request, pk):
     if request.method == "POST":
         try:
@@ -273,6 +312,7 @@ def crear_aula(request, pk):
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
+@login_required
 def eliminar_aula(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
     if request.method == 'POST':
@@ -281,7 +321,7 @@ def eliminar_aula(request, pk):
 
     return render(request, 'confirmar_eliminacion.html', {'aula': aula})
     
-
+@login_required
 def modificar_aula(request, pk):
     if request.method == "POST":
         try:
@@ -327,7 +367,7 @@ def modificar_aula(request, pk):
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
 
-@csrf_exempt  # solo si no estás manejando CSRF correctamente en el fetch
+@login_required
 def eliminar_aula(request, pk):
     aula = get_object_or_404(Aula, pk=pk)
     if request.method == 'POST':
@@ -348,6 +388,78 @@ def eliminar_aula(request, pk):
 # def profesores(request):
 #     return render(request, 'profesores/base-profesores.html')
 
+
+import xlsxwriter
+@login_required
+def exportar_instituciones_y_aulas_csv(request):
+    instituciones = Institucion.objects.all()
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="instituciones_y_aulas.xlsx"'
+
+    # Crear el libro y las hojas
+    workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+    worksheet_instituciones = workbook.add_worksheet("Instituciones")
+    worksheet_aulas = workbook.add_worksheet("Aulas")
+
+    # Formato para encabezados
+    header_format = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'bg_color': '#D9EAD3'})
+
+    # Página de Instituciones
+    worksheet_instituciones.write_row('A1', [
+        'Nombre Institución', 'RUT Institución', 'Dirección', 'Sitio Web', 
+        'Representante Legal', 'Teléfono', 'Correo'
+    ], header_format)
+
+    row = 1
+    for institucion in instituciones:
+        worksheet_instituciones.write_row(row, 0, [
+            institucion.nombre_institucion,
+            institucion.rut_institucion,
+            institucion.direccion,
+            institucion.sitio_web,
+            institucion.representante_legal,
+            institucion.telefono_institucion,
+            institucion.correo_institucion
+        ])
+        row += 1
+
+    row = 0
+    for institucion in instituciones:
+        # Escribir el nombre de la institución como encabezado
+        worksheet_aulas.write(row, 0, institucion.nombre_institucion, header_format)
+        row += 2  # Dejar una línea en blanco después del encabezado
+
+        # Escribir los encabezados de las aulas
+        worksheet_aulas.write_row(row, 0, [
+            'Número Aula', 'Tamaño', 'Cantidad Alumnos', 'Descripción'
+        ], header_format)
+        row += 1
+
+        # Escribir las aulas de la institución
+        aulas = Aula.objects.filter(id_institucion=institucion)
+        if aulas.exists():
+            for aula in aulas:
+                worksheet_aulas.write_row(row, 0, [
+                    aula.nro_aula,
+                    aula.tamaño,
+                    aula.cantidad_alumnos,
+                    aula.descripcion
+                ])
+                row += 1
+        else:
+            # Si no hay aulas, escribir "sin información"
+            worksheet_aulas.write_row(row, 0, ['-', '-', '-', '-'])
+            row += 1
+
+        # Dejar una línea en blanco entre instituciones
+        row += 1
+
+    workbook.close()
+    return response
+
+
+
+@login_required
 def profesores(request):
     # Búsqueda
     busqueda = request.GET.get('busqueda', '')
@@ -394,6 +506,8 @@ def profesores(request):
         'busqueda': busqueda,
     })
 
+
+@login_required
 def crear_profesor(request):
     if request.method == 'POST':
         try:
@@ -455,6 +569,10 @@ def crear_profesor(request):
             print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@login_required
 def editar_profesor(request, pk):
     if request.method == 'POST':
         try:
@@ -517,6 +635,8 @@ def editar_profesor(request, pk):
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
 
 
+
+@login_required
 def eliminar_profesor(request, id_profesor):
     profesor = get_object_or_404(Profesor, id_profesor=id_profesor)
     if request.method == 'POST':
@@ -524,27 +644,35 @@ def eliminar_profesor(request, id_profesor):
         messages.success(request, 'Profesor eliminado exitosamente.')
     return redirect('profesores')
 
+
+@login_required
 def aulas_por_institucion(request, id_institucion):
     print(id_institucion)
     aulas = Aula.objects.filter(id_institucion=id_institucion).values('id_aula', 'nro_aula')
     print(aulas)
     return JsonResponse(list(aulas), safe=False)
 
+
+@login_required
 def horarios_por_profesor(request, id_profesor):
-    horarios = Horario.objects.filter(id_profesor=id_profesor).select_related('id_aula')
+    horarios = Horario.objects.filter(id_profesor=id_profesor).select_related('id_aula').order_by('dia', 'hora_inicio')
+    dias_ordenados = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+    horarios_ordenados = sorted(horarios, key=lambda h: dias_ordenados.index(h.dia))
+
     data = [
         {
             'id_horario': h.id_horario,
             'dia': h.dia,
-            'hora_inicio': str(hora_inicio),
-            'hora_termino': str(hora_termino),
+            'hora_inicio': str(h.hora_inicio),
+            'hora_termino': str(h.hora_termino),
             'nombre_aula': h.id_aula.nro_aula,
         }
-        for h in horarios
+        for h in horarios_ordenados
     ]
     return JsonResponse(data, safe=False)
 
-@csrf_exempt
+
+@login_required
 def eliminar_horario(request, id_horario):
     if request.method == 'POST':
         try:
@@ -557,7 +685,7 @@ def eliminar_horario(request, id_horario):
 
 from datetime import time
 
-@csrf_exempt  # Solo si no manejas CSRF en el fetch, de lo contrario omite esto
+@login_required
 def agregar_horario(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -578,10 +706,76 @@ def agregar_horario(request):
         return JsonResponse({'success': True, 'message': 'Horario agregado correctamente'})
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
+@login_required
+def exportar_profesores_y_horarios_csv(request):
+    profesores = Profesor.objects.all()
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="profesores_y_horarios.xlsx"'
+
+    # Crear el libro y la hoja
+    workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+    worksheet_profesores = workbook.add_worksheet("Profesores")
+    worksheet = workbook.add_worksheet("Profesores y Horarios")
+
+    # Formato para encabezados
+    header_format = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'bg_color': '#D9EAD3'})
+    subheader_format = workbook.add_format({'bold': True, 'align': 'left', 'valign': 'vcenter', 'bg_color': '#F4CCCC'})
+
+    # Página de Profesores
+    worksheet_profesores.write_row('A1', [
+        'RUT Profesor', 'Nombre Completo', 'Correo', 'Sexo', 'Altura', 'Peso', 
+        'Antecedentes Médicos', 'Área de Docencia'
+    ], header_format)
+
+    row = 1
+    for profesor in profesores:
+        nombre_completo = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
+        worksheet_profesores.write_row(row, 0, [
+            profesor.rut_profesor,
+            nombre_completo,
+            profesor.correo_profesor,
+            profesor.sexo,
+            profesor.altura or '',
+            profesor.peso or '',
+            profesor.antecedentes_medicos or '',
+            profesor.area_docencia
+        ])
+        row += 1
+
+
+    row = 0
+    for profesor in profesores:
+        # Escribir el nombre del profesor como subencabezado
+        nombre_completo = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
+        worksheet.write(row, 0, nombre_completo, subheader_format)
+        row += 1
+
+        # Escribir encabezados para los horarios
+        worksheet.write_row(row, 0, ['Día', 'Hora Inicio', 'Hora Término', 'Aula'], header_format)
+        row += 1
+
+        # Escribir los horarios del profesor
+        horarios = Horario.objects.filter(id_profesor=profesor).select_related('id_aula')
+        for horario in horarios:
+            worksheet.write_row(row, 0, [
+                horario.dia,
+                horario.hora_inicio.strftime('%H:%M'),
+                horario.hora_termino.strftime('%H:%M'),
+                horario.id_aula.nro_aula
+            ])
+            row += 1
+
+        # Línea en blanco entre profesores
+        row += 1
+
+    workbook.close()
+    return response
 
 
 
 
+
+@login_required
 def dispositivos_iot(request):
     busqueda = request.GET.get('busqueda', '')
     dispositivos = Dispositivo_IoT.objects.all()
@@ -589,7 +783,10 @@ def dispositivos_iot(request):
     if busqueda:
         dispositivos = dispositivos.filter(
             Q(mac_dispositivo__icontains=busqueda) |
-            Q(tipo_dispositivo__icontains=busqueda)
+            Q(tipo_dispositivo__icontains=busqueda) |
+            Q(relacion_aula__id_aula__nro_aula__icontains=busqueda) |
+            Q(relacion_profesor__id_profesor__nombre_profesor__icontains=busqueda) |
+            Q(relacion_profesor__id_profesor__apellido_profesor__icontains=busqueda) 
         )
 
     resultado = []
@@ -605,7 +802,7 @@ def dispositivos_iot(request):
             rel_aula = Relacion_Aula.objects.get(id_dispositivo=dispositivo)
             aula = rel_aula.id_aula
             entrada['estado'] = 'Asignado'
-            entrada['usuario'] = f"Aula {aula.nro_aula}"
+            entrada['usuario'] = f"{aula.nro_aula}"
             entrada['institucion'] = aula.id_institucion.nombre_institucion
         except Relacion_Aula.DoesNotExist:
             try:
@@ -623,19 +820,38 @@ def dispositivos_iot(request):
 
         resultado.append(entrada)
 
+    paginator = Paginator(resultado, 10)  # 10 dispositivos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Cálculo de rango de páginas para mostrar
+    page_range = []
+    if paginator.num_pages <= 10:
+        page_range = range(1, paginator.num_pages + 1)
+    else:
+        if page_obj.number <= 6:
+            page_range = list(range(1, 8)) + ['…', paginator.num_pages]
+        elif page_obj.number > paginator.num_pages - 6:
+            page_range = [1, '…'] + list(range(paginator.num_pages - 6, paginator.num_pages + 1))
+        else:
+            page_range = [1, '…'] + list(range(page_obj.number - 2, page_obj.number + 3)) + ['…', paginator.num_pages]
+
     instituciones = Institucion.objects.all()
     context = {
-        'dispositivos': resultado,
+        'dispositivos': page_obj,  # Aquí pasamos solo la página actual
+        'page_obj': page_obj,
+        'page_range': page_range,
         'busqueda': busqueda,
         'instituciones': instituciones,
     }
-
+    # print("Contexto para renderizar:", context)  # Para depurar
     return render(request, 'Dispositivos-IoT/base-IoT.html', context)
 
 
 
 
 
+@login_required
 def crear_dispositivo(request):
     if request.method == 'POST':
         mac_dispositivo = request.POST.get('mac_dispositivo')
@@ -667,6 +883,8 @@ def crear_dispositivo(request):
 
     return redirect('iot')  # Redirige a la lista de dispositivos después de agregar uno
 
+
+@login_required
 def eliminar_dispositivo(request, mac):
     dispositivo = get_object_or_404(Dispositivo_IoT, mac_dispositivo=mac)
     if request.method == 'POST':
@@ -676,6 +894,8 @@ def eliminar_dispositivo(request, mac):
 
     return render(request, 'confirmar_eliminacion.html', {'dispositivo': dispositivo})
 
+
+@login_required
 def obtener_opciones(request, institucion_id, tipo):
     if tipo == 'aula':
         aulas = Aula.objects.filter(id_institucion=institucion_id)
@@ -687,11 +907,12 @@ def obtener_opciones(request, institucion_id, tipo):
         data = []
     return JsonResponse(data, safe=False)
 
-
+@login_required
 def vista_dispositivos(request):
     instituciones = Institucion.objects.all()
     return render(request, 'tabla-iot.html', {'instituciones': instituciones})
 
+@login_required
 def asignar_dispositivo(request):
     if request.method == 'POST':
         mac = request.POST.get('mac')
@@ -709,17 +930,25 @@ def asignar_dispositivo(request):
             mensaje_cambio = None
 
             if relacion_aula.exists():
-                relacion_aula_obj = relacion_aula.first()
-                if relacion_aula_obj and relacion_aula_obj.id_aula:
-                    aula = relacion_aula_obj.id_aula.nro_aula
-                    relacion_aula.delete()
-                    aula_obj = Aula.objects.get(nro_aula=aula, id_institucion=relacion_aula_obj.id_aula.id_institucion)
-                    nueva_aula = Aula.objects.get(id_aula=destino_id)
-                    mensaje_cambio = f"Se ha cambiado la relación de Aula {aula_obj.nro_aula} de la institución {aula_obj.id_institucion.nombre_institucion} a Aula {nueva_aula.nro_aula} de la institución {nueva_aula.id_institucion.nombre_institucion}."
+                if request.user.is_superuser or request.user.groups.filter(name='Fonoaudiólogo').exists():
+                    relacion_aula_obj = relacion_aula.first()
+                    if relacion_aula_obj and relacion_aula_obj.id_aula:
+                        aula = relacion_aula_obj.id_aula.nro_aula
+                        relacion_aula.delete()
+                        aula_obj = Aula.objects.get(nro_aula=aula, id_institucion=relacion_aula_obj.id_aula.id_institucion)
+                        nueva_aula = Aula.objects.get(id_aula=destino_id)
+                        mensaje_cambio = f"Se ha cambiado la relación de Aula {aula_obj.nro_aula} de la institución {aula_obj.id_institucion.nombre_institucion} a Aula {nueva_aula.nro_aula} de la institución {nueva_aula.id_institucion.nombre_institucion}."
+                else:
+                    messages.error(request, "No tienes permiso para cambiar la relación de un aula.")
+                    return redirect('iot')
             elif relacion_profesor.exists():
-                profesor = relacion_profesor.first().id_profesor
-                relacion_profesor.delete()
-                mensaje_cambio = f"Se ha cambiado la relación de Profesor {profesor.nombre_profesor} {profesor.apellido_profesor} a Profesor {Profesor.objects.get(id_profesor=destino_id).nombre_profesor} {Profesor.objects.get(id_profesor=destino_id).apellido_profesor}."
+                if request.user.is_superuser or request.user.groups.filter(name='Fonoaudiólogo').exists():
+                    profesor = relacion_profesor.first().id_profesor
+                    relacion_profesor.delete()
+                    mensaje_cambio = f"Se ha cambiado la relación de Profesor {profesor.nombre_profesor} {profesor.apellido_profesor} a Profesor {Profesor.objects.get(id_profesor=destino_id).nombre_profesor} {Profesor.objects.get(id_profesor=destino_id).apellido_profesor}."
+                else:
+                    messages.error(request, "No tienes permiso para cambiar la relación de un profesor.")
+                    return redirect('iot')
 
             if mensaje_cambio:
                 messages.info(request, mensaje_cambio)
@@ -748,16 +977,85 @@ def asignar_dispositivo(request):
 
     return redirect('iot')  # Redirige a la lista de dispositivos después de intentar asignar uno
 
+
+@login_required
+def exportar_dispositivos_iot_csv(request):
+    dispositivos = Dispositivo_IoT.objects.all()
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="dispositivos_iot.xlsx"'
+
+    # Crear el libro y la hoja
+    workbook = xlsxwriter.Workbook(response, {'in_memory': True})
+    worksheet = workbook.add_worksheet("Dispositivos IoT")
+
+    # Formato para encabezados
+    header_format = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'bg_color': '#D9EAD3'})
+
+    # Escribir encabezados
+    worksheet.write_row('A1', ['MAC Dispositivo', 'Tipo Dispositivo', 'Estado', 'Usuario', 'Institución'], header_format)
+
+    row = 1
+    for dispositivo in dispositivos:
+        entrada = {
+            'mac': dispositivo.mac_dispositivo,
+            'tipo': dispositivo.get_tipo_dispositivo_display(),
+        }
+
+        # Verificar si está asociado a un aula
+        try:
+            rel_aula = Relacion_Aula.objects.get(id_dispositivo=dispositivo)
+            aula = rel_aula.id_aula
+            entrada['estado'] = 'Asignado'
+            entrada['usuario'] = f"Aula {aula.nro_aula}"
+            entrada['institucion'] = aula.id_institucion.nombre_institucion
+        except Relacion_Aula.DoesNotExist:
+            try:
+                # Si no está asociado a aula, buscar si está a un profesor
+                rel_profesor = Relacion_Profesor.objects.get(id_dispositivo=dispositivo)
+                profesor = rel_profesor.id_profesor
+                entrada['estado'] = 'Asignado'
+                entrada['usuario'] = f"{profesor.nombre_profesor} {profesor.apellido_profesor}"
+                entrada['institucion'] = profesor.id_institucion.nombre_institucion
+            except Relacion_Profesor.DoesNotExist:
+                # Caso no asignado
+                entrada['estado'] = 'Libre'
+                entrada['usuario'] = None
+                entrada['institucion'] = None
+
+        worksheet.write_row(row, 0, [
+            entrada['mac'],
+            entrada['tipo'],
+            entrada['estado'],
+            entrada['usuario'] or '-',
+            entrada['institucion'] or '-'
+        ])
+        row += 1
+    workbook.close()
+    return response
+
+
+
+
+
+
+
+
+
+
+
+@login_required
 def obtener_instituciones(request):
     instituciones = Institucion.objects.all().values('id', 'nombre_institucion')
     return JsonResponse(list(instituciones), safe=False)
 
+@login_required
 def profesores_por_institucion(request, id_institucion):
     profesores = Profesor.objects.filter(id_institucion_id=id_institucion).values(
         'id_profesor', 'nombre_profesor', 'apellido_profesor'
     )
     return JsonResponse(list(profesores), safe=False)
 
+@login_required
 def aulas_por_institucion(request, id_institucion):
     aulas = Aula.objects.filter(id_institucion_id=id_institucion).values(
         'id_aula', 'nro_aula'
@@ -765,6 +1063,7 @@ def aulas_por_institucion(request, id_institucion):
     return JsonResponse(list(aulas), safe=False)
 
 
+@login_required
 def usuarios(request):
     return render(request, 'usuarios.html')
 
@@ -772,9 +1071,11 @@ def usuarios(request):
 from django.shortcuts import render
 from .models import Institucion
 
+
 def estadisticas(request):
     instituciones = Institucion.objects.all()
-
+    resultados = []  # <-- Asegura que siempre exista
+    fechas_iguales = False  # Variable para indicar si las fechas son iguales
     if request.method == 'POST':
         id_institucion = int(request.POST.get('institucion'))
         id_profesor_raw = request.POST.get('profesor')
@@ -782,42 +1083,60 @@ def estadisticas(request):
 
         fecha_inicio_raw = request.POST.get('fecha_inicio')
         fecha_fin_raw = request.POST.get('fecha_fin')
+
+        #comprueba si la fecha inicio y fin son iguales True o False
+        if fecha_inicio_raw and fecha_fin_raw:
+            fecha_inicio_comp = datetime.strptime(fecha_inicio_raw, '%Y-%m-%dT%H:%M')
+            fecha_fin_comp = datetime.strptime(fecha_fin_raw, '%Y-%m-%dT%H:%M')
+            fechas_iguales = fecha_inicio_comp.date() == fecha_fin_comp.date()
+        else:
+            fechas_iguales = False
+
+
         print(f"Fecha Inicio: {fecha_inicio_raw}, Fecha Fin: {fecha_fin_raw}, Institución: {id_institucion}, Profesor: {id_profesor}")
 
         if fecha_inicio_raw and fecha_fin_raw:
             fecha_inicio_str, hora_inicio_str = fecha_inicio_raw.split('T')
             fecha_fin_str, hora_fin_str = fecha_fin_raw.split('T')
 
-            fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str)
+            fechas, detalles, dt_inicio, dt_fin = generar_rango_fechas_con_dia(
+                fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str
+            )
             horarios = buscar_horarios(detalles, id_institucion, dt_inicio, dt_fin, id_profesor)
 
-            resultados = []
-
-            contador = 0  # Inicializar contador
             for horario in horarios:
-                print(f"\nAula: {horario['id_aula']}, Fecha: {horario['fecha']}, Hora Inicio: {horario['hora_inicio']}")
-                
-                for medicion in horario['registros_ruido']:
-                    contador += 1
-                    print(f"  Ruido {contador}. {medicion['fecha_hora']}: {medicion['ruido']} dB")
-                
-                for medicion in horario['registros_humedad']:
-                    print(f"  Humedad: {medicion['fecha_hora']}: {medicion['humedad']}%")
-                
-                for medicion in horario['registros_temperatura']:
-                    print(f"  Temperatura: {medicion['fecha_hora']}: {medicion['temperatura']}°C")
-                
-                for medicion in horario['registros_co2']:
-                    print(f"  CO2: {medicion['fecha_hora']}: {medicion['co2']} ppm")
-                
-                for medicion in horario['registros_voz']:
-                    print(f"  Voz: {medicion['fecha_hora']}: Frecuencia {medicion['freq']} Hz, Intensidad {medicion['intensidad']} dB")
+                # Procesamiento (todo lo que ya tienes)
+                #print(f"Procesando horario: {horario}")
+                resultados.append(horario)
+    
+    
 
-    return render(request, 'Estadisticas/base-estadisticas.html', {'instituciones': instituciones})
+    context = {
+        'instituciones': instituciones,
+        'graficos': [
+            ("Frecuencia Fundamental (Hz)", "graficoFrecuencia"),
+            ("Intensidad de la Voz (dB)", "graficoIntensidad"),
+            ("Ruido Ambiental (dB)", "graficoRuido"),
+            ("Temperatura (°C)", "graficoTemperatura"),
+            ("Humedad Relativa (%)", "graficoHumedad"),
+            ("Concentración de CO₂ (ppm)", "graficoCO2"),
+        ],
+    }
+
+    print(f"Fechas Iguales: {fechas_iguales}")
+
+    if resultados:
+        context['fechas_iguales'] = fechas_iguales
+        context['resultados_json'] = mark_safe(json.dumps(resultados))
+
+    return render(request, 'Estadisticas/base-estadisticas.html', context)
+
+
 
 
 
 from collections import defaultdict
+
 
 def asignar_fechas_a_horarios(horarios, detalles_por_dia):
     # Agrupar fechas por día de semana
@@ -853,6 +1172,7 @@ dias_semana = {
     5: 'Sábado',
     6: 'Domingo'
 }
+
 
 def generar_rango_fechas_con_dia(fecha_inicio_str, hora_inicio_str, fecha_fin_str, hora_fin_str):
     inicio = datetime.strptime(f"{fecha_inicio_str} {hora_inicio_str}", "%Y-%m-%d %H:%M")
@@ -895,24 +1215,22 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
         hora_inicio = datetime.strptime(detalle['hora_inicio'], "%H:%M").time()
         hora_fin = datetime.strptime(detalle['hora_fin'], "%H:%M").time()
 
-        filtros = {
-            'dia': dia,
-            'hora_inicio__gte': hora_inicio,
-            'hora_termino__lte': hora_fin,
-            'id_aula__id_institucion': id_institucion
-        }
+        filtros = Q(dia=dia) & Q(id_aula__id_institucion=id_institucion) & (
+            Q(hora_inicio__lte=hora_fin) & Q(hora_termino__gte=hora_inicio)
+        )
 
         if id_profesor:
-            filtros['id_profesor_id'] = id_profesor
+            filtros &= Q(id_profesor_id=id_profesor)
 
-        horarios = Horario.objects.filter(**filtros).select_related('id_profesor', 'id_aula')
+        horarios = Horario.objects.filter(filtros).select_related('id_profesor', 'id_aula')
+
         for horario in horarios:
             dt_hora_inicio = datetime.strptime(f"{fecha} {horario.hora_inicio.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
             dt_hora_termino = datetime.strptime(f"{fecha} {horario.hora_termino.strftime('%H:%M')}", "%Y-%m-%d %H:%M")
 
 
 
-            if dt_hora_inicio >= dt_inicio and dt_hora_termino <= dt_fin:
+            if dt_hora_inicio <= dt_fin and dt_hora_termino >= dt_inicio:
                 # 🔹 Obtener registros de ruido
                 registros_ruido = Aula_Ruido.objects.filter(
                     id_aula=horario.id_aula,
@@ -985,10 +1303,10 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
                 ]
 
                 resultados.append({
-                    "id_aula": horario.id_aula.id_aula,
+                    "id_aula": horario.id_aula.nro_aula,
                     "hora_inicio": horario.hora_inicio.strftime("%H:%M"),
                     "hora_termino": horario.hora_termino.strftime("%H:%M"),
-                    "profesor": horario.id_profesor.nombre_profesor,
+                    "profesor": f"{horario.id_profesor.nombre_profesor} {horario.id_profesor.apellido_profesor}",
                     "dia": horario.dia,
                     "fecha": fecha,
                     "registros_ruido": lista_ruido,
@@ -997,7 +1315,7 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
                     "registros_co2": lista_co2,
                     "registros_voz": lista_voz
                 })
-
+    #print(f"Resultados encontrados: {len(resultados)}")
     return resultados
 
 
@@ -1007,6 +1325,58 @@ def buscar_horarios(detalles_por_dia, id_institucion, dt_inicio, dt_fin, id_prof
 
 
 
+
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.models import Group
+from django.urls import reverse
+
+
+def login_view(request):
+
+    if request.user.is_authenticated:
+        # Redirección según tipo de usuario
+        if request.user.is_staff:
+            return redirect(reverse('admin:index'))  
+        elif request.user.groups.filter(name='Fonoaudiólogo').exists():
+            return redirect('index')
+        elif request.user.groups.filter(name='Académico').exists():
+            return redirect('index')
+        else:
+            return render(request, 'login.html', {'error': 'Ha ocurrido un error al iniciar sesión.'})
+
+
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+
+            # Redirección según tipo de usuario
+            if user.is_staff:
+                return redirect(reverse('admin:index'))  
+            elif user.groups.filter(name='Fonoaudiólogo').exists():
+                return redirect('index')
+            elif user.groups.filter(name='Académico').exists():
+                return redirect('index')
+            else:
+                return render(request, 'login.html', {'error': 'Ha ocurrido un error al iniciar sesión.'})
+        else:
+            return render(request, 'login.html', {'error': 'Credenciales inválidas'})
+    return render(request, 'login.html')
+
+@login_required    
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+def error_404_view(request, exception):
+    return render(request, '404.html', status=404)
 
 
 

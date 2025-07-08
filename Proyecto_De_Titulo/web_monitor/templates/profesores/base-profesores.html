@@ -23,6 +23,9 @@
 
     <div class="card-body text-center" style="background-color: white;">
       <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarProfesor">Agregar Profesor</a>
+      <a href="{% url 'exportar_profesores_y_horarios_csv' %}" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exportar
+      </a>
  </div>
       {% include 'profesores/modals/agregar.html' %}
 

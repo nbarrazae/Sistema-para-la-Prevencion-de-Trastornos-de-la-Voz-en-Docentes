@@ -23,6 +23,9 @@
 
     <div class="card-body text-center" style="background-color: white;">
       <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarDispositivo">Agregar Dispositivo IoT</a>
+      <a href="{% url 'exportar_dispositivos_iot_csv' %}" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exportar
+      </a>
     </div>
       {% include 'Dispositivos-IoT/modals/agregar.html' %}
 

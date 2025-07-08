@@ -1,16 +1,16 @@
 {% extends 'sideNavbar.html' %}
 {% load static %}
-
 {% block title %}Estadísticas{% endblock %}
+{% load custom_filters %}
 
 {% block content %}
-<h1 class="text-primary">Estadísticas</h1>
+<h1 class="text-primary mb-3">Estadísticas</h1>
 <p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
 
-<form method="POST">
+<form method="POST" class="mb-4">
     {% csrf_token %}
     
-    <div class="row mb-3">
+    <div class="row g-3">
         <div class="col-md-4">
             <label for="institucion" class="form-label">Institución</label>
             <select id="institucion" name="institucion" class="form-select" required>
@@ -26,24 +26,47 @@
                 <option value="">Seleccione un profesor</option>
             </select>
         </div>
-        <div class="col-md-4 form-fecha-hora" >
+        <div class="col-md-4">
             <label for="fecha_inicio" class="form-label">Fecha y hora inicio</label>
             <input type="datetime-local" id="fecha_inicio" name="fecha_inicio" class="form-control" required>
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-4 offset-md-8 form-fecha-hora">
+    <div class="row g-3 mt-3">
+        <div class="col-md-4 offset-md-8">
             <label for="fecha_fin" class="form-label">Fecha y hora fin</label>
             <input type="datetime-local" id="fecha_fin" name="fecha_fin" class="form-control" required>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Consultar</button>
+    <div class="mt-4 text-center">
+        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Consultar</button>
+    </div>
 </form>
 
-{% endblock %}
+{% if resultados_json %}
+    <script>
+        const resultados = {{ resultados_json|safe }};
+        const fechas_iguales = {{ fechas_iguales|safe }};
+    </script>
 
+    {% if fechas_iguales %}
+        {% include 'Estadisticas/partials/grafico-lineal.html' %}
+        
+    {% else %}
+        {% include 'Estadisticas/partials/diagrama-cajas.html' %}
+    {% endif %}
+{% endif %}
+
+
+{% endblock %}
 {% block extra_js %}
-<script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/EStadisticas/profesores_por_institucion.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    {% if resultados_json and fechas_iguales %}
+        <script src="{% static 'js/EStadisticas/grafico-lineal.js' %}"></script>
+    {% elif resultados_json %}
+        <script src="{% static 'js/EStadisticas/diagrama-cajas.js' %}"></script>
+    {% endif %}
 {% endblock %}
