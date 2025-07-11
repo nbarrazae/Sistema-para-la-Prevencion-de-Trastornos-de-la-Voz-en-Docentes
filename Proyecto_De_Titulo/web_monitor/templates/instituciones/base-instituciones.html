@@ -1,73 +1,20 @@
-{% extends 'sideNavbar.html' %}
-{% load static %}
-{% block title %}FACSA{% endblock %}
-
-{% block content %}
-{% if messages %}
-<div class="container mt-3">
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-    </div>
-  {% endfor %}
+<div class="card-body text-center" style="background-color: white;">
+  <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a>
+  <a href="{% url 'exportar_instituciones_csv' %}" class="btn btn-success">
+    <i class="fas fa-file-excel"></i> Exportar
+  </a>
 </div>
-{% endif %} 
 
-<body style="background-color: #f3f3f3;">
-  <!-- <h1 class="text-primary">Cargando Instituciones </h1>
-  <p>Plataforma de adquisición de parámetros de voz y variables ambientales.</p>
-  <p>Instituciones que participan en el proyecto:</p> -->
+{% include 'instituciones/modals/agregar.html' %}
 
-  <div class="card mb-3" style="background-color: white;"> 
+<!-- Buscador -->
+<form method="get" id="formBuscadorInstituciones" class="mb-3 d-flex gap-2">
+  <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o RUT" value="{{ request.GET.busqueda }}" style="width: 90% !important; margin-left: 1% !important;">
+  <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
 
-    <!-- <div class="card-body text-center" style="background-color: white;">
-      <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a> </div> -->
-    
-      <div class="card-body text-center" style="background-color: white;">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">Agregar Institución</a>
-        <a href="{% url 'exportar_instituciones_csv' %}" class="btn btn-success">
-          <i class="fas fa-file-excel"></i> Exportar
-        </a>
-      </div>
-      
-      {% include 'instituciones/modals/agregar.html' %}
-      
-      {% include 'instituciones/modals/agregar.html' %}
-
-      <!-- Buscador -->
-      <form method="get" id="formBuscadorInstituciones" class="mb-3 d-flex gap-2">
-        <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o RUT" value="{{ request.GET.busqueda }}" style="width: 90% !important; margin-left: 1% !important ; ">
-        <button type="submit" class="btn btn-primary">Buscar</button>
-      </form>
-    
-      {% include 'instituciones/tabla-instituciones.html' %}
-
-      
-      {% include 'instituciones/modals/detalle.html' %}
-      {% include 'instituciones/modals/editar.html' %}
-      {% include 'instituciones/modals/eliminar.html' %}
-      {% include 'instituciones/modals/aulas.html' %}
-    {% endblock %}
-    
-
-  
-
-
-
-
-    </div>
-
-    {% block extra_js %}
-    <script src="{% static 'js/instituciones-js/eliminar.js' %}"></script>
-    <script src="{% static 'js/instituciones-js/editar.js' %}"></script>
-    <script src="{% static 'js/instituciones-js/detalle.js' %}"></script>
-    <script src="{% static 'js/instituciones-js/aulas.js' %}"></script>
-  {% endblock %}
-
-  </div>
-    
-
-
-
-</body>
+{% include 'instituciones/tabla-instituciones.html' %}
+{% include 'instituciones/modals/detalle.html' %}
+{% include 'instituciones/modals/editar.html' %}
+{% include 'instituciones/modals/eliminar.html' %}
+{% include 'instituciones/modals/aulas.html' %}
