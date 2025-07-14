@@ -5,19 +5,22 @@ import random
 from time import sleep
 
 # ---------- CONFIGURACIÓN ----------
-BROKER = "localhost"
+BROKER = "146.83.194.142"
 TOPIC = "test/topic"
-MAC = "00:1B:44:11:3A:B8"
+MAC = "cc:db:a7:35:6c:a4"
 
 TOTAL_MINUTOS = 60 * 6     # Ej. 1 hora de datos
 INTERVALO = 60         # Un dato por minuto (en segundos)
 
-# Inicializar cliente MQTT
+# # Inicializar cliente MQTT
+# client = mqtt.Client()
+# client.connect(BROKER)
+# # Inicializar cliente MQTT
 client = mqtt.Client()
-client.connect(BROKER)
+client.connect(BROKER, port=1712)
 
 # Tiempo base simulado
-hora_inicio = datetime(2025, 7, 2, 18, 0, 0)  # Puedes cambiar la hora de inicio
+hora_inicio = datetime(2025, 7, 14, 8 , 0, 0)  # Puedes cambiar la hora de inicio
 
 print(f"Generando {TOTAL_MINUTOS} registros por variable...")
 

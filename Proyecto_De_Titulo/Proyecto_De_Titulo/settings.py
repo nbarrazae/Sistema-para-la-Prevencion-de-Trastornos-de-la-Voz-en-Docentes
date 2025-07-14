@@ -146,10 +146,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración MQTT
 
-# MQTT_BROKER = "146.83.194.142"  # Cambia por tu broker
-#MQTT_PORT = 1712  # Puerto por defecto de MQTT 1883
-MQTT_BROKER = "192.168.0.11"
-MQTT_PORT = 1883
+MQTT_BROKER = "146.83.194.142"  # Cambia por tu broker
+MQTT_PORT = 1712  # Puerto por defecto de MQTT 1883
+#MQTT_BROKER = "192.168.0.11"
+#MQTT_PORT = 1883
 MQTT_TOPIC = "test/topic"  # Suscripción a múltiples dispositivos
 
 # Opcional: Usuario y contraseña (si el broker lo requiere)

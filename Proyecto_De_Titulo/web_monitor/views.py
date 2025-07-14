@@ -1106,6 +1106,7 @@ def usuarios(request):
 from django.shortcuts import render
 from .models import Institucion
 
+@login_required
 
 def estadisticas(request):
     instituciones = Institucion.objects.all()
