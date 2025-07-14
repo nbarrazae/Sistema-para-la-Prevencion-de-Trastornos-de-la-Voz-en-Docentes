@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const validarDireccion = () => {
         const direccion = campos.direccion.input.value.trim();
-        const patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$/;
+        const patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:'"]+$/;
 
         if (direccion.length < 5) {
             campos.direccion.error.textContent = 'La dirección debe tener mínimo 5 caracteres';

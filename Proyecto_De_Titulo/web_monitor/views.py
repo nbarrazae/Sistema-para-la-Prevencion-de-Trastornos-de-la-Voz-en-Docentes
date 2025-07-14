@@ -40,6 +40,7 @@ from web_monitor.validators.aulas import (
     validate_tamano,
     validate_cantidad_alumnos,
     validate_descripcion,
+    validate_aulas_data,
     normalizar_nro_aula,
     normalizar_descripcion
 )
@@ -270,45 +271,61 @@ def crear_aula(request, pk):
             print("📥 Recibido POST JSON")
 
             data = json.loads(request.body)
-            print("Contenido del JSON:", data)  # 👈 Aquí ves qué se está enviando
+            print("Contenido del JSON:", data)
 
-            # Normalizar entradas
-            nro_aula_limpio = normalizar_nro_aula(data.get("nro_aula"))
-            descripcion_limpio = normalizar_descripcion(data.get("descripcion"))
+            # 🔄 Normalizar y convertir tipos
+            nro_aula_limpio = normalizar_nro_aula(data.get("nro_aula", ""))
 
-            # Validaciones
-            validate_nro_aula(nro_aula_limpio)
-            validate_tamano(data.get("tamanio"))
-            validate_cantidad_alumnos(data.get("cantidad_alumnos"))
-            validate_descripcion(descripcion_limpio)
+            try:
+                tamano_limpio = int(data.get("tamanio", 0))
+            except (ValueError, TypeError):
+                tamano_limpio = None
 
-            # Verificar unicidad
+            try:
+                cantidad_alumnos_limpio = int(data.get("cantidad_alumnos", 0))
+            except (ValueError, TypeError):
+                cantidad_alumnos_limpio = None
+
+            descripcion_limpia = normalizar_descripcion(data.get("descripcion", ""))
+
+            # ✅ Validar datos
+            validate_aulas_data(
+                nro_aula_limpio,
+                tamano_limpio,
+                cantidad_alumnos_limpio,
+                descripcion_limpia
+            )
+
+            # 🔍 Verificar unicidad del número de aula en la misma institución
             errores = []
             if Aula.objects.filter(nro_aula=nro_aula_limpio, id_institucion_id=pk).exists():
-                errores.append('Ya existe un aula con ese número en esta institución.')
+                errores.append("Ya existe un aula con ese número en esta institución.")
 
-            # Si hay errores, devolverlos todos juntos
             if errores:
                 return JsonResponse({'error': errores}, status=400)
 
-            # Crear el aula
+            # 💾 Crear el aula
             aula = Aula(
                 nro_aula=nro_aula_limpio,
-                tamaño=data.get("tamanio"),
-                cantidad_alumnos=data.get("cantidad_alumnos"),
-                descripcion=descripcion_limpio,
-                id_institucion_id=pk  # 👈 Ya viene en la URL
+                tamaño=tamano_limpio,
+                cantidad_alumnos=cantidad_alumnos_limpio,
+                descripcion=descripcion_limpia,
+                id_institucion_id=pk
             )
             aula.save()
 
-            return JsonResponse({"success": True}, status=200)
+            return JsonResponse({"success": True})
+
         except ValidationError as e:
             return JsonResponse({'error': e.messages}, status=400)
-        except IntegrityError as e:
+
+        except IntegrityError:
             return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
+
         except Exception as e:
             print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
+
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
 @login_required
@@ -325,44 +342,63 @@ def modificar_aula(request, pk):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
+            print("📥 Recibido POST JSON para modificar aula")
 
-            # Normalizar entradas
-            nro_aula_limpio = normalizar_nro_aula(data.get("nro_aula"))
-            descripcion_limpio = normalizar_descripcion(data.get("descripcion"))
+            # 🔄 Normalizar y convertir tipos
+            nro_aula_limpio = normalizar_nro_aula(data.get("nro_aula", ""))
+            try:
+                tamano_limpio = int(data.get("tamanio", 0))
+            except (ValueError, TypeError):
+                tamano_limpio = None
 
-            # Validaciones
-            validate_nro_aula(nro_aula_limpio)
-            validate_tamano(data.get("tamanio"))
-            validate_cantidad_alumnos(data.get("cantidad_alumnos"))
-            validate_descripcion(descripcion_limpio)
+            try:
+                cantidad_alumnos_limpio = int(data.get("cantidad_alumnos", 0))
+            except (ValueError, TypeError):
+                cantidad_alumnos_limpio = None
 
-            # Verificar unicidad
+            descripcion_limpia = normalizar_descripcion(data.get("descripcion", ""))
+
+            # ✅ Validar datos
+            validate_aulas_data(
+                nro_aula_limpio,
+                tamano_limpio,
+                cantidad_alumnos_limpio,
+                descripcion_limpia
+            )
+
+            # 🔍 Verificar existencia del aula
+            aula = Aula.objects.get(pk=pk)
+
+            # 🔍 Verificar unicidad del número de aula en la misma institución
             errores = []
-            if Aula.objects.filter(nro_aula=nro_aula_limpio).exclude(pk=pk).exists():
-                errores.append('Ya existe un aula con ese número en esta institución.')
+            if Aula.objects.filter(nro_aula=nro_aula_limpio, id_institucion=aula.id_institucion).exclude(pk=pk).exists():
+                errores.append("Ya existe un aula con ese número en esta institución.")
 
-            # Si hay errores, devolverlos todos juntos
             if errores:
                 return JsonResponse({'error': errores}, status=400)
 
-            # Actualizar el aula
-            aula = Aula.objects.get(pk=pk)
+            # 💾 Modificar el aula
             aula.nro_aula = nro_aula_limpio
-            aula.tamaño = data.get("tamanio", aula.tamaño)
-            aula.cantidad_alumnos = data.get("cantidad_alumnos", aula.cantidad_alumnos)
-            aula.descripcion = descripcion_limpio
+            aula.tamaño = tamano_limpio
+            aula.cantidad_alumnos = cantidad_alumnos_limpio
+            aula.descripcion = descripcion_limpia
             aula.save()
 
-            return JsonResponse({"success": True}, status=200)
-        except Aula.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Aula no encontrada"}, status=404)
+            return JsonResponse({"success": True})
+
         except ValidationError as e:
             return JsonResponse({'error': e.messages}, status=400)
-        except IntegrityError as e:
+
+        except Aula.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Aula no encontrada"}, status=404)
+
+        except IntegrityError:
             return JsonResponse({'error': 'Error de integridad: Verifica los datos ingresados.'}, status=400)
+
         except Exception as e:
             print(f"❌ Error inesperado: {str(e)}")
             return JsonResponse({'error': f'Error inesperado: {str(e)}'}, status=400)
+
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=405)
 
 

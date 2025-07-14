@@ -42,12 +42,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const btnAgregar = document.getElementById('agregarAula');
       if (btnAgregar) {
         btnAgregar.addEventListener('click', function () {
+          // Evita duplicar filas de ingreso
+          if (document.querySelector('#tablaAulas tr input')) return;
+    
           const tabla = document.getElementById('tablaAulas');
           const nuevaFila = document.createElement('tr');
           nuevaFila.innerHTML = `
             <td><input type="text" class="form-control" name="nro_aula" style="width:100px "></td>
-            <td><input type="text" class="form-control" name="tamanio" style="width:100px"></td>
-            <td><input type="text" class="form-control" name="cantidad_alumnos" style="width:100px"></td>
+            <td><input type="number" class="form-control" name="tamanio" style="width:100px"></td>
+            <td><input type="number" class="form-control" name="cantidad_alumnos" style="width:100px"></td>
             <td><input type="text" class="form-control" name="descripcion" style="width:100px"></td>
             <td><button class="btn btn-success btn-sm guardar-aula">Guardar</button></td>
           `;
