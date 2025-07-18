@@ -1,12 +1,62 @@
 {# templates/aulas_contenido.html #}
 
 <style>
-  
-
   .form-control {
     width: 100% !important;
   }
 
+  .error-message {
+    display: none;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+
+  .is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+  }
+
+  .error-general {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Estilos para el placeholder */
+  .placeholder-aulas {
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
+  }
+
+  .placeholder-aulas i {
+    color: #6c757d;
+    margin-bottom: 1rem;
+  }
+
+  .placeholder-aulas p {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .placeholder-aulas small {
+    font-size: 0.9rem;
+    color: #868e96;
+  }
 </style>
 
 <table class="table text-center">
@@ -35,6 +85,16 @@
         <span class="text-muted">No disponible</span>
         
         {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" class="text-center py-4">
+        <div class="text-muted">
+          <i class="fas fa-school fa-2x mb-2"></i>
+          <p class="mb-0">No hay aulas registradas en esta institución</p>
+          <small>Haz clic en "Agregar Aula" para crear una nueva</small>
+        </div>
       </td>
     </tr>
     {% endfor %}
