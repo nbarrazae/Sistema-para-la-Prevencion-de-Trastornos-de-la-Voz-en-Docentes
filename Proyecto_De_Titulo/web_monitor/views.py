@@ -1376,7 +1376,7 @@ def login_view(request):
     if request.user.is_authenticated:
         # Redirección según tipo de usuario
         if request.user.is_staff:
-            return redirect(reverse('admin:index'))  
+            return redirect(('index'))  
         elif request.user.groups.filter(name='Fonoaudiólogo').exists():
             return redirect('index')
         elif request.user.groups.filter(name='Académico').exists():
@@ -1395,7 +1395,7 @@ def login_view(request):
 
             # Redirección según tipo de usuario
             if user.is_staff:
-                return redirect(reverse('admin:index'))  
+                return redirect(('index'))  
             elif user.groups.filter(name='Fonoaudiólogo').exists():
                 return redirect('index')
             elif user.groups.filter(name='Académico').exists():
