@@ -32,6 +32,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 #ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+CSRF_TRUSTED_ORIGINS = ['https://146.83.194.142:1711']
 
 
 # Application definition
@@ -145,10 +146,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración MQTT
 
-# MQTT_BROKER = "146.83.194.142"  # Cambia por tu broker
-#MQTT_PORT = 1712  # Puerto por defecto de MQTT 1883
-MQTT_BROKER = "192.168.0.11"
-MQTT_PORT = 1883
+MQTT_BROKER = "146.83.194.142"  # Cambia por tu broker
+MQTT_PORT = 1712  # Puerto por defecto de MQTT 1883
+#MQTT_BROKER = "192.168.0.11"
+#MQTT_PORT = 1883
 MQTT_TOPIC = "test/topic"  # Suscripción a múltiples dispositivos
 
 # Opcional: Usuario y contraseña (si el broker lo requiere)

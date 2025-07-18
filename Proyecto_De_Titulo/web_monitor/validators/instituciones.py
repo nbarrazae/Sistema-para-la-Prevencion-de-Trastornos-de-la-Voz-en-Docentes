@@ -34,7 +34,7 @@ def validate_direccion(value):
     Permite direcciones con espacios y acentos.
     Ejemplo: 'Avenida Libertador Bernardo O'Higgins 1234'.
     """
-    if len(value) < 5 or len(value) > 100 or not re.match(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:]+$', value):
+    if len(value) < 5 or len(value) > 100 or not re.match(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\(\)\.,:\'\"]+$', value):
         raise ValidationError(
             _('La dirección debe tener al menos 5 caracteres, máximo 100 y solo contener letras, números, espacios y caracteres especiales.'),
             params={'value': value},
