@@ -33,16 +33,23 @@
           {% endif %}
         </td>
         <td>
-          <a 
-            href="#"
-            class="text-primary" 
-            data-bs-toggle="modal" 
-            data-bs-target="#asignarDispositivoModal"
-            data-mac="{{ dispositivo.mac }}"
-            data-tipo="{{ dispositivo.tipo }}"
-            >
-            <i class="fas fa-user-plus"></i>
-          </a>
+          {% if request.user.groups.all.0.name == "Académico" and dispositivo.usuario %}
+            <span class="text-muted">
+              <i class="fas fa-user-plus"></i>
+            </span>
+          {% else %}
+            <a 
+              href="#"
+              class="text-primary" 
+              data-bs-toggle="modal" 
+              data-bs-target="#asignarDispositivoModal"
+              data-mac="{{ dispositivo.mac }}"
+              data-tipo="{{ dispositivo.tipo }}"
+              >
+              <i class="fas fa-user-plus"></i>
+            </a>
+          {% endif %}
+        </td>
         </td>
         {% if request.user.groups.all.0.name != "Académico" %}
 
