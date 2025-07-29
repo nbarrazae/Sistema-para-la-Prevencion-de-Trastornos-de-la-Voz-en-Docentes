@@ -72,6 +72,11 @@ for i in range(TOTAL_MINUTOS):
 client.disconnect()
 print("Finalizado.")
 
+
+
+
+
+
 ########## Datos de Voz  ################
 # import paho.mqtt.client as mqtt
 # import json

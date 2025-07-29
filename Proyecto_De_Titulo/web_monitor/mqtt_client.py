@@ -13,6 +13,14 @@ MQTT_BROKER = settings.MQTT_BROKER
 MQTT_PORT = settings.MQTT_PORT
 MQTT_TOPIC = settings.MQTT_TOPIC
 
+def parse_timestamp_flexible(timestamp: str) -> datetime:
+    formatos = ["%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"]
+    for fmt in formatos:
+        try:
+            return datetime.strptime(timestamp, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"Formato de fecha inválido: {timestamp}")
 def on_connect(client, userdata, flags, rc):
     """ Callback cuando se conecta al broker """
     if rc == 0:
@@ -53,7 +61,8 @@ def on_message(client, userdata, msg):
 
         # Convertir timestamp a objeto datetime
         tz = timezone("America/Santiago")
-        fecha_hora = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        #fecha_hora = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        fecha_hora = parse_timestamp_flexible(timestamp)
         fecha_hora = tz.localize(fecha_hora)
         print(f"Timestamp recibido: {timestamp}")  # ← Agregado para depurar
         print(f"Fecha y hora convertidas: {fecha_hora}")  # ← Agregado para depurar
