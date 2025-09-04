@@ -121,8 +121,6 @@ El sistema es funcional y está listo para ser desplegado, pero se identifican �
 *   **Adaptar la carcasa del registrador de variables ambientales** a la norma española UNE-EN 61672: Electroacústica. Sonómetros, que especifica materiales y posición de componentes.
 *   **Continuar implementando más cálculos y gráficos en la plataforma web**, como el tiempo de fonación, el factor de riqueza armónica, la relación armónico-ruido y el índice diario fonotraumático, entre otros.
 
----
-**Universidad del Bío-Bío, Chile**
-Facultad de Ciencias Empresariales
-Departamento de Sistemas de Información
-```
+
+
+Universidad del Bío-Bío, Chile, Facultad de Ciencias Empresariales, Departamento de Sistemas de Información
