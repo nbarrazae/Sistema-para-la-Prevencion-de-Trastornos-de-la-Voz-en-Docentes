@@ -1,4 +1,3 @@
-```markdown
 # Sistema Accesible de Dosimetría Vocal y Monitorización Ambiental para la Prevención de Trastornos de la Voz en Docentes
 
 Este proyecto de título de Ingeniería Civil en Informática, desarrollado por Nicolás Barraza Estrada y Victor Herrera Merino bajo la dirección de Alejandro Valdés Jiménez en la Universidad del Bío-Bío, Chile (2025), se centra en la prevención de trastornos de la voz en docentes.
