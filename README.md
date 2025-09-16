@@ -30,29 +30,6 @@ El sistema implementado sigue una arquitectura modular (Modelo-Template-Views si
 *   **Servidor Web**: **Nginx** se encarga de la entrega de contenido web y la gestión del tráfico (como proxy inverso para HTTPS y sirviendo archivos estáticos). Se complementa con **Gunicorn** como servidor WSGI para la aplicación Django.
 *   **Frontend**: Utiliza **Bootstrap, HTML, CSS y JavaScript** para renderizar plantillas desde el backend, proporcionando una interfaz de usuario interactiva y dinámica.
 
-## ✨ Características Principales
-
-### Hardware (Dispositivos IoT)
-*   **Dosímetro de Voz**:
-    *   **Microcontrolador**: Placa WeMos D1 R32 ESP32.
-    *   **Sensor de voz**: Micrófono digital MEMS I2S SPH0645, posicionado en el cuello para capturar vibraciones de cuerdas vocales, reduciendo ruido externo.
-    *   **Mediciones**: Frecuencia fundamental de la voz (80-350 Hz) e Intensidad de la voz (30-80 dB).
-    *   **Algoritmos**: Autocorrelación simple con normalización para frecuencia fundamental; cálculo de nivel continuo equivalente con filtro IIR biquad para intensidad, siguiendo la norma UNE-EN 61672.
-    *   **Detección de voz**: Algoritmo para definir si el usuario está hablando basado en amplitud y varianza de los bloques de audio.
-*   **Registrador de Variables Ambientales**:
-    *   **Microcontrolador**: Placa WeMos D1 R32 ESP32.
-    *   **Sensores**: Módulo SCD-30 para CO2, temperatura y humedad relativa. Sensor de ruido industrial ZTS-ZS-BZ-485-05 (con conversor MAX485) capaz de medir por encima de 80 dB.
-    *   **Indicador visual**: Tres LEDs de 3mm (verde, amarillo, rojo) para indicar el nivel de ruido (0-50 dB, 51-85 dB, >86 dB respectivamente).
-    *   **Calibración**: Compensa lecturas del sensor de ruido basadas en calibración con Brüel & Kjaer modelo 4231.
-*   **Almacenamiento y Transmisión de Datos**: Ambos dispositivos guardan datos temporalmente en una tarjeta SD y los envían al servidor remoto a través de MQTT en horarios preestablecidos, en formato JSON.
-
-### Software (Plataforma Web)
-*   **Objetivo**: Recepción, almacenamiento y análisis de variables de voz y parámetros ambientales, facilitando la visualización de datos y el seguimiento de patrones relacionados con trastornos vocales.
-*   **Gestión de Usuarios**: Roles definidos (Administrador, Fonoaudiólogo, Académico) con permisos específicos para control de acceso y protección de información sensible.
-*   **Gestión de Entidades**: Permite la creación, gestión y eliminación de instituciones, aulas, docentes, horarios y dispositivos IoT.
-*   **Visualización de Datos**: Interfaz intuitiva y dinámica con herramientas de filtrado y **gráficos que relacionan los parámetros vocales de un docente con las variables ambientales de las aulas** donde impartió clases.
-*   **Exportación de Datos**: Funcionalidad para exportar estadísticas y datos en formatos como CSV o Excel para análisis adicionales y respaldo externo.
-
 ## 🛠️ Tecnologías Utilizadas
 
 *   **Backend**:
