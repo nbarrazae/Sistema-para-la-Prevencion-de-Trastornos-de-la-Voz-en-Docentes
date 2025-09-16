@@ -22,7 +22,7 @@ La solución es el desarrollo de un **sistema accesible de dosimetría vocal y m
 
 ## 🏗️ Arquitectura del Sistema
 
-<img width="768" height="444" alt="unnamed" src="https://github.com/user-attachments/assets/73d2c949-9862-41c4-89bf-0a51239647f8" />
+<img width="1315" height="761" alt="image" src="https://github.com/user-attachments/assets/bb7cff9d-0e50-4318-bd65-e9c8c9de6007" />
  
 ## 🛠️ Tecnologías Utilizadas
 
