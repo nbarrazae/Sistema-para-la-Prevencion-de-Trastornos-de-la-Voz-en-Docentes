@@ -22,14 +22,8 @@ La solución es el desarrollo de un **sistema accesible de dosimetría vocal y m
 
 ## 🏗️ Arquitectura del Sistema
 
-El sistema implementado sigue una arquitectura modular (Modelo-Template-Views similar a MVC):
-*   **Dispositivos IoT**: Los prototipos de dosimetría vocal y monitorización ambiental capturan datos y los envían utilizando el protocolo MQTT.
-*   **Broker MQTT**: **Mosquitto** actúa como intermediario, recibiendo los mensajes de los dispositivos.
-*   **Backend**: Desarrollado con **Python y Django**, se comunica constantemente con Mosquitto para validar y almacenar los nuevos mensajes en la base de datos.
-*   **Base de Datos**: **PostgreSQL** se utiliza como base de datos relacional para garantizar la integridad de los datos capturados y la información de gestión del sistema.
-*   **Servidor Web**: **Nginx** se encarga de la entrega de contenido web y la gestión del tráfico (como proxy inverso para HTTPS y sirviendo archivos estáticos). Se complementa con **Gunicorn** como servidor WSGI para la aplicación Django.
-*   **Frontend**: Utiliza **Bootstrap, HTML, CSS y JavaScript** para renderizar plantillas desde el backend, proporcionando una interfaz de usuario interactiva y dinámica.
-
+<img width="768" height="444" alt="unnamed" src="https://github.com/user-attachments/assets/73d2c949-9862-41c4-89bf-0a51239647f8" />
+ 
 ## 🛠️ Tecnologías Utilizadas
 
 *   **Backend**:
@@ -79,4 +73,4 @@ El proyecto se organiza en directorios clave:
 
 
 
-Universidad del Bío-Bío, Chile, Facultad de Ciencias Empresariales, Departamento de Sistemas de Información
+Universidad del Bío-Bío, Chile, Facultad de Ciencias Empresariales, Departamento de Ciencias de la Computación y Tecnologías
