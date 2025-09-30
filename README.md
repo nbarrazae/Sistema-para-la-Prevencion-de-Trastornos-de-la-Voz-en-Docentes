@@ -16,7 +16,7 @@ El problema principal es la **falta de acceso a dispositivos de dosimetría voca
 
 La solución es el desarrollo de un **sistema accesible de dosimetría vocal y monitorización ambiental** que integra hardware de bajo costo y software especializado. Esto incluye:
 *   Un **prototipo de dosímetro de voz** para registrar la intensidad y frecuencia de la voz con mayor precisión.
-*   Una **registrador de variables ambientales** para medir la intensidad de ruido de forma confiable, además de temperatura, humedad y dióxido de carbono.
+*   Un **registrador de variables ambientales** para medir la intensidad de ruido de forma confiable, además de temperatura, humedad y dióxido de carbono.
 *   Los dispositivos se conectan a un **servidor remoto para almacenar los datos**.
 *   Una **plataforma web intuitiva** para visualizar gráficos que relacionan los registros vocales de cada docente con las mediciones ambientales de las aulas donde impartió clases, y la posibilidad de exportar los datos para análisis adicionales.
 
